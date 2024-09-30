@@ -108,10 +108,8 @@ namespace WaccaKeyBind
 
             SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
         }
-
-        public static void TouchCombinedTest()
+        public static void Arrows()
         {
-
             var controller = new TouchController();
             controller.Initialize();
             Console.CursorVisible = false;
@@ -131,6 +129,7 @@ namespace WaccaKeyBind
                 bool down_pressed_on_loop = false;
                 bool left_pressed_on_loop = false;
                 bool right_pressed_on_loop = false;
+
                 for (int i = 0; i < 4; i++)
                 {
                     for (int j = 0; j < 60; j++)
@@ -204,6 +203,222 @@ namespace WaccaKeyBind
                             }
                         }
                     }
+                }
+            }
+        
+    }
+        public static void TouchCombinedTest()
+        {
+
+            // Check if vJoy is enabled and ready
+            if (!joystick.vJoyEnabled())
+            {
+                Console.WriteLine("vJoy driver not enabled: Failed to find vJoy.");
+                return;
+            }
+
+            // Acquire the vJoy device
+            VjdStat status = joystick.GetVJDStatus(deviceId);
+
+            if (status == VjdStat.VJD_STAT_FREE)
+            {
+                // Attempt to acquire the joystick
+                if (!joystick.AcquireVJD(deviceId))
+                {
+                    Console.WriteLine("Failed to acquire vJoy device.");
+                    return;
+                }
+                Console.WriteLine("vJoy device acquired successfully.");
+            }
+            else
+            {
+                Console.WriteLine("vJoy device is not free. Status: " + status.ToString());
+                return;
+            }
+
+            // Check available axes
+            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_X))
+                Console.WriteLine("Axis X available");
+            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_Y))
+                Console.WriteLine("Axis Y available");
+            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_Z))
+                Console.WriteLine("Axis Z available");
+            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_RX))
+                Console.WriteLine("Axis RX available");
+            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_RY))
+                Console.WriteLine("Axis RY available");
+            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_RZ))
+                Console.WriteLine("Axis RZ available");
+            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_SL0))
+                Console.WriteLine("Axis SL0 available");
+            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_SL1))
+                Console.WriteLine("Axis SL0 available");
+
+            // XY is the whole circle
+            long x_max = 0;
+            joystick.GetVJDAxisMax(deviceId, HID_USAGES.HID_USAGE_X, ref x_max);
+            long x_min = 0;
+            joystick.GetVJDAxisMin(deviceId, HID_USAGES.HID_USAGE_X, ref x_min);
+            long y_max = 0;
+            joystick.GetVJDAxisMax(deviceId, HID_USAGES.HID_USAGE_Y, ref y_max);
+            long y_min = 0;
+            joystick.GetVJDAxisMin(deviceId, HID_USAGES.HID_USAGE_Y, ref y_min);
+            Console.WriteLine($"x_max: {x_max}   y_max : {y_max}");
+            Console.WriteLine($"x_min: {x_min}   y_min : {y_min}");
+
+            // RX and RY are the outer half of the circle
+            long rx_max = 0;
+            joystick.GetVJDAxisMax(deviceId, HID_USAGES.HID_USAGE_RX, ref rx_max);
+            long rx_min = 0;
+            joystick.GetVJDAxisMin(deviceId, HID_USAGES.HID_USAGE_RX, ref rx_min);
+            long ry_max = 0;
+            joystick.GetVJDAxisMax(deviceId, HID_USAGES.HID_USAGE_RY, ref ry_max);
+            long ry_min = 0;
+            joystick.GetVJDAxisMin(deviceId, HID_USAGES.HID_USAGE_RY, ref ry_min);
+            Console.WriteLine($"rx_max: {rx_max}   ry_max : {ry_max}");
+            Console.WriteLine($"rx_min: {rx_min}   ry_min : {ry_min}");
+            int x_mid = (int)(x_max - x_min) / 2;
+            int y_mid = (int)(y_max - y_min) / 2;
+            int rx_mid = (int)(rx_max - rx_min) / 2;
+            int ry_mid = (int)(ry_max - ry_min) / 2;
+            int x_step = (int)(x_max - x_min) / 30;
+            int y_step = (int)(y_max - y_min) / 30;
+            int rx_step = (int)(rx_max - rx_min) / 30;
+            int ry_step = (int)(ry_max - ry_min) / 30;
+            /*
+             * // Set joystick X axis to midpoint
+        joystick.SetAxis((maxValue - minValue) / 2, deviceId, HID_USAGES.HID_USAGE_X);
+        
+        // Set joystick Y axis to maximum
+        joystick.SetAxis(maxValue, deviceId, HID_USAGES.HID_USAGE_Y);
+
+        // Simulate button presses
+        joystick.SetBtn(true, deviceId, 1); // Press button 1
+        joystick.SetBtn(false, deviceId, 1); // Release button 1
+
+             */
+
+            // yup. defining an array is faster than doing maths
+            // efficiency.
+            // (not sure about the smooth transition from minus to plus)
+            int[][] axes =
+            {
+                new int[] { x_mid - x_step * 1,     y_mid + y_step * 15},  // 0  top circle
+                new int[] { x_mid - x_step * 2,     y_mid + y_step * 14},  // 1
+                new int[] { x_mid - x_step * 3,     y_mid + y_step * 13},  // 2
+                new int[] { x_mid - x_step * 4,     y_mid + y_step * 12},  // 3
+                new int[] { x_mid - x_step * 5,     y_mid + y_step * 11},  // 4
+                new int[] { x_mid - x_step * 6,     y_mid + y_step * 10},  // 5
+                new int[] { x_mid - x_step * 7,     y_mid + y_step * 9},   // 6
+                new int[] { x_mid - x_step * 8,     y_mid + y_step * 8},   // 7
+                new int[] { x_mid - x_step * 9,     y_mid + y_step * 7},   // 8
+                new int[] { x_mid - x_step * 10,    y_mid + y_step * 6},   // 9
+                new int[] { x_mid - x_step * 11,    y_mid + y_step * 5},   // 10
+                new int[] { x_mid - x_step * 12,    y_mid + y_step * 4},   // 11
+                new int[] { x_mid - x_step * 13,    y_mid + y_step * 3},   // 12
+                new int[] { x_mid - x_step * 14,    y_mid + y_step * 2},   // 13
+                new int[] { x_mid - x_step * 15,    y_mid + y_step * 1},   // 14  left
+                new int[] { x_mid - x_step * 15,    y_mid - y_step * 1},   // 15  left 
+                new int[] { x_mid - x_step * 14,    y_mid - y_step * 2},   // 16
+                new int[] { x_mid - x_step * 13,    y_mid - y_step * 3},   // 17
+                new int[] { x_mid - x_step * 12,    y_mid - y_step * 4},   // 18
+                new int[] { x_mid - x_step * 11,    y_mid - y_step * 5},   // 19
+                new int[] { x_mid - x_step * 10,    y_mid - y_step * 6},   // 20
+                new int[] { x_mid - x_step * 09,    y_mid - y_step * 7},   // 21
+                new int[] { x_mid - x_step * 08,    y_mid - y_step * 8},   // 22
+                new int[] { x_mid - x_step * 07,    y_mid - y_step * 9},   // 23
+                new int[] { x_mid - x_step * 06,    y_mid - y_step * 10},  // 24
+                new int[] { x_mid - x_step * 05,    y_mid - y_step * 11},  // 25
+                new int[] { x_mid - x_step * 04,    y_mid - y_step * 12},  // 26
+                new int[] { x_mid - x_step * 03,    y_mid - y_step * 13},  // 27
+                new int[] { x_mid - x_step * 02,    y_mid - y_step * 14},  // 28
+                new int[] { x_mid - x_step * 01,    y_mid - y_step * 15},  // 29  bottom
+                new int[] { x_mid + x_step * 01,    y_mid - y_step * 15},  // 30  bottom
+                new int[] { x_mid + x_step * 02,    y_mid - y_step * 14},  // 31
+                new int[] { x_mid + x_step * 03,    y_mid - y_step * 13},  // 32
+                new int[] { x_mid + x_step * 04,    y_mid - y_step * 12},  // 33
+                new int[] { x_mid + x_step * 05,    y_mid - y_step * 11},  // 34
+                new int[] { x_mid + x_step * 06,    y_mid - y_step * 10},  // 35
+                new int[] { x_mid + x_step * 07,    y_mid - y_step * 9},   // 36
+                new int[] { x_mid + x_step * 08,    y_mid - y_step * 8},   // 37
+                new int[] { x_mid + x_step * 09,    y_mid - y_step * 7},   // 38
+                new int[] { x_mid + x_step * 10,    y_mid - y_step * 6},   // 39
+                new int[] { x_mid + x_step * 11,    y_mid - y_step * 5},   // 40
+                new int[] { x_mid + x_step * 12,    y_mid - y_step * 4},   // 41
+                new int[] { x_mid + x_step * 13,    y_mid - y_step * 3},   // 42
+                new int[] { x_mid + x_step * 14,    y_mid - y_step * 2},   // 43
+                new int[] { x_mid + x_step * 15,    y_mid - y_step * 1},   // 44  right
+                new int[] { x_mid + x_step * 15,    y_mid + y_step * 1},   // 45  right
+                new int[] { x_mid + x_step * 14,    y_mid + y_step * 2},   // 46
+                new int[] { x_mid + x_step * 13,    y_mid + y_step * 3},   // 47
+                new int[] { x_mid + x_step * 12,    y_mid + y_step * 4},   // 48
+                new int[] { x_mid + x_step * 11,    y_mid + y_step * 5},   // 49
+                new int[] { x_mid + x_step * 10,    y_mid + y_step * 6},   // 50
+                new int[] { x_mid + x_step * 09,    y_mid + y_step * 7},   // 51
+                new int[] { x_mid + x_step * 08,    y_mid + y_step * 8},   // 52
+                new int[] { x_mid + x_step * 07,    y_mid + y_step * 9},   // 53
+                new int[] { x_mid + x_step * 06,    y_mid + y_step * 10},  // 54
+                new int[] { x_mid + x_step * 05,    y_mid + y_step * 11},  // 55
+                new int[] { x_mid + x_step * 04,    y_mid + y_step * 12},  // 56
+                new int[] { x_mid + x_step * 03,    y_mid + y_step * 13},  // 57
+                new int[] { x_mid + x_step * 02,    y_mid + y_step * 14},  // 58
+                new int[] { x_mid + x_step * 01,    y_mid + y_step * 15},  // 59  top circle
+            };
+
+            var controller = new TouchController();
+            controller.Initialize();
+            Console.CursorVisible = false;
+            Console.WriteLine("Starting touch streams!");
+            controller.StartTouchStream();
+            Console.WriteLine("Started!");
+            bool pressed = false;
+            bool rx_pressed = false;
+            bool rx_pressed_on_loop = false;
+            bool pressed_on_loop = false;
+            while (true)
+            {
+                controller.GetTouchData();
+                pressed_on_loop = false;
+                rx_pressed_on_loop = false;
+                for (int i = 0; i < 4; i++)
+                {
+                    for (int j = 0; j < 60; j++)
+                    {
+                        if (controller.touchData[i, j])
+                        {
+                            // i doesn't matter here. the circle has a Z axis of 4
+                            // but we're mapping a joystick so no Z
+                            // if j == 0 : then x = x_mid and y = y_max
+                            // if j == 14 : then x = x_max and y = y_mid
+                            // if j == 29 : then x = x_mid and y = y_min
+                            // if j == 44 : then x = x_max and y = y_mid
+                            joystick.SetAxis(axes[j][0], deviceId, HID_USAGES.HID_USAGE_X);
+                            joystick.SetAxis(axes[j][1], deviceId, HID_USAGES.HID_USAGE_Y);
+                            pressed_on_loop = true;
+                            pressed = true;
+                            if (i > 1)  // RXY is only on the two outer layers, i==2 and i==3
+                            {
+                                rx_pressed = true;
+                                rx_pressed_on_loop = true;
+                                joystick.SetAxis(axes[j][0], deviceId, HID_USAGES.HID_USAGE_RX);
+                                joystick.SetAxis(axes[j][1], deviceId, HID_USAGES.HID_USAGE_RY);
+                            }
+                        }
+                    }
+                }
+                if (pressed && !pressed_on_loop)
+                {
+                    // Set joystick axis to midpoint
+                    joystick.SetAxis(x_mid, deviceId, HID_USAGES.HID_USAGE_X);
+                    joystick.SetAxis(y_mid, deviceId, HID_USAGES.HID_USAGE_Y);
+                    pressed = false;
+                }
+                if (rx_pressed && !rx_pressed_on_loop)
+                {
+                    // Set joystick axis to midpoint
+                    joystick.SetAxis(rx_mid, deviceId, HID_USAGES.HID_USAGE_RX);
+                    joystick.SetAxis(ry_mid, deviceId, HID_USAGES.HID_USAGE_RY);
+                    rx_pressed = false;
                 }
             }
         }

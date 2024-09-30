@@ -7,8 +7,8 @@
     <ProjectGuid>{15D78E78-613F-4F28-8616-EEE708166C7F}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WaccaKeyBind</RootNamespace>
-    <AssemblyName>WaccaKeyBind</AssemblyName>
+    <RootNamespace>WaccaCircle</RootNamespace>
+    <AssemblyName>WaccaCircle</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -54,15 +54,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FTD2XX_NET">
-      <HintPath>lib\FTD2XX_NET.dll</HintPath>
+      <HintPath>..\FTD2XX_NET.dll</HintPath>
     </Reference>
     <Reference Include="LilyConsole">
-      <HintPath>bin\x64\Release\LilyConsole.dll</HintPath>
+      <HintPath>..\LilyConsole.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="vJoyInterfaceWrap">
+      <HintPath>..\..\..\..\..\..\..\..\Program Files\vJoy\x64\vJoyInterfaceWrap.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />

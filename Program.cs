@@ -209,7 +209,6 @@ namespace WaccaKeyBind
     }
         public static void TouchCombinedTest()
         {
-
             // Check if vJoy is enabled and ready
             if (!joystick.vJoyEnabled())
             {
@@ -303,66 +302,66 @@ namespace WaccaKeyBind
             // (not sure about the smooth transition from minus to plus)
             int[][] axes =
             {
-                new int[] { x_mid - x_step * 1,     y_mid + y_step * 15},  // 0  top circle
-                new int[] { x_mid - x_step * 2,     y_mid + y_step * 14},  // 1
-                new int[] { x_mid - x_step * 3,     y_mid + y_step * 13},  // 2
-                new int[] { x_mid - x_step * 4,     y_mid + y_step * 12},  // 3
-                new int[] { x_mid - x_step * 5,     y_mid + y_step * 11},  // 4
-                new int[] { x_mid - x_step * 6,     y_mid + y_step * 10},  // 5
-                new int[] { x_mid - x_step * 7,     y_mid + y_step * 9},   // 6
-                new int[] { x_mid - x_step * 8,     y_mid + y_step * 8},   // 7
-                new int[] { x_mid - x_step * 9,     y_mid + y_step * 7},   // 8
-                new int[] { x_mid - x_step * 10,    y_mid + y_step * 6},   // 9
-                new int[] { x_mid - x_step * 11,    y_mid + y_step * 5},   // 10
-                new int[] { x_mid - x_step * 12,    y_mid + y_step * 4},   // 11
-                new int[] { x_mid - x_step * 13,    y_mid + y_step * 3},   // 12
-                new int[] { x_mid - x_step * 14,    y_mid + y_step * 2},   // 13
-                new int[] { x_mid - x_step * 15,    y_mid + y_step * 1},   // 14  left
-                new int[] { x_mid - x_step * 15,    y_mid - y_step * 1},   // 15  left 
-                new int[] { x_mid - x_step * 14,    y_mid - y_step * 2},   // 16
-                new int[] { x_mid - x_step * 13,    y_mid - y_step * 3},   // 17
-                new int[] { x_mid - x_step * 12,    y_mid - y_step * 4},   // 18
-                new int[] { x_mid - x_step * 11,    y_mid - y_step * 5},   // 19
-                new int[] { x_mid - x_step * 10,    y_mid - y_step * 6},   // 20
-                new int[] { x_mid - x_step * 09,    y_mid - y_step * 7},   // 21
-                new int[] { x_mid - x_step * 08,    y_mid - y_step * 8},   // 22
-                new int[] { x_mid - x_step * 07,    y_mid - y_step * 9},   // 23
-                new int[] { x_mid - x_step * 06,    y_mid - y_step * 10},  // 24
-                new int[] { x_mid - x_step * 05,    y_mid - y_step * 11},  // 25
-                new int[] { x_mid - x_step * 04,    y_mid - y_step * 12},  // 26
-                new int[] { x_mid - x_step * 03,    y_mid - y_step * 13},  // 27
-                new int[] { x_mid - x_step * 02,    y_mid - y_step * 14},  // 28
-                new int[] { x_mid - x_step * 01,    y_mid - y_step * 15},  // 29  bottom
-                new int[] { x_mid + x_step * 01,    y_mid - y_step * 15},  // 30  bottom
-                new int[] { x_mid + x_step * 02,    y_mid - y_step * 14},  // 31
-                new int[] { x_mid + x_step * 03,    y_mid - y_step * 13},  // 32
-                new int[] { x_mid + x_step * 04,    y_mid - y_step * 12},  // 33
-                new int[] { x_mid + x_step * 05,    y_mid - y_step * 11},  // 34
-                new int[] { x_mid + x_step * 06,    y_mid - y_step * 10},  // 35
-                new int[] { x_mid + x_step * 07,    y_mid - y_step * 9},   // 36
-                new int[] { x_mid + x_step * 08,    y_mid - y_step * 8},   // 37
-                new int[] { x_mid + x_step * 09,    y_mid - y_step * 7},   // 38
-                new int[] { x_mid + x_step * 10,    y_mid - y_step * 6},   // 39
-                new int[] { x_mid + x_step * 11,    y_mid - y_step * 5},   // 40
-                new int[] { x_mid + x_step * 12,    y_mid - y_step * 4},   // 41
-                new int[] { x_mid + x_step * 13,    y_mid - y_step * 3},   // 42
-                new int[] { x_mid + x_step * 14,    y_mid - y_step * 2},   // 43
-                new int[] { x_mid + x_step * 15,    y_mid - y_step * 1},   // 44  right
-                new int[] { x_mid + x_step * 15,    y_mid + y_step * 1},   // 45  right
-                new int[] { x_mid + x_step * 14,    y_mid + y_step * 2},   // 46
-                new int[] { x_mid + x_step * 13,    y_mid + y_step * 3},   // 47
-                new int[] { x_mid + x_step * 12,    y_mid + y_step * 4},   // 48
-                new int[] { x_mid + x_step * 11,    y_mid + y_step * 5},   // 49
-                new int[] { x_mid + x_step * 10,    y_mid + y_step * 6},   // 50
-                new int[] { x_mid + x_step * 09,    y_mid + y_step * 7},   // 51
-                new int[] { x_mid + x_step * 08,    y_mid + y_step * 8},   // 52
-                new int[] { x_mid + x_step * 07,    y_mid + y_step * 9},   // 53
-                new int[] { x_mid + x_step * 06,    y_mid + y_step * 10},  // 54
-                new int[] { x_mid + x_step * 05,    y_mid + y_step * 11},  // 55
-                new int[] { x_mid + x_step * 04,    y_mid + y_step * 12},  // 56
-                new int[] { x_mid + x_step * 03,    y_mid + y_step * 13},  // 57
-                new int[] { x_mid + x_step * 02,    y_mid + y_step * 14},  // 58
-                new int[] { x_mid + x_step * 01,    y_mid + y_step * 15},  // 59  top circle
+                new int[] { x_mid - x_step * 1,     y_mid + y_step * 15,  12},  // 0  top circle
+                new int[] { x_mid - x_step * 2,     y_mid + y_step * 14,  12},  // 1
+                new int[] { x_mid - x_step * 3,     y_mid + y_step * 13,  12},  // 2
+                new int[] { x_mid - x_step * 4,     y_mid + y_step * 12,  11},  // 3
+                new int[] { x_mid - x_step * 5,     y_mid + y_step * 11,  11},  // 4
+                new int[] { x_mid - x_step * 6,     y_mid + y_step * 10,  11},  // 5
+                new int[] { x_mid - x_step * 7,     y_mid + y_step * 9,  11},   // 6
+                new int[] { x_mid - x_step * 8,     y_mid + y_step * 8,  11},   // 7
+                new int[] { x_mid - x_step * 9,     y_mid + y_step * 7,  10},   // 8
+                new int[] { x_mid - x_step * 10,    y_mid + y_step * 6,  10},   // 9
+                new int[] { x_mid - x_step * 11,    y_mid + y_step * 5,  10},   // 10
+                new int[] { x_mid - x_step * 12,    y_mid + y_step * 4,  10},   // 11
+                new int[] { x_mid - x_step * 13,    y_mid + y_step * 3,  10},   // 12
+                new int[] { x_mid - x_step * 14,    y_mid + y_step * 2,   9},   // 13
+                new int[] { x_mid - x_step * 15,    y_mid + y_step * 1,   9},   // 14  left
+                new int[] { x_mid - x_step * 15,    y_mid - y_step * 1,   9},   // 15  left 
+                new int[] { x_mid - x_step * 14,    y_mid - y_step * 2,   9},   // 16
+                new int[] { x_mid - x_step * 13,    y_mid - y_step * 3,   9},   // 17
+                new int[] { x_mid - x_step * 12,    y_mid - y_step * 4,   8},   // 18
+                new int[] { x_mid - x_step * 11,    y_mid - y_step * 5,   8},   // 19
+                new int[] { x_mid - x_step * 10,    y_mid - y_step * 6,   8},   // 20
+                new int[] { x_mid - x_step * 09,    y_mid - y_step * 7,   8},   // 21
+                new int[] { x_mid - x_step * 08,    y_mid - y_step * 8,   8},   // 22
+                new int[] { x_mid - x_step * 07,    y_mid - y_step * 9,   7},   // 23
+                new int[] { x_mid - x_step * 06,    y_mid - y_step * 10,  7},   // 24
+                new int[] { x_mid - x_step * 05,    y_mid - y_step * 11,  7},   // 25
+                new int[] { x_mid - x_step * 04,    y_mid - y_step * 12,  7},   // 26
+                new int[] { x_mid - x_step * 03,    y_mid - y_step * 13,  7},   // 27
+                new int[] { x_mid - x_step * 02,    y_mid - y_step * 14,  6},   // 28
+                new int[] { x_mid - x_step * 01,    y_mid - y_step * 15,  6},   // 29  bottom
+                new int[] { x_mid + x_step * 01,    y_mid - y_step * 15,  6},   // 30  bottom
+                new int[] { x_mid + x_step * 02,    y_mid - y_step * 14,  6},   // 31
+                new int[] { x_mid + x_step * 03,    y_mid - y_step * 13,  6},   // 32
+                new int[] { x_mid + x_step * 04,    y_mid - y_step * 12,  5},   // 33
+                new int[] { x_mid + x_step * 05,    y_mid - y_step * 11,  5},   // 34
+                new int[] { x_mid + x_step * 06,    y_mid - y_step * 10,  5},   // 35
+                new int[] { x_mid + x_step * 07,    y_mid - y_step * 9,   5},   // 36
+                new int[] { x_mid + x_step * 08,    y_mid - y_step * 8,   5},   // 37
+                new int[] { x_mid + x_step * 09,    y_mid - y_step * 7,   4},   // 38
+                new int[] { x_mid + x_step * 10,    y_mid - y_step * 6,   4},   // 39
+                new int[] { x_mid + x_step * 11,    y_mid - y_step * 5,   4},   // 40
+                new int[] { x_mid + x_step * 12,    y_mid - y_step * 4,   4},   // 41
+                new int[] { x_mid + x_step * 13,    y_mid - y_step * 3,   4},   // 42
+                new int[] { x_mid + x_step * 14,    y_mid - y_step * 2,   3},   // 43
+                new int[] { x_mid + x_step * 15,    y_mid - y_step * 1,   3},   // 44  right
+                new int[] { x_mid + x_step * 15,    y_mid + y_step * 1,   3},   // 45  right
+                new int[] { x_mid + x_step * 14,    y_mid + y_step * 2,   3},   // 46
+                new int[] { x_mid + x_step * 13,    y_mid + y_step * 3,   3},   // 47
+                new int[] { x_mid + x_step * 12,    y_mid + y_step * 4,   2},   // 48
+                new int[] { x_mid + x_step * 11,    y_mid + y_step * 5,   2},   // 49
+                new int[] { x_mid + x_step * 10,    y_mid + y_step * 6,   2},   // 50
+                new int[] { x_mid + x_step * 09,    y_mid + y_step * 7,   2},   // 51
+                new int[] { x_mid + x_step * 08,    y_mid + y_step * 8,   2},   // 52
+                new int[] { x_mid + x_step * 07,    y_mid + y_step * 9,   1},   // 53
+                new int[] { x_mid + x_step * 06,    y_mid + y_step * 10,  1},   // 54
+                new int[] { x_mid + x_step * 05,    y_mid + y_step * 11,  1},   // 55
+                new int[] { x_mid + x_step * 04,    y_mid + y_step * 12,  1},   // 56
+                new int[] { x_mid + x_step * 03,    y_mid + y_step * 13,  1},   // 57
+                new int[] { x_mid + x_step * 02,    y_mid + y_step * 14,  12},  // 58
+                new int[] { x_mid + x_step * 01,    y_mid + y_step * 15,  12},  // 59  top circle
             };
 
             var controller = new TouchController();
@@ -375,6 +374,8 @@ namespace WaccaKeyBind
             bool rx_pressed = false;
             bool rx_pressed_on_loop = false;
             bool pressed_on_loop = false;
+            bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false };  // 12 times false
+            bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false };  // 12 times false
             while (true)
             {
                 controller.GetTouchData();
@@ -402,9 +403,27 @@ namespace WaccaKeyBind
                                 rx_pressed_on_loop = true;
                                 joystick.SetAxis(axes[j][0], deviceId, HID_USAGES.HID_USAGE_RX);
                                 joystick.SetAxis(axes[j][1], deviceId, HID_USAGES.HID_USAGE_RY);
+                            } 
+                            else
+                            {
+                                button_pressed_on_loop[axes[j][2]] = true;
+                                if (!button_pressed[axes[j][2]])
+                                {
+                                    joystick.SetBtn(true, deviceId, (uint)axes[j][2]); // Press button axes[j][2]
+                                    button_pressed[axes[j][2]] = true;
+                                }
                             }
                         }
                     }
+                }
+                for (uint i = 0; i < 12; i++)
+                {
+                    if (button_pressed[i] && !button_pressed_on_loop[i])
+                    {
+                        joystick.SetBtn(false, deviceId, i); // Release button i
+                        button_pressed[i] = false;
+                    }
+                    button_pressed_on_loop[i] = false;
                 }
                 if (pressed && !pressed_on_loop)
                 {

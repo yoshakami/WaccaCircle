@@ -29,11 +29,7 @@ namespace WaccaKeyBind
             //LilyConsole.TouchController = new LilyConsole.TouchController();
             // Initialize vJoy interface
             Console.CancelKeyPress += new ConsoleCancelEventHandler(OnCancelKeyPress);
-            while (true)
-            {
-                TouchCombinedTest();
-                // Arrows(); // send up, down, left, or right key depending on where you touch
-            }
+            TouchCombinedTest();
         }
         static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
@@ -47,7 +43,8 @@ namespace WaccaKeyBind
             // Check if vJoy is enabled and ready
             if (!joystick.vJoyEnabled())
             {
-                Console.WriteLine("vJoy driver not enabled: Failed to find vJoy.");
+                Console.WriteLine("vJoy driver not enabled: Failed to find vJoy.\npress enter to exit...");
+                Console.ReadLine();
                 return;
             }
 
@@ -59,14 +56,16 @@ namespace WaccaKeyBind
                 // Attempt to acquire the joystick
                 if (!joystick.AcquireVJD(deviceId))
                 {
-                    Console.WriteLine("Failed to acquire vJoy device.");
+                    Console.WriteLine("Failed to acquire vJoy device.\npress enter to exit...");
+                    Console.ReadLine();
                     return;
                 }
                 Console.WriteLine("vJoy device acquired successfully.");
             }
             else
             {
-                Console.WriteLine("vJoy device is not free. Status: " + status.ToString());
+                Console.WriteLine("vJoy device is not free. Status: " + status.ToString() + "\npress enter to exit...");
+                Console.ReadLine();
                 return;
             }
 
@@ -119,9 +118,9 @@ namespace WaccaKeyBind
             joystick.GetVJDAxisMin(deviceId, HID_USAGES.HID_USAGE_RY, ref sl1_min);
             Console.WriteLine($"sl0_max: {sl0_max}   sl1_max : {sl1_max}");
             Console.WriteLine($"sl0_min: {sl0_min}   sl1_min : {sl1_min}");
-            long[] maxes = {y_max,x_max,ry_max, rx_max , sl0_max, sl1_max};
+            long[] maxes = { y_max, x_max, ry_max, rx_max, sl0_max, sl1_max };
             long[] mines = { y_min, x_min, ry_min, rx_min, sl0_min, sl1_min };
-            for (int i = 0;i < maxes.Length; i++)
+            for (int i = 0; i < maxes.Length; i++)
             {
                 if (maxes[i] != axis_max)
                 {
@@ -224,6 +223,11 @@ namespace WaccaKeyBind
             Console.WriteLine("Started!");
             bool rx_pressed = false;
             bool rx_pressed_on_loop;
+            int rx_last = 0;
+            int ry_last = 0;
+            int rx_current;
+            int ry_current;
+            byte outer_number_of_pressed_panels;
             /* bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false
             bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false */
             bool[] button_pressed = Enumerable.Repeat(false, 24).ToArray();
@@ -233,6 +237,9 @@ namespace WaccaKeyBind
             {
                 controller.GetTouchData();
                 rx_pressed_on_loop = false;
+                outer_number_of_pressed_panels = 0;
+                rx_current = 0;
+                ry_current = 0;
                 for (int i = 0; i < 4; i++)
                 {
                     for (int j = 0; j < 60; j++)
@@ -241,10 +248,11 @@ namespace WaccaKeyBind
                         {
                             if (i > 1)  // RXY is only on the two outer layers, i==2 and i==3
                             {
+                                outer_number_of_pressed_panels++;
+                                rx_current += axes[j][0];
+                                ry_current += axes[j][1];
                                 rx_pressed = true;
                                 rx_pressed_on_loop = true;
-                                joystick.SetAxis(axes[j][0], deviceId, HID_USAGES.HID_USAGE_RX);
-                                joystick.SetAxis(axes[j][1], deviceId, HID_USAGES.HID_USAGE_RY);
                             }
                             else
                             {
@@ -259,6 +267,21 @@ namespace WaccaKeyBind
                                 }
                             }
                         }
+                    }
+                }
+                if (rx_pressed_on_loop)  // average all the axes towards the middle of all the pressed spots
+                {
+                    rx_current /= outer_number_of_pressed_panels;
+                    ry_current /= outer_number_of_pressed_panels;
+                    if (rx_current != rx_last)
+                    {
+                        joystick.SetAxis(rx_current, deviceId, HID_USAGES.HID_USAGE_RX);
+                        rx_last = rx_current;
+                    }
+                    if (ry_current != ry_last)
+                    {
+                        joystick.SetAxis(ry_current, deviceId, HID_USAGES.HID_USAGE_RY);
+                        ry_last = ry_current;
                     }
                 }
                 for (uint i = 0; i < 24; i++)

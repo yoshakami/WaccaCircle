@@ -1,11 +1,11 @@
 # WaccaCircle
- LilyConsole Extension using vJoy
+ LilyConsole Extension using vJoy <br>
  link : https://github.com/yellowberryHN/LilyConsole
 
 ## Usage
-You need to download vJoy and configure a controller (don't forget to set up buttons number. by default it's 8).
-download: https://sourceforge.net/projects/vjoystick/
-source: https://github.com/shauleiz/vJoy
+You need to download vJoy and configure a controller (don't forget to set up buttons number. by default it's 8).<br>
+download: https://sourceforge.net/projects/vjoystick/ <br>
+source: https://github.com/shauleiz/vJoy <br>
 
 You need to configure the joystick#1 before launching any exe of WaccaCircle.
 the -id2 or -id3 at the end of the exe name means that it's acting with joystick#2 or joystick#3 respectively
@@ -14,66 +14,71 @@ be careful: dolphin only accepts up to 32 buttons in DInput (use SDL on newer ve
 so there's no use to launching WaccaCircle72.
 
 ## faq
-Q: What happens if I press two directions at the same time on the joystick axes?
-A: it will go to each direction on each frame it updates the touched panels, which means it will spam directions
+Q: What happens if I press two directions at the same time on the joystick axes?<br>
+A: it will average all pressed directions on the same axis, thus reaching a spot on the joystick that wouldn't be possible by touching the circle with only one hand
 
-Q: Does it Spam Stick Directions if I keep the stick pressed at only one spot though?
-A: Yes, though that won't affect gameplay since it keeps sending the same position if you're touching only one spot
-
-Q: Does it Spam buttons if I keep it pressed?
-A: Nope, it will only release the button once you stop pressing (or move your hand out of bounds)
-
-Q: What happens if I press two buttons at the same time?
-A: it presses two buttons at the same time.
-
-Q: Can I press buttons and move the axes at the same time?
+Q: Will it do the average too if I press more than two directions at the same time on the joystick axes?<br>
 A: Yes
 
-Q: Unhandled Exception: System.IO.IOException: The port 'COM4' does not exist.
-   at System.IO.Ports.InternalResources.WinIOError(Int32 errorCode, String str)
-   at System.IO.Ports.SerialStream..ctor(String portName, Int32 baudRate, Parity parity, Int32 dataBits, StopBits stopBits, Int32 readTimeout, Int32 writeTimeout, Handshake handshake, Boolean dtrEnable, Boolean rtsEnable, Boolean discardNull, Byte parityReplace)
-   at System.IO.Ports.SerialPort.Open()
-   at LilyConsole.TouchManager.Initialize() in C:\C#\LilyConsole\TouchController.cs:line 199
-   at WaccaKeyBind.Program.TouchCombinedTest()
-   at WaccaKeyBind.Program.Main(String[] args)
-A: This tool is not for you. It is meant to work on Wacca, not on your weird computer without COM ports.
+Q: Does it Spam Stick Directions if I keep pressing ?<br>
+A: Nope, if you don't move your hand and keep pressing, it will still use the last stick position without sending a new one
 
-Q: How do I compile?
+Q: Does it Spam buttons if I keep the panel pressed?<br>
+A: Nope, it will only release the button once you stop pressing (or move your hand out of bounds)
+
+Q: What happens if I press two buttons at the same time?<br>
+A: it presses two buttons at the same time.
+
+Q: Can I press buttons and move the axes at the same time?<br>
+A: Yes
+
+```
+Q: Unhandled Exception: System.IO.IOException: The port 'COM4' does not exist.<br>
+   at System.IO.Ports.InternalResources.WinIOError(Int32 errorCode, String str)<br>
+   at System.IO.Ports.SerialStream..ctor(String portName, Int32 baudRate, Parity parity, Int32 dataBits, StopBits stopBits, Int32 readTimeout, Int32 writeTimeout, Handshake handshake, Boolean dtrEnable, Boolean rtsEnable, Boolean discardNull, Byte parityReplace)<br>
+   at System.IO.Ports.SerialPort.Open()<br>
+   at LilyConsole.TouchManager.Initialize() in C:\C#\LilyConsole\TouchController.cs:line 199<br>
+   at WaccaKeyBind.Program.TouchCombinedTest()<br>
+   at WaccaKeyBind.Program.Main(String[] args)<br>
+A: This tool is not for you. It is meant to work on Wacca, not on your weird computer without COM ports.
+```
+
+Q: How do I compile?<br>
 A: install 22GB of Visual Studio C# compilers and install .NET Framework 4.5.2 library SDK, then open the .sln file with visual studio. In solution explorer, right click the .cs file => exclude from project, then right click on WaccaCircle => add => existing item => select desired .cs file. Then Choose `Release` and `x64` from the dropdown menus and click start. once you did, WaccaCircle.exe will appear in the bin folder, feel free to rename it to whatever you want.
 
-Q: DLL Error
+Q: DLL Error<br>
 A: you need to paste all the dll files in the same folder as the .exe, which means that if you're compiling, you need to paste all dll files in the bin folder.
 
-Q: How do I add WaccaStartup to windows startup?
+Q: How do I add WaccaStartup to windows startup?<br>
 A: copy WaccaStartup.exe, press Win+R then type `shell:startup` and press enter, then paste shortcut (do not paste the exe, you definitely want a lnk there) 
 
-Q: What are each exe for?
+Q: What are each exe for?<br>
 A: Read below
 
 ## WaccaArrows
-this exe presses or releases keystrokes when you press or release one of the 4 parts of the whole circle.
-top part: sends Up Arrow
-right part: sends Right Arrow
-bottom part: sends Down Arrow
+this exe presses or releases keystrokes when you press or release one of the 4 parts of the whole circle.<br>
+top part: sends Up Arrow<br>
+right part: sends Right Arrow<br>
+bottom part: sends Down Arrow<br>
 left part: sends Left Arrow
 
 ## WaccaStartup
-this is basically WaccaArrows for the outer 2 layers.
-for the inner 2 layers, the circle is divided by 12 areas (which are mapped by their clockwise position. 1 is at 1 o'clock)
-for each area, if [number].lnk exists on your desktop, then it launches that lnk (you can press or hold, it doesn't matter, it'll only launch once per touch)
-for example, if 12.lnk exists on my desktop and I touch the inner top of the circle, then it will launch 12.lnk
-else, here's the mapping of the key presses and releases.
-1:  None
-2:  None
-3:  None
-4:  Suppr
-5:  Escape
-6:  F11 (located at the bottom of the inner circle)
-7:  Shift
-8:  Ctrl
-9:  Alt
-10: Tab
-11: F4
+this is basically WaccaArrows for the outer 2 layers.<br>
+for the inner 2 layers, the circle is divided by 12 areas (which are mapped by their clockwise position. 1 is at 1 o'clock)<br>
+for each area, if [number].lnk exists on your desktop, then it launches that lnk (you can press or hold, it doesn't matter, it'll only launch once per touch)<br>
+for example, if 12.lnk exists on my desktop and I touch the inner top of the circle, then it will launch 12.lnk<br>
+else, here's the mapping of the key presses and releases.<br>
+1:  None<br>
+2:  None<br>
+3:  None<br>
+4:  Suppr<br>
+5:  Escape<br>
+6:  F11 (located at the bottom of the inner circle)<br>
+7:  Shift<br>
+8:  Ctrl<br>
+9:  Alt<br>
+10: Tab<br>
+11: F4<br>
 12: Enter
 
 ## WaccaCircle24
@@ -100,7 +105,7 @@ sl0-axis and sl1-axis for the inner circle (2 layers near the screen)<br>
  button 23: left half of the inner circle (the center of this segment is the left aka pi)<br>
  button 24: right half of the inner circle <br>
  <br>
- ## WaccaCircle24trim
+ ## WaccaCircle
  same as WaccaCircle24 but without the x-axis, y-axis, sl0-axis, and sl1-axis.<br>
  So there is no overlap in controls.
 

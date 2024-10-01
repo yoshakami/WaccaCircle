@@ -3,10 +3,41 @@
  link : https://github.com/yellowberryHN/LilyConsole
 
 ## Usage
-You need to download vJoy and configure a controller with it before launching WaccaCircle.
-https://sourceforge.net/projects/vjoystick/
+You need to download vJoy and configure a controller (don't forget to set up buttons number. by default it's 8).
+download: https://sourceforge.net/projects/vjoystick/
+source: https://github.com/shauleiz/vJoy
 
-## Mapping
+You need to configure the joystick#1 before launching any exe of WaccaCircle.
+the -id2 or -id3 at the end of the exe name means that it's acting with joystick#2 or joystick#3 respectively
+
+
+## WaccaArrows
+this exe presses or releases keystrokes when you press or release one of the 4 parts of the whole circle.
+top part: sends Up Arrow
+right part: sends Right Arrow
+bottom part: sends Down Arrow
+left part: sends Left Arrow
+
+## WaccaStartup
+this is basically WaccaArrows for the outer 2 layers.
+for the inner 2 layers, the circle is divided by 12 areas (which are mapped by their clockwise position. 1 is at 1 o'clock)
+for each area, if [number].lnk exists on your desktop, then it launches that lnk (you can press or hold, it doesn't matter, it'll only launch once per touch)
+for example, if 12.lnk exists on my desktop and I touch the inner top of the circle, then it will launch 12.lnk
+else, here's the mapping of the key presses and releases.
+1:  None
+2:  None
+3:  None
+4:  Suppr
+5:  Escape
+6:  F11 (located at the bottom of the inner circle)
+7:  Shift
+8:  Ctrl
+9:  Alt
+10: Tab
+11: F4
+12: Enter
+
+## WaccaCircle72
 ### axes
 x-axis and y-axis for the whole circle <br>
 rx-axis and ry-axis for the outer circle (2 layers)<br>

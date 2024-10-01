@@ -1,12 +1,9 @@
 using LilyConsole;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
-using vJoyInterfaceWrap;
 
 namespace WaccaKeyBind
 {
@@ -158,7 +155,7 @@ namespace WaccaKeyBind
             // efficiency.
             // (not sure about the smooth transition from minus to plus)
             int[][] axes =
-            {  //   x axis value                     y-axis value         1-12  13-16  17-20  21-22  23-24
+            {  //   x axis (unused here)         y-axis (unused here)     1-12  13-16  17-20  21-22  23-24
     new int[] { (int)(x_mid - x_step * 1),     (int)(y_mid + y_step * 15), 12,   16,    17,    21,    23},    // 0  top circle
     new int[] { (int)(x_mid - x_step * 2),     (int)(y_mid + y_step * 14), 12,   16,    17,    21,    23},    // 1
     new int[] { (int)(x_mid - x_step * 3),     (int)(y_mid + y_step * 13), 12,   16,    17,    21,    23},    // 2
@@ -260,7 +257,7 @@ namespace WaccaKeyBind
                             else  // parse the 2 inner layers
                             {
                                 for (int k = 2; k < 3; k++)
-                                {       
+                                {
                                     // launch 1 to 12.lnk if it exists
                                     if (File.Exists(Path.Combine(desktopPath, $"{axes[j][k]}.lnk")))
                                     {

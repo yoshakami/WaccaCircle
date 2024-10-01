@@ -119,9 +119,9 @@ namespace WaccaKeyBind
             joystick.GetVJDAxisMin(deviceId, HID_USAGES.HID_USAGE_RY, ref sl1_min);
             Console.WriteLine($"sl0_max: {sl0_max}   sl1_max : {sl1_max}");
             Console.WriteLine($"sl0_min: {sl0_min}   sl1_min : {sl1_min}");
-            long[] maxes = { y_max, x_max, ry_max, rx_max, sl0_max, sl1_max };
+            long[] maxes = {y_max,x_max,ry_max, rx_max , sl0_max, sl1_max};
             long[] mines = { y_min, x_min, ry_min, rx_min, sl0_min, sl1_min };
-            for (int i = 0; i < maxes.Length; i++)
+            for (int i = 0;i < maxes.Length; i++)
             {
                 if (maxes[i] != axis_max)
                 {
@@ -227,15 +227,15 @@ namespace WaccaKeyBind
             controller.StartTouchStream();
             Console.WriteLine("Started!");
             bool pressed = false;
-            bool pressed_on_loop = false;
+            bool pressed_on_loop;
             bool rx_pressed = false;
-            bool rx_pressed_on_loop = false;
+            bool rx_pressed_on_loop;
             bool sl_pressed = false;
-            bool sl_pressed_on_loop = false;
+            bool sl_pressed_on_loop;
             /* bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false
             bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false */
-            bool[] button_pressed = Enumerable.Repeat(false, 72).ToArray();
-            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 72).ToArray();
+            bool[] button_pressed = Enumerable.Repeat(false, 24).ToArray();
+            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 24).ToArray();
 
             while (true)
             {
@@ -255,22 +255,6 @@ namespace WaccaKeyBind
                             pressed = true;
                             if (i > 1)  // RXY is only on the two outer layers, i==2 and i==3
                             {
-                                for (int k = 2; k < 7; k++)  // parse axes columns
-                                {
-                                    button_pressed_on_loop[axes[j][k] + 48] = true;
-                                    if (!button_pressed[axes[j][k] + 48])
-                                    {
-                                        joystick.SetBtn(true, deviceId, (uint)(axes[j][k] + 48)); // Press button axes[j][k] + 24
-                                        button_pressed[axes[j][k] + 48] = true;
-                                    }
-
-                                    button_pressed_on_loop[axes[j][k] + 24] = true;
-                                    if (!button_pressed[axes[j][k] + 24])
-                                    {
-                                        joystick.SetBtn(true, deviceId, (uint)(axes[j][k] + 24)); // Press button axes[j][k] + 24
-                                        button_pressed[axes[j][k] + 24] = true;
-                                    }
-                                }
                                 rx_pressed = true;
                                 rx_pressed_on_loop = true;
                                 joystick.SetAxis(axes[j][0], deviceId, HID_USAGES.HID_USAGE_RX);
@@ -278,20 +262,13 @@ namespace WaccaKeyBind
                             }
                             else
                             {
-                                for (int k = 2; k < 7; k++)
+                                for (int k = 2; k < 7; k++)  // inner buttons from 1 to 24
                                 {
                                     button_pressed_on_loop[axes[j][k]] = true;
                                     if (!button_pressed[axes[j][k]])
                                     {
                                         joystick.SetBtn(true, deviceId, (uint)axes[j][k]); // Press button axes[j][k]
                                         button_pressed[axes[j][k]] = true;
-                                    }
-
-                                    button_pressed_on_loop[axes[j][k] + 24] = true;
-                                    if (!button_pressed[axes[j][k] + 24])
-                                    {
-                                        joystick.SetBtn(true, deviceId, (uint)(axes[j][k] + 24)); // Press button axes[j][k] + 24
-                                        button_pressed[axes[j][k] + 24] = true;
                                     }
                                 }
                                 sl_pressed = true;
@@ -302,7 +279,7 @@ namespace WaccaKeyBind
                         }
                     }
                 }
-                for (uint i = 0; i < 72; i++)
+                for (uint i = 0; i < 24; i++)
                 {
                     if (button_pressed[i] && !button_pressed_on_loop[i])
                     {
@@ -334,6 +311,7 @@ namespace WaccaKeyBind
                 }
             }
         }
+
         private static int Y(double v)
         {
             return (int)(Math.Cos(v * 2 * Math.PI / 60) * axis_max);

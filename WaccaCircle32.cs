@@ -8,12 +8,12 @@ using vJoyInterfaceWrap;
 
 namespace WaccaKeyBind
 {
-    internal class Program
+    internal class WaccaCircle32
     {
         static vJoy joystick = new vJoy();
         // Device ID (must be 1-16, based on vJoy configuration)
         static uint deviceId = 1;
-        const ushort axis_max = 32767;
+        static long axis_max = 32767;
         public static void Main(string[] args)
         {
             /*
@@ -41,75 +41,6 @@ namespace WaccaKeyBind
             Console.ReadLine();
             // Release the device when done
             joystick.RelinquishVJD(deviceId);
-        }
-        // Define constants for the input types
-        private const int INPUT_KEYBOARD = 1;
-        private const ushort VK_LEFT = 0x25; // Virtual-Key Code for the Left Arrow
-        private const ushort VK_UP = 0x26; // Virtual-Key Code for the Up Arrow
-        private const ushort VK_RIGHT = 0x27; // Virtual-Key Code for the Right Arrow
-        private const ushort VK_DOWN = 0x28; // Virtual-Key Code for the Down Arrow
-        private const uint KEYEVENTF_KEYDOWN = 0x0000; // Key down flag
-        private const uint KEYEVENTF_KEYUP = 0x0002; // Key up flag
-
-        // Structure for SendInput function
-        [StructLayout(LayoutKind.Sequential)]
-        public struct INPUT
-        {
-            public uint type;
-            public InputUnion u;
-        }
-
-        [StructLayout(LayoutKind.Explicit)]
-        public struct InputUnion
-        {
-            [FieldOffset(0)] public KEYBDINPUT ki;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct KEYBDINPUT
-        {
-            public ushort wVk;
-            public ushort wScan;
-            public uint dwFlags;
-            public uint time;
-            public IntPtr dwExtraInfo;
-        }
-
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
-
-
-
-        // Send key down (press)
-        static void SendKeyDown(ushort keyCode)
-        {
-            INPUT[] inputs = new INPUT[1];
-
-            inputs[0] = new INPUT();
-            inputs[0].type = INPUT_KEYBOARD;
-            inputs[0].u.ki.wVk = keyCode;
-            inputs[0].u.ki.wScan = 0;
-            inputs[0].u.ki.dwFlags = KEYEVENTF_KEYDOWN; // Key down flag
-            inputs[0].u.ki.time = 0;
-            inputs[0].u.ki.dwExtraInfo = IntPtr.Zero;
-
-            SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
-        }
-
-        // Send key up (release)
-        static void SendKeyUp(ushort keyCode)
-        {
-            INPUT[] inputs = new INPUT[1];
-
-            inputs[0] = new INPUT();
-            inputs[0].type = INPUT_KEYBOARD;
-            inputs[0].u.ki.wVk = keyCode;
-            inputs[0].u.ki.wScan = 0;
-            inputs[0].u.ki.dwFlags = KEYEVENTF_KEYUP; // Key up flag
-            inputs[0].u.ki.time = 0;
-            inputs[0].u.ki.dwExtraInfo = IntPtr.Zero;
-
-            SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
         }
         public static void TouchCombinedTest()
         {
@@ -194,7 +125,8 @@ namespace WaccaKeyBind
             {
                 if (maxes[i] != axis_max)
                 {
-                    Console.WriteLine($"this program will not work as expected. maxes[{i}] is {maxes[i]}");
+                    Console.WriteLine($"this program will not work as expected. maxes[{i}] is {maxes[i]}\nchanging axis max....");
+                    axis_max = maxes[i];
                 }
                 if (mines[i] != 0)
                 {

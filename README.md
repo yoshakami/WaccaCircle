@@ -18,7 +18,7 @@ Q: What happens if I press two directions at the same time on the joystick axes?
 A: it will go to each direction on each frame it updates the touched panels, which means it will spam directions
 
 Q: Does it Spam Stick Directions if I keep the stick pressed at only one spot though?
-A: Nope, if you don't move your hand and keep pressing, it will still use the last stick position without sending a new one
+A: Yes, though that won't affect gameplay since it keeps sending the same position if you're touching only one spot
 
 Q: Does it Spam buttons if I keep it pressed?
 A: Nope, it will only release the button once you stop pressing (or move your hand out of bounds)

@@ -47,84 +47,8 @@ namespace WaccaKeyBind
                 // Arrows(); // send up, down, left, or right key depending on where you touch
             }
         }
-        // Define constants for the input types
-        private const int INPUT_KEYBOARD = 1;
-        private const ushort VK_LEFT = 0x25; // Virtual-Key Code for the Left Arrow
-        private const ushort VK_UP = 0x26; // Virtual-Key Code for the Up Arrow
-        private const ushort VK_RIGHT = 0x27; // Virtual-Key Code for the Right Arrow
-        private const ushort VK_DOWN = 0x28; // Virtual-Key Code for the Down Arrow
-        private const ushort VK_ALT = 0x12;    // Virtual-Key Code for the Alt key
-        private const ushort VK_TAB = 0x09;    // Virtual-Key Code for the Tab key
-        private const ushort VK_ENTER = 0x0D;  // Virtual-Key Code for the Enter key
-        private const ushort VK_F4 = 0x73;     // Virtual-Key Code for the F4 key
-        private const ushort VK_ESC = 0x1B;
-        private const ushort VK_F11 = 0x7A;
-        private const ushort VK_CTRL = 0x11;
-        private const ushort VK_SHIFT = 0x10;
-        private const ushort VK_SUPPR = 0x2E;
-        private const uint KEYEVENTF_KEYDOWN = 0x0000; // Key down flag
-        private const uint KEYEVENTF_KEYUP = 0x0002; // Key up flag
-
-        // Structure for SendInput function
-        [StructLayout(LayoutKind.Sequential)]
-        public struct INPUT
-        {
-            public uint type;
-            public InputUnion u;
-        }
-
-        [StructLayout(LayoutKind.Explicit)]
-        public struct InputUnion
-        {
-            [FieldOffset(0)] public KEYBDINPUT ki;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct KEYBDINPUT
-        {
-            public ushort wVk;
-            public ushort wScan;
-            public uint dwFlags;
-            public uint time;
-            public IntPtr dwExtraInfo;
-        }
-
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
 
 
-
-        // Send key down (press)
-        static void SendKeyDown(ushort keyCode)
-        {
-            INPUT[] inputs = new INPUT[1];
-
-            inputs[0] = new INPUT();
-            inputs[0].type = INPUT_KEYBOARD;
-            inputs[0].u.ki.wVk = keyCode;
-            inputs[0].u.ki.wScan = 0;
-            inputs[0].u.ki.dwFlags = KEYEVENTF_KEYDOWN; // Key down flag
-            inputs[0].u.ki.time = 0;
-            inputs[0].u.ki.dwExtraInfo = IntPtr.Zero;
-
-            SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
-        }
-
-        // Send key up (release)
-        static void SendKeyUp(ushort keyCode)
-        {
-            INPUT[] inputs = new INPUT[1];
-
-            inputs[0] = new INPUT();
-            inputs[0].type = INPUT_KEYBOARD;
-            inputs[0].u.ki.wVk = keyCode;
-            inputs[0].u.ki.wScan = 0;
-            inputs[0].u.ki.dwFlags = KEYEVENTF_KEYUP; // Key up flag
-            inputs[0].u.ki.time = 0;
-            inputs[0].u.ki.dwExtraInfo = IntPtr.Zero;
-
-            SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
-        }
 
         public static void TouchCombinedTest()
         {
@@ -219,7 +143,6 @@ namespace WaccaKeyBind
 };
 
 
-            ushort[] ArrowKeys = { VK_UP, VK_RIGHT, VK_DOWN, VK_LEFT, VK_SUPPR, VK_ESC, VK_F11, VK_SHIFT, VK_CTRL, VK_ALT, VK_TAB, VK_F4, VK_ENTER };
             var controller = new TouchController();
             controller.Initialize();
             Console.CursorVisible = false;
@@ -228,8 +151,9 @@ namespace WaccaKeyBind
             Console.WriteLine("Started!");
             /* bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false
             bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false */
-            bool[] button_pressed = Enumerable.Repeat(false, 13).ToArray();
-            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 13).ToArray();
+            bool[] button_pressed = Enumerable.Repeat(false, 16).ToArray();
+            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 16).ToArray();
+            bool[] keydown = Enumerable.Repeat(false, 16).ToArray();
             string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             Console.WriteLine(desktopPath);
 
@@ -246,12 +170,20 @@ namespace WaccaKeyBind
                             {
                                 for (int k = 4; k < 5; k++)  // parse axes columns
                                 {
-                                    button_pressed_on_loop[axes[j][k] - 17] = true;
-                                    if (!button_pressed[axes[j][k] - 17])
+                                    if (File.Exists(Path.Combine(desktopPath, $"WaccaCircle\\{axes[j][k] - 4}d.ahk")))
                                     {
-                                        SendKeyDown(ArrowKeys[axes[j][k] - 17]);
-                                        button_pressed[axes[j][k] - 17] = true;
+                                        if (!button_pressed[axes[j][k] - 17])
+                                        {
+                                            button_pressed[axes[j][k] - 17] = true;
+                                            Process.Start(Path.Combine(desktopPath, $"WaccaCircle\\{axes[j][k] - 4}d.ahk"));
+                                            keydown[axes[j][k] - 17] = true;
+                                        }
                                     }
+                                    else
+                                    {
+                                        Console.WriteLine($"failed to find " + Path.Combine(desktopPath, $"WaccaCircle\\{axes[j][k] - 4}d.ahk"));
+                                    }
+                                    button_pressed_on_loop[axes[j][k] - 17] = true;
                                 }
                             }
                             else  // parse the 2 inner layers
@@ -261,15 +193,28 @@ namespace WaccaKeyBind
                                     // launch 1 to 12.lnk if it exists
                                     if (File.Exists(Path.Combine(desktopPath, $"{axes[j][k]}.lnk")))
                                     {
-                                        Process.Start(Path.Combine(desktopPath, $"{axes[j][k]}.lnk"));
-                                    }
-                                    else if (axes[j][k] > 3)  // user touched at 4 o'clock or more. triggered of lnk doesn't exist
-                                    {
-                                        button_pressed_on_loop[axes[j][k]] = true;
-                                        if (!button_pressed[axes[j][k]])
+                                        button_pressed_on_loop[axes[j][k] + 3] = true;
+                                        if (!button_pressed[axes[j][k] + 3])
                                         {
-                                            SendKeyDown(ArrowKeys[axes[j][k]]);
-                                            button_pressed[axes[j][k]] = true;
+                                            button_pressed[axes[j][k] + 3] = true;
+                                            Process.Start(Path.Combine(desktopPath, $"{axes[j][k]}.lnk"));
+                                        }
+                                    }
+                                    else  // triggered if lnk doesn't exist
+                                    {
+                                        button_pressed_on_loop[axes[j][k] + 3] = true;
+                                        if (!button_pressed[axes[j][k] + 3])
+                                        {
+                                            if (File.Exists(Path.Combine(desktopPath, $"WaccaCircle\\{axes[j][k]}d.ahk")))
+                                            {
+                                                Process.Start(Path.Combine(desktopPath, $"WaccaCircle\\{axes[j][k]}d.ahk"));
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine($"failed to find " + Path.Combine(desktopPath, $"WaccaCircle\\{i}d.ahk"));
+                                            }
+                                            button_pressed[axes[j][k] + 3] = true;
+                                            keydown[axes[j][k] + 3] = true;
                                         }
                                     }
                                 }
@@ -277,11 +222,22 @@ namespace WaccaKeyBind
                         }
                     }
                 }
-                for (uint i = 0; i < 13; i++)
+                for (uint i = 0; i < 16; i++)
                 {
                     if (button_pressed[i] && !button_pressed_on_loop[i])
                     {
-                        SendKeyUp(ArrowKeys[i]); // Release button i
+                        if (keydown[i])
+                        {
+                            if (File.Exists(Path.Combine(desktopPath, $"WaccaCircle\\{i}u.ahk")))
+                            {
+                                Process.Start(Path.Combine(desktopPath, $"WaccaCircle\\{i}u.ahk"));
+                            }
+                            else
+                            {
+                                Console.WriteLine($"failed to find " + Path.Combine(desktopPath, $"WaccaCircle\\{i}u.ahk"));
+                            }
+                            keydown[i] = false;
+                        }
                         button_pressed[i] = false;
                     }
                     button_pressed_on_loop[i] = false;

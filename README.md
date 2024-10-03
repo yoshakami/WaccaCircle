@@ -68,9 +68,11 @@ for the inner 2 layers, the circle is divided by 12 areas (which are mapped by t
 for each area, if [number].lnk exists on your desktop, then it launches that lnk (you can press or hold, it doesn't matter, it'll only launch once per touch)<br>
 for example, if 12.lnk exists on my desktop and I touch the inner top of the circle, then it will launch 12.lnk<br>
 else, here's the mapping of the key presses and releases.<br>
-1:  None<br>
-2:  None<br>
-3:  None<br>
+the release file contains the ahk files launching the keystrokes below.<br>
+example : Desktop/WaccaCircle/1d.ahk when panel is pressed down, and 1u.ahk when panel is released up. <br>
+1:  F1<br>
+2:  Win<br>
+3:  F5<br>
 4:  Suppr<br>
 5:  Escape<br>
 6:  F11 (located at the bottom of the inner circle)<br>
@@ -79,7 +81,11 @@ else, here's the mapping of the key presses and releases.<br>
 9:  Alt<br>
 10: Tab<br>
 11: F4<br>
-12: Enter
+12: Enter<br>
+13: Up<br>
+14: Right<br>
+15: Down<br>
+16: Left<br>
 
 ## WaccaCircle24
 ### axes

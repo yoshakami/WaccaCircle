@@ -12,7 +12,7 @@ namespace WaccaKeyBind
     {
         static vJoy joystick = new vJoy();
         // Device ID (must be 1-16, based on vJoy configuration)
-        static uint deviceId = 3;
+        static uint deviceId = 1;
         static long axis_max = 32767;
         public static void Main(string[] args)
         {

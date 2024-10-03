@@ -153,9 +153,9 @@ namespace WaccaKeyBind
             Console.WriteLine("Started!");
             /* bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false
             bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false */
-            bool[] button_pressed = Enumerable.Repeat(false, 16).ToArray();
-            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 16).ToArray();
-            bool[] keydown = Enumerable.Repeat(false, 16).ToArray();
+            bool[] button_pressed = Enumerable.Repeat(false, 17).ToArray();
+            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 17).ToArray();
+            bool[] keydown = Enumerable.Repeat(false, 17).ToArray();
             string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             Console.WriteLine(desktopPath);
 
@@ -174,18 +174,18 @@ namespace WaccaKeyBind
                                 {
                                     if (File.Exists(Path.Combine(ahk, $"{axes[j][k] - 4}d.ahk")))
                                     {
-                                        if (!button_pressed[axes[j][k] - 17])
+                                        if (!button_pressed[axes[j][k] - 4])
                                         {
-                                            button_pressed[axes[j][k] - 17] = true;
+                                            button_pressed[axes[j][k] - 4] = true;
                                             Process.Start(Path.Combine(ahk, $"{axes[j][k] - 4}d.ahk"));
-                                            keydown[axes[j][k] - 17] = true;
+                                            keydown[axes[j][k] - 4] = true;
                                         }
                                     }
                                     else
                                     {
                                         Console.WriteLine($"failed to find " + Path.Combine(ahk, $"{axes[j][k] - 4}d.ahk"));
                                     }
-                                    button_pressed_on_loop[axes[j][k] - 17] = true;
+                                    button_pressed_on_loop[axes[j][k] - 4] = true;
                                 }
                             }
                             else  // parse the 2 inner layers
@@ -195,17 +195,17 @@ namespace WaccaKeyBind
                                     // launch 1 to 12.lnk if it exists
                                     if (File.Exists(Path.Combine(desktopPath, $"{axes[j][k]}.lnk")))
                                     {
-                                        button_pressed_on_loop[axes[j][k] + 3] = true;
-                                        if (!button_pressed[axes[j][k] + 3])
+                                        button_pressed_on_loop[axes[j][k]] = true;
+                                        if (!button_pressed[axes[j][k]])
                                         {
-                                            button_pressed[axes[j][k] + 3] = true;
+                                            button_pressed[axes[j][k]] = true;
                                             Process.Start(Path.Combine(desktopPath, $"{axes[j][k]}.lnk"));
                                         }
                                     }
                                     else  // triggered if lnk doesn't exist
                                     {
-                                        button_pressed_on_loop[axes[j][k] + 3] = true;
-                                        if (!button_pressed[axes[j][k] + 3])
+                                        button_pressed_on_loop[axes[j][k]] = true;
+                                        if (!button_pressed[axes[j][k]])
                                         {
                                             if (File.Exists(Path.Combine(ahk, $"{axes[j][k]}d.ahk")))
                                             {
@@ -215,8 +215,8 @@ namespace WaccaKeyBind
                                             {
                                                 Console.WriteLine($"failed to find " + Path.Combine(ahk, $"{i}d.ahk"));
                                             }
-                                            button_pressed[axes[j][k] + 3] = true;
-                                            keydown[axes[j][k] + 3] = true;
+                                            button_pressed[axes[j][k]] = true;
+                                            keydown[axes[j][k]] = true;
                                         }
                                     }
                                 }
@@ -224,7 +224,7 @@ namespace WaccaKeyBind
                         }
                     }
                 }
-                for (uint i = 0; i < 16; i++)
+                for (uint i = 0; i < 17; i++)
                 {
                     if (button_pressed[i] && !button_pressed_on_loop[i])
                     {

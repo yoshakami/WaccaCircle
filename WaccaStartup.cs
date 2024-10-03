@@ -20,6 +20,8 @@ namespace WaccaKeyBind
 
         // Constant for minimizing the window
         private const int SW_MINIMIZE = 6;
+
+        static string ahk = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "ahk");
         public static void Main(string[] args)
         {
             /*
@@ -170,18 +172,18 @@ namespace WaccaKeyBind
                             {
                                 for (int k = 4; k < 5; k++)  // parse axes columns
                                 {
-                                    if (File.Exists(Path.Combine(desktopPath, $"WaccaCircle\\{axes[j][k] - 4}d.ahk")))
+                                    if (File.Exists(Path.Combine(ahk, $"{axes[j][k] - 4}d.ahk")))
                                     {
                                         if (!button_pressed[axes[j][k] - 17])
                                         {
                                             button_pressed[axes[j][k] - 17] = true;
-                                            Process.Start(Path.Combine(desktopPath, $"WaccaCircle\\{axes[j][k] - 4}d.ahk"));
+                                            Process.Start(Path.Combine(ahk, $"{axes[j][k] - 4}d.ahk"));
                                             keydown[axes[j][k] - 17] = true;
                                         }
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"failed to find " + Path.Combine(desktopPath, $"WaccaCircle\\{axes[j][k] - 4}d.ahk"));
+                                        Console.WriteLine($"failed to find " + Path.Combine(ahk, $"{axes[j][k] - 4}d.ahk"));
                                     }
                                     button_pressed_on_loop[axes[j][k] - 17] = true;
                                 }
@@ -205,13 +207,13 @@ namespace WaccaKeyBind
                                         button_pressed_on_loop[axes[j][k] + 3] = true;
                                         if (!button_pressed[axes[j][k] + 3])
                                         {
-                                            if (File.Exists(Path.Combine(desktopPath, $"WaccaCircle\\{axes[j][k]}d.ahk")))
+                                            if (File.Exists(Path.Combine(ahk, $"{axes[j][k]}d.ahk")))
                                             {
-                                                Process.Start(Path.Combine(desktopPath, $"WaccaCircle\\{axes[j][k]}d.ahk"));
+                                                Process.Start(Path.Combine(ahk, $"{axes[j][k]}d.ahk"));
                                             }
                                             else
                                             {
-                                                Console.WriteLine($"failed to find " + Path.Combine(desktopPath, $"WaccaCircle\\{i}d.ahk"));
+                                                Console.WriteLine($"failed to find " + Path.Combine(ahk, $"{i}d.ahk"));
                                             }
                                             button_pressed[axes[j][k] + 3] = true;
                                             keydown[axes[j][k] + 3] = true;
@@ -228,13 +230,13 @@ namespace WaccaKeyBind
                     {
                         if (keydown[i])
                         {
-                            if (File.Exists(Path.Combine(desktopPath, $"WaccaCircle\\{i}u.ahk")))
+                            if (File.Exists(Path.Combine(ahk, $"{i}u.ahk")))
                             {
-                                Process.Start(Path.Combine(desktopPath, $"WaccaCircle\\{i}u.ahk"));
+                                Process.Start(Path.Combine(ahk, $"{i}u.ahk"));
                             }
                             else
                             {
-                                Console.WriteLine($"failed to find " + Path.Combine(desktopPath, $"WaccaCircle\\{i}u.ahk"));
+                                Console.WriteLine($"failed to find " + Path.Combine(ahk, $"{i}u.ahk"));
                             }
                             keydown[i] = false;
                         }

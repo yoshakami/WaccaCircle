@@ -1,9 +1,7 @@
 using LilyConsole;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.NetworkInformation;
-using System.Runtime.InteropServices;
+using System.Threading;
 using vJoyInterfaceWrap;
 
 namespace WaccaKeyBind
@@ -12,7 +10,8 @@ namespace WaccaKeyBind
     {
         static vJoy joystick = new vJoy();
         // Device ID (must be 1-16, based on vJoy configuration)
-        static uint deviceId = 1;
+        static uint deviceId = 3;  // I compiled with this set to 1, 2, and 3
+        static int LAG_DELAY = 5; // I compiled with this setting set to 0ms, 100ms, 200ms, and 500ms.
         static long axis_max = 32767;
         public static void Main(string[] args)
         {
@@ -158,11 +157,12 @@ namespace WaccaKeyBind
             Console.WriteLine("Started!");
             /* bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false
             bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false */
-            bool[] button_pressed = Enumerable.Repeat(false, 12).ToArray();
-            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 12).ToArray();
+            bool[] button_pressed = Enumerable.Repeat(false, 13).ToArray();
+            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 13).ToArray();
 
             while (true)
             {
+                Thread.Sleep(LAG_DELAY); // change this setting to 0ms, 100ms, 200ms, or 500ms.
                 controller.GetTouchData();
                 for (int i = 0; i < 4; i++)
                 {
@@ -182,7 +182,7 @@ namespace WaccaKeyBind
                         }
                     }
                 }
-                for (uint i = 0; i < 12; i++)
+                for (uint i = 1; i < 13; i++)
                 {
                     if (button_pressed[i] && !button_pressed_on_loop[i])
                     {

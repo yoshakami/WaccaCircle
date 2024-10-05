@@ -3,14 +3,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
-class Program
+class Program  // Go to Debug > WaccaCircle Debug Properties > Application > Change "Console Application" to "Windows Application"  and don't forget to set it back to console for other apps
 {
     static string WaccaCircleStartup = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "WaccaCircleStartup.exe");
     static void Main()
     {
         while (true)
         {
-            Thread.Sleep(20000); // Sleep for 20 seconds (20,000 milliseconds)
             try
             {
                 // Create a new process to run WMIC command
@@ -54,6 +53,7 @@ class Program
             {
                 Console.WriteLine($"Error: {ex.Message}");
             }
+            Thread.Sleep(20000); // Sleep for 20 seconds (20,000 milliseconds)
         }
     }
 }

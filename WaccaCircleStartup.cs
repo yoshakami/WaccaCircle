@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace WaccaKeyBind
 {
@@ -43,11 +44,29 @@ namespace WaccaKeyBind
             // Minimize the console window
             ShowWindow(consoleWindow, SW_MINIMIZE);
 
-            while (true)
+            try
             {
                 TouchCombinedTest();
-                // Arrows(); // send up, down, left, or right key depending on where you touch
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("vvv---------- Message -----------vvv");
+                Console.WriteLine(e.Message);
+                Console.WriteLine("vvv---------- StackTrace --------vvv");
+                Console.WriteLine(e.StackTrace);
+                if (e.InnerException != null)
+                {
+                    Console.WriteLine("vvv---------- InnerException Message --------vvv");
+                    Console.WriteLine(e.InnerException.Message);
+                }
+                Console.WriteLine("vvv---------- Source ------------vvv");
+                Console.WriteLine(e.Source);
+                Console.WriteLine("vvv---------- TargetSite --------vvv");
+                Console.WriteLine(e.TargetSite);
+                Console.WriteLine("vvv---------- HelpLink --------vvv");
+                Console.WriteLine(e.HelpLink);
+            }
+            return;
         }
 
 
@@ -161,6 +180,7 @@ namespace WaccaKeyBind
 
             while (true)
             {
+                Thread.Sleep(5); // 0ms uses 35% CPU while 5ms uses 4% CPU.
                 controller.GetTouchData();
                 for (int i = 0; i < 4; i++)
                 {

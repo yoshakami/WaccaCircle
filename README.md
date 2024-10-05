@@ -7,11 +7,26 @@ You need to download vJoy and configure a controller (don't forget to set up but
 download: https://sourceforge.net/projects/vjoystick/ <br>
 source: https://github.com/shauleiz/vJoy <br>
 
+First, choose your lag delay, this will change the CPU usage of the app on Wacca
 You need to configure the joystick#1 before launching any exe of WaccaCircle.
 the -id2 or -id3 at the end of the exe name means that it's acting with joystick#2 or joystick#3 respectively
 
+## lnk
+if you wanna make a .lnk file to a start.bat, the beginning of your file should be like below. <br>
+The second line will kill all instances of WaccaCircle since they collectivize the touch panels and prevent wacca from starting. <br>
+if you wanna automatically launch WaccaCircleStartup when you're done playing Wacca, you need to launch `WaccaStartupBackgroundLauncher.exe` on startup. <br>
+There's no way to stop mercury other than plugging a keyboard, a rubber ducky, or using remote desktop.
+```
+@echo off
+wmic process where "name like '%WaccaCircle%'" call terminate
+```
+
+
+## Dolphin
 be careful: dolphin only accepts up to 32 buttons in DInput (use SDL on newer versions, but these newer versions won't work on wacca because qt6 decided to stop working on windows OS not updated prior to 2020)
-so there's no use to launching WaccaCircle72.
+so there's no use to launching WaccaCircle72 if you intend to use it on dolphin.
+download latest version of dolphin that works : https://dl.dolphin-emu.org/builds/0c/ca/dolphin-master-5.0-16793-x64.7z
+mirror : https://web.archive.org/web/20230605023019/https://dl.dolphin-emu.org/builds/0c/ca/dolphin-master-5.0-16793-x64.7z
 
 ## faq
 Q: What happens if I press two directions at the same time on the joystick axes?<br>
@@ -55,7 +70,14 @@ A: copy WaccaStartup.exe, press Win+R then type `shell:startup` and press enter,
 Q: What are each exe for?<br>
 A: Read below
 
-## WaccaStartup
+## WaccaStartupBackgroundLauncher
+this is the executable that you'd add to windows startup.<br>
+this headless executable will check if any WaccaCircle*.exe is launched on the system<br>
+if not, then it'll check if any Mercury*.exe is launched on the system<br>
+if not, then it'll launch `WaccaCircleStartup.exe` (it knows where the file is because the exe knows its own folder path)<br>
+in order to completely control your wacca, you'd want to make lnk files to shutdown the system or launch apps
+
+## WaccaCircleStartup
 this exe presses or releases keystrokes when you press or release one of the outer 2 layers.<br>
 top part: sends Up Arrow<br>
 right part: sends Right Arrow<br>

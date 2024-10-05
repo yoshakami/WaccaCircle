@@ -92,20 +92,25 @@ the release will contain the ahk files launching the keystrokes below.<br>
 example : Desktop/WaccaCircle/1d.ahk when panel is pressed down, and 1u.ahk when panel is released up. <br>
 1:  F1<br>
 2:  Win<br>
-3:  F5<br>
+3:  Ctrl<br>
 4:  Del<br>
 5:  Escape<br>
 6:  F11 (located at the bottom of the inner circle)<br>
 7:  Shift<br>
-8:  Ctrl<br>
+8:  Win+D<br>
 9:  Alt<br>
 10: Tab<br>
 11: F4<br>
-12: Enter<br>
+12: Enter + Launch WaccaCircle32 if dolphin or spice is launched<br>
 13: Up<br>
 14: Right<br>
 15: Down<br>
 16: Left<br>
+Dolphin: focuses the window.
+
+## WaccaCircle12
+buttons 1 to 12 mapped clockwise (top is 12) for the whole circle<br>
+no axes
 
 ## WaccaCircle24
 ### axes
@@ -131,13 +136,6 @@ button 22: bottom half of the inner circle <br>
 button 23: left half of the inner circle (the center of this segment is the left aka pi)<br>
 button 24: right half of the inner circle <br>
 <br>
-## WaccaCircle
-same as WaccaCircle24 but without the x-axis, y-axis, sl0-axis, and sl1-axis.<br>
-So there is no overlap in controls.
-
-## WaccaCircle12
-buttons 1 to 12 mapped clockwise (top is 12) for the whole circle<br>
-no axes
 
 
 ## WaccaCircle32

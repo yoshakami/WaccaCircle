@@ -106,3 +106,22 @@ else
         }
 	}
 }
+if WinExist("Dolphin")
+{
+    Run 'wmic process where "name like `"%WaccaCircle%`"" call terminate'
+    Sleep(1000)
+    Run(A_ScriptDir . "/../WaccaCircle32.exe")
+    Sleep(1000)
+    WinActivate
+}
+else
+{
+	if WinExist("SOUND VOLTE")
+	{
+        Run 'wmic process where "name like `"%WaccaCircle%`"" call terminate'
+        Sleep(1000)
+        Run(A_ScriptDir . "/../WaccaCircle32.exe")
+        Sleep(1000)
+        WinActivate
+	}
+}

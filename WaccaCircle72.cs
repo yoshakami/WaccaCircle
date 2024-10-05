@@ -28,7 +28,29 @@ namespace WaccaKeyBind
             //LilyConsole.TouchController = new LilyConsole.TouchController();
             // Initialize vJoy interface
             Console.CancelKeyPress += new ConsoleCancelEventHandler(OnCancelKeyPress);
-            TouchCombinedTest();
+            try
+            {
+                TouchCombinedTest();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("vvv---------- Message -----------vvv");
+                Console.WriteLine(e.Message);
+                Console.WriteLine("vvv---------- StackTrace --------vvv");
+                Console.WriteLine(e.StackTrace);
+                if (e.InnerException != null)
+                {
+                    Console.WriteLine("vvv---------- InnerException Message --------vvv");
+                    Console.WriteLine(e.InnerException.Message);
+                }
+                Console.WriteLine("vvv---------- Source ------------vvv");
+                Console.WriteLine(e.Source);
+                Console.WriteLine("vvv---------- TargetSite --------vvv");
+                Console.WriteLine(e.TargetSite);
+                Console.WriteLine("vvv---------- HelpLink --------vvv");
+                Console.WriteLine(e.HelpLink);
+            }
+            return;
         }
         static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
@@ -400,12 +422,14 @@ namespace WaccaKeyBind
         }
         private static int Y(double v)
         {
-            return (int)(Math.Cos(v * 2 * Math.PI / 60) * axis_max);
+            // Use Cos to calculate the Y position and shift it to the range [0, axis_max]
+            return (int)((Math.Cos(v * Math.PI / 30) + 1) / 2 * axis_max);
         }
 
-        private static int X(double value)
+        private static int X(double v)
         {
-            return (int)(-Math.Sin(value * 2 * Math.PI / 60) * axis_max); // 0 starts on top of the circle, and 32767 is the max value of the stick
+            // Use -Sin to calculate the X position and shift it to the range [0, axis_max]
+            return (int)((-Math.Sin(v * Math.PI / 30) + 1) / 2 * axis_max);
         }
     }
 }

@@ -154,44 +154,50 @@ button 32: right half of the outer circle <br>
 <br>
 
 
-## WaccaCircle72
+## WaccaCircle96
 see WaccaCircle24 for all the axes and buttons from 1 to 24 <br>
 <br>
-buttons 25 to 36 mapped clockwise (top is 36) for each segment of the whole circle<br>
+buttons 25 to 32 divide the inner circle by 8, mapped clockwise<br>
+<br>
+buttons 33 to 44 mapped clockwise (top is 36) for each segment of the whole circle<br>
 <br>
 ### whole circle buttons
-button 37: top-right quarter of the whole circle  (the center of the quarter is the top-right aka pi/4)<br>
-button 38: bottom-right quarter of the whole circle  <br>
-button 39: bottom-left quarter of the whole circle  <br>
-button 40: top-left quarter of the whole circle  <br>
+button 45: top-right quarter of the whole circle  (the center of the quarter is the top-right aka pi/4)<br>
+button 46: bottom-right quarter of the whole circle  <br>
+button 47: bottom-left quarter of the whole circle  <br>
+button 48: top-left quarter of the whole circle  <br>
 <br>
-button 41: top quarter of the whole circle (the center of the quarter is the top aka pi/2)<br>
-button 42: right quarter of the whole circle <br>
-button 43: bottom quarter of the whole circle <br>
-button 44: left quarter of the whole circle <br>
+button 49: top quarter of the whole circle (the center of the quarter is the top aka pi/2)<br>
+button 50: right quarter of the whole circle <br>
+button 51: bottom quarter of the whole circle <br>
+button 52: left quarter of the whole circle <br>
 <br>
-button 45: top half of the whole circle (the center of this segment is the top aka pi/2)<br>
-button 46: bottom half of the whole circle <br>
+button 53: top half of the whole circle (the center of this segment is the top aka pi/2)<br>
+button 54: bottom half of the whole circle <br>
 <br>
-button 47: left half of the whole circle (the center of this segment is the left aka pi)<br>
-button 48: right half of the whole circle <br>
+button 55: left half of the whole circle (the center of this segment is the left aka pi)<br>
+button 56: right half of the whole circle <br>
+<br>
+buttons 57 to 64 divide the whole circle by 8, mapped clockwise
 <br>
 ### outer circle buttons
-buttons 49 to 60 mapped clockwise (top is 60) for each segment of the outer circle<br>
+buttons 65 to 76 mapped clockwise (top is 60) for each segment of the outer circle<br>
 <br>
-button 61: top-right quarter of the outer circle  (the center of the quarter is the top-right aka pi/4)<br>
-button 62: bottom-right quarter of the outer circle  <br>
-button 63: bottom-left quarter of the outer circle  <br>
-button 64: top-left quarter of the outer circle  <br>
+button 77: top-right quarter of the outer circle  (the center of the quarter is the top-right aka pi/4)<br>
+button 78: bottom-right quarter of the outer circle  <br>
+button 79: bottom-left quarter of the outer circle  <br>
+button 80: top-left quarter of the outer circle  <br>
 <br>
-button 65: top quarter of the outer circle (the center of the quarter is the top aka pi/2)<br>
-button 66: right quarter of the outer circle <br>
-button 67: bottom quarter of the outer circle <br>
-button 68: left quarter of the outer circle <br>
+button 81: top quarter of the outer circle (the center of the quarter is the top aka pi/2)<br>
+button 82: right quarter of the outer circle <br>
+button 83: bottom quarter of the outer circle <br>
+button 84: left quarter of the outer circle <br>
 <br>
-button 69: top half of the outer circle (the center of this segment is the top aka pi/2)<br>
-button 70: bottom half of the outer circle <br>
+button 85: top half of the outer circle (the center of this segment is the top aka pi/2)<br>
+button 86: bottom half of the outer circle <br>
 <br>
-button 71: left half of the outer circle (the center of this segment is the left aka pi)<br>
-button 72: right half of the outer circle <br>
+button 87: left half of the outer circle (the center of this segment is the left aka pi)<br>
+button 88: right half of the outer circle <br>
+<br>
+buttons 89 to 96 divide the inner circle by 8, mapped clockwise
 <br>

@@ -101,7 +101,7 @@ example : Desktop/WaccaCircle/1d.ahk when panel is pressed down, and 1u.ahk when
 9:  Alt<br>
 10: Tab<br>
 11: F4<br>
-12: Enter + Launch WaccaCircle32 if dolphin or spice is launched<br>
+12: Enter + switch to WaccaCircle32 if dolphin or spice is launched<br>
 13: Up<br>
 14: Right<br>
 15: Down<br>

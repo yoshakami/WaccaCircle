@@ -24,6 +24,9 @@ namespace WaccaKeyBind
         private const int SW_MINIMIZE = 6;
 
         static string ahk = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "ahk");
+        static long axis_max = 32767;
+
+        [STAThread]
         public static void Main(string[] args)
         {
             /*
@@ -74,10 +77,6 @@ namespace WaccaKeyBind
 
         public static void TouchCombinedTest()
         {
-            double x_mid = 0;
-            double y_mid = 0;
-            double x_step = 0;
-            double y_step = 0;
             /*
              * 
             double rx_step = (rx_max - rx_min) / 30;
@@ -179,6 +178,7 @@ namespace WaccaKeyBind
             Console.WriteLine(desktopPath);
             byte n;
             byte u = 8;
+            byte alt_button_index = 9;  // never trigger 9 + 12 = 21.lnk
             while (true)
             {
                 Thread.Sleep(5); // 0ms uses 35% CPU while 5ms uses 4% CPU.
@@ -194,19 +194,21 @@ namespace WaccaKeyBind
                             {
                                 for (int k = 4; k < 5; k++)  // parse axes columns
                                 {
-                                    if (File.Exists(Path.Combine(ahk, $"{axes[j][k] + u}d.ahk")))  // starts at 17 + 8 = 25
+                                    if (!button_pressed[axes[j][k] + u])  // ends at 20 + 8 = 28
                                     {
-                                        if (!button_pressed[axes[j][k] + u])  // ends at 20 + 8 = 28
+                                        button_pressed[axes[j][k] + u] = true;
+                                        if (File.Exists(Path.Combine(ahk, $"{axes[j][k] + u}d.ahk")))  // starts at 17 + 8 = 25
                                         {
-                                            button_pressed[axes[j][k] + u] = true;
+
                                             Process.Start(Path.Combine(ahk, $"{axes[j][k] + u}d.ahk"));
                                             keydown[axes[j][k] + u] = true;
                                         }
+                                        else
+                                        {
+                                            Console.WriteLine($"failed to find " + Path.Combine(ahk, $"{axes[j][k] + u}d.ahk"));
+                                        }
                                     }
-                                    else
-                                    {
-                                        Console.WriteLine($"failed to find " + Path.Combine(ahk, $"{axes[j][k] + u}d.ahk"));
-                                    }
+                                    
                                     button_pressed_on_loop[axes[j][k] + u] = true;
                                 }
                             }
@@ -218,13 +220,16 @@ namespace WaccaKeyBind
                                     {
                                         //Console.WriteLine("Alt key is pressed.");
                                         n = 12;
+                                        if (axes[j][k] == alt_button_index)
+                                        {
+                                            n = 0;
+                                        }
                                     }
                                     else
                                     {
                                         //Console.WriteLine("Alt key is not pressed.");
                                         n = 0;
                                     }
-
                                     // launch 1 to 24.lnk if it exists
                                     if (File.Exists(Path.Combine(desktopPath, $"{axes[j][k] + n}.lnk")))
                                     {
@@ -278,6 +283,17 @@ namespace WaccaKeyBind
                     button_pressed_on_loop[i] = false;
                 }
             }
+        }
+        private static int Y(double v)
+        {
+            // Use Cos to calculate the Y position and shift it to the range [0, axis_max]
+            return (int)((Math.Cos(v * Math.PI / 30) + 1) / 2 * axis_max);
+        }
+
+        private static int X(double v)
+        {
+            // Use -Sin to calculate the X position and shift it to the range [0, axis_max]
+            return (int)((-Math.Sin(v * Math.PI / 30) + 1) / 2 * axis_max);
         }
     }
 }

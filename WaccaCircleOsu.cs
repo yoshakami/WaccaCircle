@@ -1,5 +1,7 @@
 using LilyConsole;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using vJoyInterfaceWrap;
@@ -13,6 +15,7 @@ namespace WaccaKeyBind
         static uint deviceId = 1;  // I compiled with this set to 1, 2, and 3
         static int LAG_DELAY = 30; // tweak between 0ms and 100ms to reduce CPU usage or increase responsiveness
         static long axis_max = 32767;
+        static string ahk = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "ahk");
         public static void Main(string[] args)
         {
             /*
@@ -179,9 +182,11 @@ namespace WaccaKeyBind
             Console.WriteLine("Started!");
             /* bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false
             bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false */
-            bool[] button_pressed = Enumerable.Repeat(false, 13).ToArray();
-            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 13).ToArray();
-
+            bool[] button_pressed = Enumerable.Repeat(false, 33).ToArray();
+            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 33).ToArray();
+            bool[] keydown = Enumerable.Repeat(false, 33).ToArray();
+            sbyte n = -24;
+            sbyte u = 12;
             while (true)
             {
                 Thread.Sleep(LAG_DELAY); // change this setting to 0ms, 100ms, 200ms, or 500ms.
@@ -192,19 +197,39 @@ namespace WaccaKeyBind
                     {
                         if (controller.touchData[i, j])  // if the circle if touched
                         {
-                            for (int k = 2; k < 3; k++)  // buttons from 1 to 12
+                            if (i > 1)  // buttons only on the two outer layers, i==2 and i==3
                             {
-                                button_pressed_on_loop[axes[j][k]] = true;
-                                if (!button_pressed[axes[j][k]])
+                                for (int k = 4; k < 5; k++)  // parse axes columns, split by 4 (x)
                                 {
-                                    joystick.SetBtn(true, deviceId, (uint)axes[j][k]); // Press button axes[j][k]
-                                    button_pressed[axes[j][k]] = true;
+                                    if (File.Exists(Path.Combine(ahk, $"{axes[j][k] + u}d.ahk")))  // starts at 17 + 12 = 29
+                                    {
+                                        if (!button_pressed[axes[j][k] + u])  // ends at 20 + 12 = 32
+                                        {
+                                            button_pressed[axes[j][k] + u] = true;
+                                            Process.Start(Path.Combine(ahk, $"{axes[j][k] + u}d.ahk"));
+                                            keydown[axes[j][k] + u] = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"failed to find " + Path.Combine(ahk, $"{axes[j][k] + u}d.ahk"));
+                                    }
+                                    button_pressed_on_loop[axes[j][k] + u] = true;
+                                }
+                            }
+                            for (int k = 7; k < 8; k++)  // buttons from 1 to 8, but mapped internally from 21 to 28
+                            {
+                                button_pressed_on_loop[axes[j][k] - 4] = true;
+                                if (!button_pressed[axes[j][k] - 4])
+                                {
+                                    joystick.SetBtn(true, deviceId, (uint)(axes[j][k] + n)); // Press button axes[j][k]
+                                    button_pressed[axes[j][k] - 4] = true;
                                 }
                             }
                         }
                     }
                 }
-                for (uint i = 1; i < 13; i++)
+                for (uint i = 21; i < 33; i++)
                 {
                     if (button_pressed[i] && !button_pressed_on_loop[i])
                     {

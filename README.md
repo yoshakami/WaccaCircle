@@ -107,7 +107,7 @@ if not, then it'll launch `WaccaCircleStartup.exe` (it knows where the file is b
 in order to completely control your wacca, you'd want to make lnk files to shutdown the system or launch apps
 
 ## WaccaCircleStartup
-this exe presses or releases keystrokes when you press or release one of the outer 2 layers.<br>
+this exe presses or releases keystrokes when you press or release one of the outer 2 layers. (25 to 28.ahk)<br>
 top part: sends Up Arrow<br>
 right part: sends Right Arrow<br>
 bottom part: sends Down Arrow<br>
@@ -132,10 +132,18 @@ example : Desktop/WaccaCircle/1d.ahk when panel is pressed down, and 1u.ahk when
 11+12: F4<br>
 11: Win+D<br>
 12: Enter + switch to WaccaCircle32 if dolphin or spice is launched<br>
+<br>
+(outer pannels)<br>
 25: Up<br>
 26: Right<br>
 27: Down<br>
 28: Left<br>
+<br>
+(Osu! outer pannels)
+29: Up<br>
+30: Enter<br>
+31: Down<br>
+32: Esc<br>
 Dolphin: focuses the window.
 
 ## WaccaCircle12

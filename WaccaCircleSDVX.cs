@@ -26,7 +26,7 @@ namespace WaccaKeyBind
             LilyConsole.TouchManager;
             LilyConsole.VFDController; */
             //LilyConsole.TouchController = new LilyConsole.TouchController();
-            
+
             Console.CancelKeyPress += new ConsoleCancelEventHandler(OnCancelKeyPress);
             try
             {
@@ -90,33 +90,10 @@ namespace WaccaKeyBind
                 return;
             }
 
-            // Check available axes
-            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_X))
-                Console.WriteLine("Axis X available");
-            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_Y))
-                Console.WriteLine("Axis Y available");
-            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_Z))
-                Console.WriteLine("Axis Z available");
             if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_RX))
                 Console.WriteLine("Axis RX available");
             if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_RY))
                 Console.WriteLine("Axis RY available");
-            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_RZ))
-                Console.WriteLine("Axis RZ available");
-            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_SL0))
-                Console.WriteLine("Axis SL0 available");
-            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_SL1))
-                Console.WriteLine("Axis SL1 available");
-
-            // XY is the whole circle
-            long x_max = 0;
-            joystick.GetVJDAxisMax(deviceId, HID_USAGES.HID_USAGE_X, ref x_max);
-            long x_min = 0;
-            joystick.GetVJDAxisMin(deviceId, HID_USAGES.HID_USAGE_X, ref x_min);
-            long y_max = 0;
-            joystick.GetVJDAxisMax(deviceId, HID_USAGES.HID_USAGE_Y, ref y_max);
-            long y_min = 0;
-            joystick.GetVJDAxisMin(deviceId, HID_USAGES.HID_USAGE_Y, ref y_min);
 
             // RX and RY are the outer half of the circle
             long rx_max = 0;
@@ -128,20 +105,9 @@ namespace WaccaKeyBind
             long ry_min = 0;
             joystick.GetVJDAxisMin(deviceId, HID_USAGES.HID_USAGE_RY, ref ry_min);
 
-            // sl0 and sl1 are the inner half of the circle (near the screen)
-            long sl0_max = 0;
-            joystick.GetVJDAxisMax(deviceId, HID_USAGES.HID_USAGE_RX, ref sl0_max);
-            long sl0_min = 0;
-            joystick.GetVJDAxisMin(deviceId, HID_USAGES.HID_USAGE_RX, ref sl0_min);
-            long sl1_max = 0;
-            joystick.GetVJDAxisMax(deviceId, HID_USAGES.HID_USAGE_RY, ref sl1_max);
-            long sl1_min = 0;
-            joystick.GetVJDAxisMin(deviceId, HID_USAGES.HID_USAGE_RY, ref sl1_min);
-            Console.WriteLine($"sl0_max: {sl0_max}   sl1_max : {sl1_max}");
-            Console.WriteLine($"sl0_min: {sl0_min}   sl1_min : {sl1_min}");
-            long[] maxes = {y_max,x_max,ry_max, rx_max , sl0_max, sl1_max};
-            long[] mines = { y_min, x_min, ry_min, rx_min, sl0_min, sl1_min };
-            for (int i = 0;i < maxes.Length; i++)
+            long[] maxes = { ry_max, rx_max };
+            long[] mines = { ry_min, rx_min };
+            for (int i = 0; i < maxes.Length; i++)
             {
                 if (maxes[i] != axis_max)
                 {
@@ -153,12 +119,8 @@ namespace WaccaKeyBind
                     Console.WriteLine($"this program will not work as expected. mines[{i}] is {mines[i]}");
                 }
             }
-            double x_mid = (x_max - x_min) / 2;
-            double y_mid = (y_max - y_min) / 2;
             double rx_mid = (rx_max - rx_min) / 2;
             double ry_mid = (ry_max - ry_min) / 2;
-            double sl0_mid = (sl0_max - sl0_min) / 2;
-            double sl1_mid = (sl1_max - sl1_min) / 2;
             /*
              * 
 
@@ -177,37 +139,37 @@ namespace WaccaKeyBind
             // yup. defining an array is faster than doing maths
             // efficiency.
             int[][] axes =
-            {      // SDVX  x axis    y-axis   1-12  13-16  17-20  21-22  23-24  25-32
-                new int[] { X(0.5),   Y(30.5),  12,   16,    17,    21,    23,    25},    // 0  top circle
-                new int[] { X(1.5),   Y(31.5),  12,   16,    17,    21,    23,    25},    // 1
-                new int[] { X(2.5),   Y(32.5),  12,   16,    17,    21,    23,    25},    // 2
-                new int[] { X(3.5),   Y(33.5),  11,   16,    17,    21,    23,    25},    // 3
-                new int[] { X(4.5),   Y(34.5),  11,   16,    17,    21,    23,    25},    // 4
-                new int[] { X(5.5),   Y(35.5),  11,   16,    17,    21,    23,    25},    // 5
-                new int[] { X(6.5),   Y(36.5),  11,   16,    17,    21,    23,    25},    // 6
-                new int[] { X(7.5),   Y(37.5),  11,   16,    17,    21,    23,    25},    // 7
-                new int[] { X(8.5),   Y(38.5),  10,   16,    20,    21,    23,    26},    // 8
-                new int[] { X(9.5),   Y(39.5),  10,   16,    20,    21,    23,    26},    // 9
-                new int[] { X(10.5),  Y(40.5),  10,   16,    20,    21,    23,    26},    // 10
-                new int[] { X(11.5),  Y(41.5),  10,   16,    20,    21,    23,    26},    // 11
-                new int[] { X(12.5),  Y(42.5),  10,   16,    20,    21,    23,    26},    // 12
-                new int[] { X(13.5),  Y(43.5),   9,   16,    20,    21,    23,    26},    // 13
-                new int[] { X(14.5),  Y(44.5),   9,   16,    20,    21,    23,    26},    // 14  left
-                new int[] { X(45.5),  Y(45.5),   9,   15,    20,    22,    23,    26},    // 15  left 
-                new int[] { X(46.5),  Y(46.5),   9,   15,    20,    22,    23,    27},    // 16
-                new int[] { X(47.5),  Y(47.5),   9,   15,    20,    22,    23,    27},    // 17
-                new int[] { X(48.5),  Y(48.5),   8,   15,    20,    22,    23,    27},    // 18
-                new int[] { X(49.5),  Y(49.5),   8,   15,    20,    22,    23,    27},    // 19
-                new int[] { X(50.5),  Y(50.5),   8,   15,    20,    22,    23,    27},    // 20
-                new int[] { X(51.5),  Y(51.5),   8,   15,    20,    22,    23,    27},    // 21
-                new int[] { X(52.5),  Y(52.5),   8,   15,    20,    22,    23,    27},    // 22
-                new int[] { X(53.5),  Y(53.5),   7,   15,    19,    22,    23,    28},    // 23
-                new int[] { X(54.5),  Y(54.5),   7,   15,    19,    22,    23,    28},    // 24
-                new int[] { X(55.5),  Y(55.5),   7,   15,    19,    22,    23,    28},    // 25
-                new int[] { X(56.5),  Y(56.5),   7,   15,    19,    22,    23,    28},    // 26
+            {      // SDVX  x axis    y-axis   1-13  13-16  17-20  21-22  23-24  25-32
+                new int[] { X(0.5),   Y(30.5),  13,   16,    17,    21,    23,    25},    // 0  top circle
+                new int[] { X(1.5),   Y(31.5),  13,   16,    17,    21,    23,    25},    // 1
+                new int[] { X(2.5),   Y(32.5),  13,   16,    17,    21,    23,    25},    // 2
+                new int[] { X(3.5),   Y(33.5),  12,   16,    17,    21,    23,    25},    // 3
+                new int[] { X(4.5),   Y(34.5),  12,   16,    17,    21,    23,    25},    // 4
+                new int[] { X(5.5),   Y(35.5),  12,   16,    17,    21,    23,    25},    // 5
+                new int[] { X(6.5),   Y(36.5),  12,   16,    17,    21,    23,    25},    // 6
+                new int[] { X(7.5),   Y(37.5),  12,   16,    17,    21,    23,    25},    // 7
+                new int[] { X(8.5),   Y(38.5),  11,   16,    20,    21,    23,    26},    // 8
+                new int[] { X(9.5),   Y(39.5),  11,   16,    20,    21,    23,    26},    // 9
+                new int[] { X(10.5),  Y(40.5),  11,   16,    20,    21,    23,    26},    // 10
+                new int[] { X(11.5),  Y(41.5),  11,   16,    20,    21,    23,    26},    // 11
+                new int[] { X(12.5),  Y(42.5),  11,   16,    20,    21,    23,    26},    // 12
+                new int[] { X(13.5),  Y(43.5),  10,   16,    20,    21,    23,    26},    // 13
+                new int[] { X(14.5),  Y(44.5),  10,   16,    20,    21,    23,    26},    // 14  left
+                new int[] { X(45.5),  Y(45.5),  10,   15,    20,    22,    23,    26},    // 15  left 
+                new int[] { X(46.5),  Y(46.5),  10,   15,    20,    22,    23,    27},    // 16
+                new int[] { X(47.5),  Y(47.5),  10,   15,    20,    22,    23,    27},    // 17
+                new int[] { X(48.5),  Y(48.5),   9,   15,    20,    22,    23,    27},    // 18
+                new int[] { X(49.5),  Y(49.5),   9,   15,    20,    22,    23,    27},    // 19
+                new int[] { X(50.5),  Y(50.5),   9,   15,    20,    22,    23,    27},    // 20
+                new int[] { X(51.5),  Y(51.5),   9,   15,    20,    22,    23,    27},    // 21
+                new int[] { X(52.5),  Y(52.5),   9,   15,    20,    22,    23,    27},    // 22
+                new int[] { X(53.5),  Y(53.5),   8,   15,    19,    22,    23,    28},    // 23
+                new int[] { X(54.5),  Y(54.5),   8,   15,    19,    22,    23,    28},    // 24
+                new int[] { X(55.5),  Y(55.5),   8,   15,    19,    22,    23,    28},    // 25
+                new int[] { X(56.5),  Y(56.5),   8,   15,    19,    22,    23,    28},    // 26
                 new int[] { X(57.5),  Y(57.5),   7,   15,    19,    22,    23,    28},    // 27
-                new int[] { X(58.5),  Y(58.5),   6,   15,    19,    22,    23,    28},    // 28
-                new int[] { X(59.5),  Y(59.5),   6,   15,    19,    22,    23,    28},    // 29  bottom
+                new int[] { X(58.5),  Y(58.5),   7,   15,    19,    22,    23,    28},    // 28
+                new int[] { X(59.5),  Y(59.5),   7,   15,    19,    22,    23,    28},    // 29  bottom
                 new int[] { X(00.5),  Y(30.5),   6,   14,    19,    22,    24,    29},    // 30  bottom
                 new int[] { X(01.5),  Y(31.5),   6,   14,    19,    22,    24,    29},    // 31
                 new int[] { X(02.5),  Y(32.5),   6,   14,    19,    22,    24,    29},    // 32
@@ -215,7 +177,7 @@ namespace WaccaKeyBind
                 new int[] { X(04.5),  Y(34.5),   5,   14,    19,    22,    24,    29},    // 34
                 new int[] { X(05.5),  Y(35.5),   5,   14,    19,    22,    24,    29},    // 35
                 new int[] { X(06.5),  Y(36.5),   5,   14,    19,    22,    24,    29},    // 36
-                new int[] { X(07.5),  Y(37.5),   5,   14,    19,    22,    24,    30},    // 37
+                new int[] { X(07.5),  Y(37.5),   4,   14,    19,    22,    24,    30},    // 37
                 new int[] { X(08.5),  Y(38.5),   4,   14,    18,    22,    24,    30},    // 38
                 new int[] { X(09.5),  Y(39.5),   4,   14,    18,    22,    24,    30},    // 39
                 new int[] { X(10.5),  Y(40.5),   4,   14,    18,    22,    24,    30},    // 40
@@ -236,8 +198,8 @@ namespace WaccaKeyBind
                 new int[] { X(55.5),  Y(55.5),   1,   13,    17,    21,    24,    32},    // 55
                 new int[] { X(56.5),  Y(56.5),   1,   13,    17,    21,    24,    32},    // 56
                 new int[] { X(57.5),  Y(57.5),   1,   13,    17,    21,    24,    32},    // 57
-                new int[] { X(58.5),  Y(58.5),  12,   13,    17,    21,    24,    32},    // 58
-                new int[] { X(59.5),  Y(59.5),  12,   13,    17,    21,    24,    32},    // 59  top circle
+                new int[] { X(58.5),  Y(58.5),  13,   13,    17,    21,    24,    32},    // 58
+                new int[] { X(59.5),  Y(59.5),  13,   13,    17,    21,    24,    32},    // 59  top circle
             };
 
             var controller = new TouchController();
@@ -246,65 +208,73 @@ namespace WaccaKeyBind
             Console.WriteLine("Starting touch streams!");
             controller.StartTouchStream();
             Console.WriteLine("Started!");
-            bool pressed_on_loop;
-            bool rx_pressed_on_loop;
-            bool sl_pressed_on_loop;
-            int x_current;
-            int y_current;
             int rx_current;
             int ry_current;
-            int sl0_current;
-            int sl1_current;
-            byte inner_number_of_pressed_panels;
+            byte outer_number_ry;
             byte outer_number_of_pressed_panels;
             /* bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false
             bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false */
             bool[] button_pressed = Enumerable.Repeat(false, 33).ToArray();
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 33).ToArray();
-
+            byte state = 0; // 0 = full left, 1 = half left half right, 2 = full right
             while (true)
             {
                 Thread.Sleep(LAG_DELAY); // change this setting to 0ms, 100ms, 200ms, or 500ms.
                 controller.GetTouchData();
-                pressed_on_loop = false;
-                rx_pressed_on_loop = false;
-                sl_pressed_on_loop = false;
-                inner_number_of_pressed_panels = 0;
-                outer_number_of_pressed_panels = 0;
+                outer_number_of_pressed_panels = 0;  // rx-axis only
+                outer_number_ry = 0;
                 rx_current = 0;
                 ry_current = 0;
-                sl0_current = 0;
-                sl1_current = 0;
                 for (int i = 0; i < 4; i++)
                 {
                     for (int j = 0; j < 60; j++)
                     {
                         if (controller.touchData[i, j])  // if the circle if touched
                         {
-                            pressed_on_loop = true;
                             if (i > 1)  // RXY is only on the two outer layers, i==2 and i==3
                             {
-                                outer_number_of_pressed_panels++;
-                                rx_current += axes[j][0];
-                                ry_current += axes[j][1];
-                                for (int k = 4; k < 7; k++)  // outer buttons from 25 to 32
+                                for (int k = 4; k < 8; k++)  // outer buttons from 17 to 32
                                 {
-                                    button_pressed_on_loop[axes[j][k] + 8] = true;
-                                    if (!button_pressed[axes[j][k] + 8])
+                                    button_pressed_on_loop[axes[j][k]] = true;
+                                    if (!button_pressed[axes[j][k]])
                                     {
-                                        joystick.SetBtn(true, deviceId, (uint)(axes[j][k] + 8)); // Press button axes[j][k] + 12
-                                        button_pressed[axes[j][k] + 8] = true;
+                                        joystick.SetBtn(true, deviceId, (uint)(axes[j][k])); // Press button axes[j][k]
+                                        button_pressed[axes[j][k]] = true;
                                     }
                                 }
-                                rx_pressed_on_loop = true;
+                                if (state == 0)
+                                {
+                                    outer_number_of_pressed_panels++;
+                                    rx_current += axes[j][0];
+                                }
+                                else if (state == 2)
+                                {
+                                    outer_number_ry++;
+                                    ry_current += axes[j][1];
+                                }
+                                if (state == 1 && j < 30)
+                                {
+                                    ry_current += axes[j][1];
+                                    outer_number_ry++;
+                                }
+                                else  // state == 1 && j > 29
+                                {
+                                    outer_number_of_pressed_panels++;
+                                    rx_current += axes[j][1];  // yup, I put a 1 there
+                                }
                             }
                             else
                             {
-                                inner_number_of_pressed_panels++;
-                                sl0_current += axes[j][0];
-                                sl1_current += axes[j][1];
-                                for (int k = 2; k < 7; k++)  // inner buttons from 1 to 24
+                                for (int k = 2; k < 3; k++)  // inner buttons from 1 to 13
                                 {
+                                    if (axes[j][k] == 13)
+                                    {
+                                        state++;
+                                        if (state == 3)
+                                        {
+                                            state = 0;
+                                        }
+                                    }
                                     button_pressed_on_loop[axes[j][k]] = true;
                                     if (!button_pressed[axes[j][k]])
                                     {
@@ -312,32 +282,19 @@ namespace WaccaKeyBind
                                         button_pressed[axes[j][k]] = true;
                                     }
                                 }
-                                sl_pressed_on_loop = true;
                             }
                         }
                     }
                 }
-                if (pressed_on_loop)  // average all the axes towards the middle of all the pressed spots
+                if (outer_number_of_pressed_panels > 0)  // average all the axes towards the middle of all the pressed spots
                 {
-                    x_current = (sl0_current + rx_current) / (outer_number_of_pressed_panels + inner_number_of_pressed_panels);
-                    y_current = (sl1_current + ry_current) / (outer_number_of_pressed_panels + inner_number_of_pressed_panels);
-                    joystick.SetAxis(x_current, deviceId, HID_USAGES.HID_USAGE_X);
-                    joystick.SetAxis(y_current, deviceId, HID_USAGES.HID_USAGE_Y);
-
-                    if (inner_number_of_pressed_panels > 0)
-                    {
-                        sl0_current /= inner_number_of_pressed_panels;
-                        sl1_current /= inner_number_of_pressed_panels;
-                        joystick.SetAxis(sl0_current, deviceId, HID_USAGES.HID_USAGE_SL0);
-                        joystick.SetAxis(sl1_current, deviceId, HID_USAGES.HID_USAGE_SL1);
-                    }
-                    if (outer_number_of_pressed_panels > 0)
-                    {
-                        rx_current /= outer_number_of_pressed_panels;
-                        ry_current /= outer_number_of_pressed_panels;
-                        joystick.SetAxis(rx_current, deviceId, HID_USAGES.HID_USAGE_RX);
-                        joystick.SetAxis(ry_current, deviceId, HID_USAGES.HID_USAGE_RY);
-                    }
+                    rx_current /= outer_number_of_pressed_panels;
+                    joystick.SetAxis(rx_current, deviceId, HID_USAGES.HID_USAGE_RX);
+                }
+                if (outer_number_ry > 0)
+                {
+                    ry_current /= outer_number_ry;
+                    joystick.SetAxis(ry_current, deviceId, HID_USAGES.HID_USAGE_RY);
                 }
                 for (uint i = 1; i < 33; i++)
                 {
@@ -347,24 +304,6 @@ namespace WaccaKeyBind
                         button_pressed[i] = false;
                     }
                     button_pressed_on_loop[i] = false;
-                }
-                if (!pressed_on_loop)
-                {
-                    // Set joystick axis to midpoint
-                    joystick.SetAxis((int)x_mid, deviceId, HID_USAGES.HID_USAGE_X);
-                    joystick.SetAxis((int)y_mid, deviceId, HID_USAGES.HID_USAGE_Y);
-                }
-                if (!rx_pressed_on_loop)
-                {
-                    // Set joystick axis to midpoint
-                    joystick.SetAxis((int)rx_mid, deviceId, HID_USAGES.HID_USAGE_RX);
-                    joystick.SetAxis((int)ry_mid, deviceId, HID_USAGES.HID_USAGE_RY);
-                }
-                if (!sl_pressed_on_loop)
-                {
-                    // Set joystick axis to midpoint
-                    joystick.SetAxis((int)sl0_mid, deviceId, HID_USAGES.HID_USAGE_SL0);
-                    joystick.SetAxis((int)sl1_mid, deviceId, HID_USAGES.HID_USAGE_SL1);
                 }
             }
         }

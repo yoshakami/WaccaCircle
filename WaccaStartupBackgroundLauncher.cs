@@ -9,6 +9,8 @@ class Program
 {
     static string WaccaCircleStartup = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "WaccaCircleStartup.exe");
     static string WaccaCircle32 = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "WaccaCircle32.exe");
+    static string WaccaCircleSDVX = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "WaccaCircleSDVX.exe");
+    static string WaccaCircleOsu = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "WaccaCircleOsu.exe");
     static void Main()
     {
         while (true)
@@ -78,13 +80,55 @@ class Program
                             // Read and display the output
                             output = process4.StandardOutput.ReadToEnd();
                             process4.WaitForExit();
-                            if (output == "\r\r\n\r\r\n")  // mercury, dolphin, and spice are not launched => We're on the menu!
+                            if (output == "\r\r\n\r\r\n")  // this means we need to launch WaccaCircle => Check if sdvx is launched
                             {
-                                Process.Start(WaccaCircleStartup);
+                                // Create a new process to run WMIC command
+                                Process process5 = new Process();
+                                process5.StartInfo.FileName = "wmic";
+                                process5.StartInfo.Arguments = "process where \"name like '%SOUND VOLTE%'\" get name, processid";
+                                process5.StartInfo.RedirectStandardOutput = true; // Capture the output
+                                process5.StartInfo.UseShellExecute = false;
+                                process5.StartInfo.CreateNoWindow = true;
+
+                                // Start the process
+                                process5.Start();
+
+                                // Read and display the output
+                                output = process5.StandardOutput.ReadToEnd();
+                                process5.WaitForExit();
+                                if (output == "\r\r\n\r\r\n")  // this means we need to launch WaccaCircle => Check if osu is launched
+                                {
+                                    // Create a new process to run WMIC command
+                                    Process process6 = new Process();
+                                    process6.StartInfo.FileName = "wmic";
+                                    process6.StartInfo.Arguments = "process where \"name like '%osu%'\" get name, processid";
+                                    process6.StartInfo.RedirectStandardOutput = true; // Capture the output
+                                    process6.StartInfo.UseShellExecute = false;
+                                    process6.StartInfo.CreateNoWindow = true;
+
+                                    // Start the process
+                                    process6.Start();
+
+                                    // Read and display the output
+                                    output = process6.StandardOutput.ReadToEnd();
+                                    process6.WaitForExit();
+                                    if (output == "\r\r\n\r\r\n")  // mercury, dolphin, spice, sdvx, and osu are not launched => We're on the menu!
+                                    {
+                                        Process.Start(WaccaCircleStartup);
+                                    }
+                                    else  // osu is launched! launch joystick
+                                    {
+                                        Process.Start(WaccaCircleOsu);
+                                    }
+                                }
+                                else  // sdvx is launched! launch joystick
+                                {
+                                    Process.Start(WaccaCircleSDVX);
+                                }
                             }
                             else  // spice is launched! launch joystick
                             {
-                                Process.Start(WaccaCircle32);
+                                Process.Start(WaccaCircleSDVX);
                             }
                         }
                         else  // dolphin is launched! launch joystick

@@ -22,12 +22,6 @@ wmic process where "name like '%WaccaCircle%'" call terminate
 ```
 
 
-## Dolphin
-be careful: dolphin only accepts up to 32 buttons in DInput (use SDL on newer versions, but these newer versions won't work on wacca because qt6 decided to stop working on windows OS not updated prior to 2020)
-so there's no use to launching WaccaCircle72 if you intend to use it on dolphin.
-download latest version of dolphin that works : https://dl.dolphin-emu.org/builds/0c/ca/dolphin-master-5.0-16793-x64.7z
-mirror : https://web.archive.org/web/20230605023019/https://dl.dolphin-emu.org/builds/0c/ca/dolphin-master-5.0-16793-x64.7z
-
 ## faq
 Q: What happens if I press two directions at the same time on the joystick axes?<br>
 A: it will average all pressed directions on the same axis, thus reaching a spot on the joystick that wouldn't be possible by touching the circle with only one hand
@@ -70,10 +64,39 @@ A: copy WaccaStartup.exe, press Win+R then type `shell:startup` and press enter,
 Q: What are each exe for?<br>
 A: Read below
 
+## Dolphin
+be careful: dolphin only accepts up to 32 buttons in DInput (use SDL on newer versions, but these newer versions won't work on wacca because qt6 decided to stop working on windows OS not updated prior to 2020)<br>
+so there's no use to launching WaccaCircle96 if you intend to use it on dolphin.<br>
+download latest version of dolphin that works : https://dl.dolphin-emu.org/builds/0c/ca/dolphin-master-5.0-16793-x64.7z<br>
+mirror : https://web.archive.org/web/20230605023019/https://dl.dolphin-emu.org/builds/0c/ca/dolphin-master-5.0-16793-x64.7z
+
+## osu
+I've made an exe file especially for https://rulesets.info/rulesets/sentakki <br>
+the mappings are as such (after configuring osu and playing a song in sentakki): <br>
+top: up<br>
+bottom: down <br>
+extreme right: enter <br>
+extreme left: escape <br>
+<br>
+press the outer right part twice to enter song selection<br>
+press the outer top part to nagivate upwards<br>
+press the outer bottom part to navigate downwards<br>
+press the outer right part again to start a song.<br>
+you can play it by tapping anywhere you want on the circle<br>
+after the play is finished, press the outer left part to go back to song selection<br>
+if you wanna quit the game, spam press the outer left part<br>
+
+## spice
+if you wanna bind controls with spicecfg, you'll see that whenever you click on bind, the ioboard takes over.<br>
+in order to fix this, you just need to unplug USB-1. (once you're done mapping, plug it back to play safe)
+
 ## WaccaStartupBackgroundLauncher
 this is the executable that you'd add to windows startup.<br>
 this headless executable will check if any WaccaCircle*.exe is launched on the system<br>
 if not, then it'll check if any Mercury*.exe is launched on the system<br>
+if not, then it'll launch `WaccaCircleOsu.exe` if you're running osu<br>
+if not, then it'll launch `WaccaCircleSDVX.exe` if you're running SDVX<br>
+if not, then it'll launch `WaccaCircle32.exe` if you're running Dolphin<br>
 if not, then it'll launch `WaccaCircleStartup.exe` (it knows where the file is because the exe knows its own folder path)<br>
 in order to completely control your wacca, you'd want to make lnk files to shutdown the system or launch apps
 
@@ -89,6 +112,7 @@ for each area, if [number].lnk exists on your desktop, then it launches that lnk
 for example, if 12.lnk exists on my desktop and I touch the inner top of the circle, then it will launch 12.lnk<br>
 else, here's the mapping of the key presses and releases.<br>
 the release will contain the ahk files launching the keystrokes below.<br>
+if you press Alt, then it'll add 12 to all panels, so you can press alt+tab and still have 10.lnk<br>
 example : Desktop/WaccaCircle/1d.ahk when panel is pressed down, and 1u.ahk when panel is released up. <br>
 1:  F1<br>
 2:  Win<br>
@@ -97,15 +121,15 @@ example : Desktop/WaccaCircle/1d.ahk when panel is pressed down, and 1u.ahk when
 5:  Escape<br>
 6:  F11 (located at the bottom of the inner circle)<br>
 7:  Shift<br>
-8:  Win+D<br>
 9:  Alt<br>
-10: Tab<br>
-11: F4<br>
+10+12: Tab<br>
+11+12: F4<br>
+11: Win+D<br>
 12: Enter + switch to WaccaCircle32 if dolphin or spice is launched<br>
-13: Up<br>
-14: Right<br>
-15: Down<br>
-16: Left<br>
+25: Up<br>
+26: Right<br>
+27: Down<br>
+28: Left<br>
 Dolphin: focuses the window.
 
 ## WaccaCircle12

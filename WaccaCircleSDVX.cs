@@ -267,17 +267,17 @@ namespace WaccaKeyBind
                             {
                                 for (int k = 2; k < 3; k++)  // inner buttons from 1 to 13
                                 {
-                                    if (axes[j][k] == 13)
-                                    {
-                                        state++;
-                                        if (state == 3)
-                                        {
-                                            state = 0;
-                                        }
-                                    }
                                     button_pressed_on_loop[axes[j][k]] = true;
                                     if (!button_pressed[axes[j][k]])
                                     {
+                                        if (axes[j][k] == 10)
+                                        {
+                                            state++;
+                                            if (state == 3)
+                                            {
+                                                state = 0;
+                                            }
+                                        }
                                         joystick.SetBtn(true, deviceId, (uint)axes[j][k]); // Press button axes[j][k]
                                         button_pressed[axes[j][k]] = true;
                                     }

@@ -53,10 +53,15 @@ A: This tool is not for you. It is meant to work on Wacca, not on your weird com
 ```
 
 Q: How do I compile?<br>
-A: install 22GB of Visual Studio C# compilers and install .NET Framework 4.5.2 library SDK, then open the .sln file with visual studio. In solution explorer, right click the .cs file => exclude from project, then right click on WaccaCircle => add => existing item => select desired .cs file. Then Choose `Release` and `x64` from the dropdown menus and click start. once you did, WaccaCircle.exe will appear in the bin folder, feel free to rename it to whatever you want.
+A: install 22GB of Visual Studio C# compilers and install .NET Framework 4.5.2 library SDK, then open the .sln file with visual studio.<br>
+   In solution explorer, right click the .cs file => exclude from project, then right click on WaccaCircle => add => existing item => select desired .cs file.<br>
+   Then Choose `Release` and `x64` from the dropdown menus and click start. once you did, WaccaCircle.exe will appear in the bin folder, feel free to rename it to whatever you want.<br>
+   depending on your desired .cs file, you'd need to swap WaccaCircle.csproj with the correct one.
 
 Q: DLL Error<br>
-A: you need to paste all the dll files in the same folder as the .exe, which means that if you're compiling, you need to paste all dll files in the bin folder.
+A: you need to paste all the dll files in the same folder as the .exe,<br>
+   which means that if you're compiling, you need to paste all dll files in the bin folder.<br>
+
 
 Q: How do I add WaccaStartup to windows startup?<br>
 A: copy WaccaStartup.exe, press Win+R then type `shell:startup` and press enter, then paste shortcut (do not paste the exe, you definitely want a lnk there) 
@@ -75,8 +80,9 @@ I've made an exe file especially for https://rulesets.info/rulesets/sentakki <br
 the mappings are as such (after configuring osu and playing a song in sentakki): <br>
 top: up<br>
 bottom: down <br>
-extreme right: enter <br>
-extreme left: escape <br>
+2 rightest lanes: enter <br>
+2 toppest lanes: escape (maintain 2-sec during a song to escape from it)<br>
+if you wanna press up instead of escape, you just need to touch outside of the 2 lanes at the top.<br>
 <br>
 press the outer right part twice to enter song selection<br>
 press the outer top part to nagivate upwards<br>

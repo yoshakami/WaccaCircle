@@ -56,14 +56,13 @@
     <Reference Include="LilyConsole">
       <HintPath>..\LilyConsole.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
     <Reference Include="vJoyInterfaceWrap">
       <HintPath>..\..\..\..\..\..\..\..\Program Files\vJoy\x64\vJoyInterfaceWrap.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WaccaCircleOsu.cs" />
+    <Compile Include="WaccaCircleRPG.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

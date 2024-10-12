@@ -96,6 +96,21 @@ if you wanna quit the game, spam press the outer left part<br>
 if you wanna bind controls with spicecfg, you'll see that whenever you click on bind, the ioboard takes over.<br>
 in order to fix this, you just need to unplug USB-1. (once you're done mapping, plug it back to play safe)
 
+## taiko
+todo
+
+## rpg
+| button id   | Description | location on the circle |
+| ----------- | ----------- | ---------------------- |
+| 1           | back        | inner left             |
+| 2           | enter       | inner right            |
+| 4           | open menu   | inner top              |
+| 7           | attacc      | inner bottom           |
+| 13          | up          | outer top              |
+| 14          | down        | outer bottom           |
+| 15          | left        | outer left             |
+| 16          | right       | outer right            |
+
 ## WaccaStartupBackgroundLauncher
 this is the executable that you'd add to windows startup.<br>
 this headless executable will check if any WaccaCircle*.exe is launched on the system<br>

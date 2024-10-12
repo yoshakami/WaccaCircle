@@ -76,8 +76,8 @@ download latest version of dolphin that works : https://dl.dolphin-emu.org/build
 mirror : https://web.archive.org/web/20230605023019/https://dl.dolphin-emu.org/builds/0c/ca/dolphin-master-5.0-16793-x64.7z
 
 ## osu
-I've made an exe file especially for https://rulesets.info/rulesets/sentakki <br>
-the mappings are as such (after configuring osu and playing a song in sentakki): <br>
+I've made an exe file especially for sentakki, I also edited the ruleset to remove touch screen use, see https://github.com/yoshakami/osu-without-touch-screen/releases/tag/2024.718.0 <br>
+the mappings are as such (if you didn't change controls): <br>
 top: up<br>
 bottom: down <br>
 2 rightest lanes: enter <br>
@@ -97,7 +97,12 @@ if you wanna bind controls with spicecfg, you'll see that whenever you click on 
 in order to fix this, you just need to unplug USB-1. (once you're done mapping, plug it back to play safe)
 
 ## taiko
-todo
+| button id   | Description | location on the circle |
+| ----------- | ----------- | ---------------------- |
+| 12          | outer left  | outer left             |
+| 13          | outer right | outer right            |
+| 14          | inner left  | outer bottom           |
+| 15          | inner right | inner right            |
 
 ## rpg
 | button id   | Description | location on the circle |

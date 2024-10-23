@@ -97,6 +97,19 @@ if you wanna bind controls with spicecfg, you'll see that whenever you click on 
 in order to fix this, you just need to unplug USB-1. (once you're done mapping, plug it back to play safe)
 
 ## taiko
+if your screen is not 120Hz (which is the case for wacca)<br>
+you will need NVIDIA Control Pannel ver 472.12 (or another, but 417.71 is too low and 565.90 is too high)<br>
+on the nvidia control pannel, do this with taiko.exe: <br>
+- Max Frame Rate: 120FPS <br>
+- Low Latency Mode: Ultra <br>
+- Power Management Mode: Prefer maximum performance <br>
+- Vertical Sync: Fast <br>
+<br>
+on the file "config.toml", do this : <br>
+shared_audio = false <br>
+vsync = false <br>
+windowed = false <br>
+<br>
 | button id   | Description | location on the circle |
 | ----------- | ----------- | ---------------------- |
 | 12          | outer left  | outer left             |

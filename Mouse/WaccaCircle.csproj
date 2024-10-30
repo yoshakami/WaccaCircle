@@ -53,6 +53,10 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LilyConsole">
+      <HintPath>..\..\LilyConsole.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>

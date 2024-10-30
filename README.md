@@ -75,7 +75,7 @@ that's why the joystick made for cemu has no overlap in controls. Here are the c
 outer circle: left stick (X and Y)<br>
 inner circle: 12 buttons with special mapping some buttons unless you press the motion toggle<br>
 suggested controls for each button of the inner circle:<br>
-outer circle + hold 1: up blow mic, down show screen, left stick press, right stick press<br>
+outer circle + hold 1: up blow mic, down show screen, left stick press, right stick press (buttons 13 to 16)<br>
 outer circle + hold 2: shake forward, backwards, left, and right<br>
 outer circle + hold 3: right stick (RX and RY)<br>
 4: ZR<br>
@@ -83,7 +83,7 @@ outer circle + hold 3: right stick (RX and RY)<br>
 6: A<br>
 7: L<br>
 8: ZL<br>
-outer circle + hold 9: D-pad (4 buttons)<br>
+outer circle + hold 9: D-pad (buttons 17 to 20)<br>
 outer circle + hold 10: tilt<br>
 outer circle + hold 11: toggle motion<br>
 12: B<br>

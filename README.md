@@ -76,7 +76,8 @@ outer circle: left stick (X and Y)<br>
 inner circle: 12 buttons with special mapping some buttons unless you press the motion toggle<br>
 suggested controls for each button of the inner circle:<br>
 outer circle + hold 1: up blow mic, down show screen, left stick press, right stick press<br>
-outer circle + hold 2: shake forward, backwards, left, and right<br>
+~~outer circle + hold 2: shake forward, backwards, left, and right~~ motion controls are only for SDL controllers at the moment in cemu<br>
+2: X
 outer circle + hold 3: right stick (RX and RY)<br>
 4: ZR<br>
 5: R<br>
@@ -84,17 +85,10 @@ outer circle + hold 3: right stick (RX and RY)<br>
 7: L<br>
 8: ZL<br>
 outer circle + hold 9: D-pad (4 buttons)<br>
-outer circle + hold 10: tilt<br>
-outer circle + hold 11: toggle motion<br>
+~~outer circle + hold 10: tilt~~ motion controls are only for SDL controllers at the moment in cemu<br>
+10: Y
+outer circle + hold 11: left=minus, right=plus<br>
 12: B<br>
-<br>
-if 11 is toggled: (tap again to turn off)<br>
-1: same thing (left right stick press, blow mic and show screen)<br>
-2: plus<br>
-3: X<br>
-9: Y<br>
-10: minus<br>
-11: turn off<br>
 
 ## Xinput
 the exe made for Cemu uses DirectInput<br>

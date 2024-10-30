@@ -96,9 +96,12 @@ if 11 is toggled: (tap again to turn off)<br>
 10: minus<br>
 11: turn off<br>
 
-## Xinput
+## DXinput
 the exe made for Cemu uses DirectInput<br>
-this one uses Xinput with the same controls
+this one uses Xinput with the same controls, and still keeps the code to feed the Direct Input vJoy device
+
+## Xinput
+this exe is the same as Xinput but without DirectInput feeder. Thus, you don't need to install vJoy to run it
 
 ## osu
 I've made an exe file especially for sentakki, I also edited the ruleset to remove touch screen use, see https://github.com/yoshakami/osu-without-touch-screen/releases/tag/2024.718.0 <br>

@@ -60,9 +60,6 @@
       <HintPath>packages\Nefarius.ViGEm.Client.1.17.183\lib\net452\Nefarius.ViGEm.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="vJoyInterfaceWrap">
-      <HintPath>..\..\..\..\..\..\..\..\..\Program Files\vJoy\x64\vJoyInterfaceWrap.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />

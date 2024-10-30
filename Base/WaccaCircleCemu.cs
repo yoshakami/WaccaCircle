@@ -95,18 +95,10 @@ namespace WaccaKeyBind
                 Console.WriteLine("Axis X available");
             if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_Y))
                 Console.WriteLine("Axis Y available");
-            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_Z))
-                Console.WriteLine("Axis Z available");
             if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_RX))
                 Console.WriteLine("Axis RX available");
             if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_RY))
                 Console.WriteLine("Axis RY available");
-            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_RZ))
-                Console.WriteLine("Axis RZ available");
-            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_SL0))
-                Console.WriteLine("Axis SL0 available");
-            if (joystick.GetVJDAxisExist(deviceId, HID_USAGES.HID_USAGE_SL1))
-                Console.WriteLine("Axis SL1 available");
 
             // XY is the whole circle
             long x_max = 0;
@@ -251,11 +243,6 @@ namespace WaccaKeyBind
             bool sl_pressed_on_loop;
             int x_current;
             int y_current;
-            int rx_current;
-            int ry_current;
-            int sl0_current;
-            int sl1_current;
-            byte inner_number_of_pressed_panels;
             byte outer_number_of_pressed_panels;
             /* bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false
             bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false */
@@ -268,13 +255,9 @@ namespace WaccaKeyBind
                 controller.GetTouchData();
                 pressed_on_loop = false;
                 rx_pressed_on_loop = false;
-                sl_pressed_on_loop = false;
-                inner_number_of_pressed_panels = 0;
                 outer_number_of_pressed_panels = 0;
-                rx_current = 0;
-                ry_current = 0;
-                sl0_current = 0;
-                sl1_current = 0;
+                x_current = 0;
+                y_current = 0;
                 for (int i = 0; i < 4; i++)
                 {
                     for (int j = 0; j < 60; j++)
@@ -285,8 +268,8 @@ namespace WaccaKeyBind
                             if (i > 1)  // RXY is only on the two outer layers, i==2 and i==3
                             {
                                 outer_number_of_pressed_panels++;
-                                rx_current += axes[j][0];
-                                ry_current += axes[j][1];
+                                x_current += axes[j][0];
+                                y_current += axes[j][1];
                                 for (int k = 4; k < 7; k++)  // outer buttons from 25 to 32
                                 {
                                     button_pressed_on_loop[axes[j][k] + 8] = true;
@@ -300,9 +283,6 @@ namespace WaccaKeyBind
                             }
                             else
                             {
-                                inner_number_of_pressed_panels++;
-                                sl0_current += axes[j][0];
-                                sl1_current += axes[j][1];
                                 for (int k = 2; k < 7; k++)  // inner buttons from 1 to 24
                                 {
                                     button_pressed_on_loop[axes[j][k]] = true;
@@ -317,26 +297,21 @@ namespace WaccaKeyBind
                         }
                     }
                 }
-                if (pressed_on_loop)  // average all the axes towards the middle of all the pressed spots
+                if (rx_pressed_on_loop)  // average all the axes towards the middle of all the pressed spots
                 {
-                    x_current = (sl0_current + rx_current) / (outer_number_of_pressed_panels + inner_number_of_pressed_panels);
-                    y_current = (sl1_current + ry_current) / (outer_number_of_pressed_panels + inner_number_of_pressed_panels);
-                    joystick.SetAxis(x_current, deviceId, HID_USAGES.HID_USAGE_X);
-                    joystick.SetAxis(y_current, deviceId, HID_USAGES.HID_USAGE_Y);
-
-                    if (inner_number_of_pressed_panels > 0)
+                  if (button_pressed[3])
                     {
-                        sl0_current /= inner_number_of_pressed_panels;
-                        sl1_current /= inner_number_of_pressed_panels;
-                        joystick.SetAxis(sl0_current, deviceId, HID_USAGES.HID_USAGE_SL0);
-                        joystick.SetAxis(sl1_current, deviceId, HID_USAGES.HID_USAGE_SL1);
+                        x_current /= outer_number_of_pressed_panels;
+                        y_current /= outer_number_of_pressed_panels;
+                        joystick.SetAxis(x_current, deviceId, HID_USAGES.HID_USAGE_X);
+                        joystick.SetAxis(y_current, deviceId, HID_USAGES.HID_USAGE_Y);
                     }
-                    if (outer_number_of_pressed_panels > 0)
+                  else if (!button_pressed[1] && !button_pressed[2] && !button_pressed[9] && !button_pressed[10])
                     {
-                        rx_current /= outer_number_of_pressed_panels;
-                        ry_current /= outer_number_of_pressed_panels;
-                        joystick.SetAxis(rx_current, deviceId, HID_USAGES.HID_USAGE_RX);
-                        joystick.SetAxis(ry_current, deviceId, HID_USAGES.HID_USAGE_RY);
+                        x_current /= outer_number_of_pressed_panels;
+                        y_current /= outer_number_of_pressed_panels;
+                        joystick.SetAxis(x_current, deviceId, HID_USAGES.HID_USAGE_RX);
+                        joystick.SetAxis(y_current, deviceId, HID_USAGES.HID_USAGE_RY);
                     }
                 }
                 for (uint i = 1; i < 33; i++)

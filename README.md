@@ -52,12 +52,6 @@ Q: Unhandled Exception: System.IO.IOException: The port 'COM4' does not exist.<b
 A: This tool is not for you. It is meant to work on Wacca, not on your weird computer without COM ports.
 ```
 
-Q: How do I compile?<br>
-A: install 22GB of Visual Studio C# compilers and install .NET Framework 4.5.2 library SDK, then open the .sln file with visual studio.<br>
-   In solution explorer, right click the .cs file => exclude from project, then right click on WaccaCircle => add => existing item => select desired .cs file.<br>
-   Then Choose `Release` and `x64` from the dropdown menus and click start. once you did, WaccaCircle.exe will appear in the bin folder, feel free to rename it to whatever you want.<br>
-   depending on your desired .cs file, you'd need to swap WaccaCircle.csproj with the correct one.
-
 Q: DLL Error<br>
 A: you need to paste all the dll files in the same folder as the .exe,<br>
    which means that if you're compiling, you need to paste all dll files in the bin folder.<br>
@@ -74,6 +68,37 @@ be careful: dolphin only accepts up to 32 buttons in DInput (use SDL on newer ve
 so there's no use to launching WaccaCircle96 if you intend to use it on dolphin.<br>
 download latest version of dolphin that works : https://dl.dolphin-emu.org/builds/0c/ca/dolphin-master-5.0-16793-x64.7z<br>
 mirror : https://web.archive.org/web/20230605023019/https://dl.dolphin-emu.org/builds/0c/ca/dolphin-master-5.0-16793-x64.7z
+
+## Cemu
+Cemu runs on a solid 60FPS on Wacca. it supports Xinput and Dinput, but you can't map names by hand in a config file<br>
+that's why the joystick made for cemu has no overlap in controls. Here are the controls:<br>
+outer circle: left stick (X and Y)<br>
+inner circle: 12 buttons with special mapping some buttons unless you press the motion toggle<br>
+suggested controls for each button of the inner circle:<br>
+outer circle + hold 1: up blow mic, down show screen, left stick press, right stick press<br>
+outer circle + hold 2: shake forward, backwards, left, and right<br>
+outer circle + hold 3: right stick (RX and RY)<br>
+4: ZR<br>
+5: R<br>
+6: A<br>
+7: L<br>
+8: ZL<br>
+outer circle + hold 9: D-pad (4 buttons)<br>
+outer circle + hold 10: tilt<br>
+outer circle + hold 11: toggle motion<br>
+12: B<br>
+<br>
+if 11 is toggled: (tap again to turn off)<br>
+1: same thing (left right stick press, blow mic and show screen)<br>
+2: plus<br>
+3: X<br>
+9: Y<br>
+10: minus<br>
+11: turn off<br>
+
+## Xinput
+the exe made for Cemu uses DirectInput<br>
+this one uses Xinput with the same controls
 
 ## osu
 I've made an exe file especially for sentakki, I also edited the ruleset to remove touch screen use, see https://github.com/yoshakami/osu-without-touch-screen/releases/tag/2024.718.0 <br>
@@ -128,6 +153,19 @@ windowed = false <br>
 | 14          | down        | outer bottom           |
 | 15          | left        | outer left             |
 | 16          | right       | outer right            |
+
+## WaccaCircleDesktop
+the following conditions needs to be met before launching this one:
+you have 24 lnk on your desktop (named from 1 to 24),<br>
+you've set the screen resolution to 1080x1920 and the zoom to 100% (in display settings),<br>
+you've made the taskbar to be docked at the bottom, and always visible
+when you right click on an empty space of the desktop, the options are set as follows
+view > [check] show desktop icons
+view > large icons
+view > [uncheck] auto arrange icons
+view > [uncheck] align icons to grid
+sort by > item type
+
 
 ## WaccaStartupBackgroundLauncher
 this is the executable that you'd add to windows startup.<br>
@@ -272,3 +310,11 @@ button 88: right half of the outer circle <br>
 <br>
 buttons 89 to 96 divide the inner circle by 8, mapped clockwise
 <br>
+
+## compilation
+the different folders are there because some files do not require the same dependencies to be compiled. they use less DLL, so the exe are optimized<br>
+<br>
+install 22GB of Visual Studio C# compilers and install .NET Framework 4.5.2 library SDK, then open the .sln file with visual studio.<br>
+In solution explorer, right click the .cs file => exclude from project, then right click on WaccaCircle => add => existing item => select desired .cs file.<br>
+Then Choose `Release` and `x64` from the dropdown menus and click start. once you did, WaccaCircle.exe will appear in the bin folder, feel free to rename it to whatever you want.<br>
+depending on your desired .cs file, you'd need to swap WaccaCircle.csproj with the correct one.

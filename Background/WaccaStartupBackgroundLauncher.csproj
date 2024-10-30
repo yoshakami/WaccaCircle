@@ -54,10 +54,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LilyConsole">
-      <HintPath>..\LilyConsole.dll</HintPath>
+      <HintPath>..\..\LilyConsole.dll</HintPath>
     </Reference>
     <Reference Include="vJoyInterfaceWrap">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files\vJoy\x64\vJoyInterfaceWrap.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\..\Program Files\vJoy\x64\vJoyInterfaceWrap.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

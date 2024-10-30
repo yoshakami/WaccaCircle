@@ -54,10 +54,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FTD2XX_NET">
-      <HintPath>..\FTD2XX_NET.dll</HintPath>
+      <HintPath>..\..\FTD2XX_NET.dll</HintPath>
     </Reference>
     <Reference Include="LilyConsole">
-      <HintPath>..\LilyConsole.dll</HintPath>
+      <HintPath>..\..\LilyConsole.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
@@ -65,7 +65,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="vJoyInterfaceWrap">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files\vJoy\x64\vJoyInterfaceWrap.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\..\Program Files\vJoy\x64\vJoyInterfaceWrap.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>

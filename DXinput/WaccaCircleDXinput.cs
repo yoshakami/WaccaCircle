@@ -5,6 +5,9 @@ using System.Net.Sockets;
 using System.Net;
 using System.Threading;
 using vJoyInterfaceWrap;
+using Nefarius.ViGEm.Client; // ViGEm Client SDK
+using Nefarius.ViGEm.Client.Targets;
+using Nefarius.ViGEm.Client.Targets.Xbox360;
 
 namespace WaccaKeyBind
 {
@@ -18,6 +21,12 @@ namespace WaccaKeyBind
 
         static DSUClient dsuClient = new DSUClient();
 
+        // Initialize ViGEm client
+        static ViGEmClient client = new ViGEmClient();
+        // Create a new virtual Xbox 360 controller
+        static IXbox360Controller xboxController = client.CreateXbox360Controller();
+        
+        static Xbox360Button[] xbox_button = { null, null, Xbox360Button.Start, Xbox360Button.X, null, Xbox360Button.RightShoulder, Xbox360Button.A, Xbox360Button.LeftShoulder, null, Xbox360Button.Y, Xbox360Button.Back, null, Xbox360Button.B, Xbox360Button.Guide, Xbox360Button.RightThumb, null, Xbox360Button.LeftThumb, Xbox360Button.Up, Xbox360Button.Right, Xbox360Button.Down, Xbox360Button.Left };
         public static void Main(string[] args)
         {
             /*
@@ -31,6 +40,7 @@ namespace WaccaKeyBind
             LilyConsole.TouchManager;
             LilyConsole.VFDController; */
             //LilyConsole.TouchController = new LilyConsole.TouchController();
+            xboxController.Connect();
 
             Console.CancelKeyPress += new ConsoleCancelEventHandler(OnCancelKeyPress);
             try
@@ -65,7 +75,44 @@ namespace WaccaKeyBind
             joystick.RelinquishVJD(deviceId);
             dsuClient.Close();
         }
-        
+        public static void PressXboxButton(int i)
+        {
+            if (xbox_button[i] != null)
+            {
+                xboxController.SetButtonState(xbox_button[i], true);
+            }
+            else
+            {
+                if (i == 4)  // Right trigger
+                {
+                    // release right trigger
+                    xboxController.SetSliderValue(Xbox360Slider.RightTrigger, 255);  // max is 255
+                }
+                else if (i == 8)  // Left trigger
+                {
+                    xboxController.SetSliderValue(Xbox360Slider.LeftTrigger, 255);  // max is 255
+                }
+            }
+        }
+        public static void ReleaseXboxButton(uint i)
+        {
+            if (xbox_button[i] != null)
+            {
+                xboxController.SetButtonState(xbox_button[i], false);
+            }
+            else
+            {
+                if (i == 4)  // Right trigger
+                {
+                    // release right trigger
+                    xboxController.SetSliderValue(Xbox360Slider.RightTrigger, 0);  // max is 255
+                }
+                else if (i == 8)  // Left trigger
+                {
+                    xboxController.SetSliderValue(Xbox360Slider.LeftTrigger, 0);  // max is 255
+                }
+            }
+        }
         public static void TouchCombinedTest()
         {
             // Check if vJoy is enabled and ready
@@ -254,7 +301,7 @@ namespace WaccaKeyBind
             bool[] button_pressed = Enumerable.Repeat(false, 25).ToArray();
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 25).ToArray();
             bool toggle11 = false;
-
+            
             while (true)
             {
                 Thread.Sleep(LAG_DELAY); // change this setting to 0ms, 100ms, 200ms, or 500ms.
@@ -301,11 +348,13 @@ namespace WaccaKeyBind
                                             if (toggle11)
                                             {
                                                 joystick.SetBtn(true, deviceId, (uint)axes[j][k]); // Press button axes[j][k]
+                                                PressXboxButton(axes[j][k]);
                                             }
                                         }
                                         else
                                         {
                                             joystick.SetBtn(true, deviceId, (uint)axes[j][k]); // Press button axes[j][k]
+                                            PressXboxButton(axes[j][k]);
                                         }
                                         button_pressed[axes[j][k]] = true;
                                     }
@@ -325,6 +374,10 @@ namespace WaccaKeyBind
                                 joystick.SetBtn(true, deviceId, i - 8); // Press button 13 to 16
                                 button_pressed_on_loop[i - 8] = true;
                                 button_pressed[i - 8] = true;
+                                if (xbox_button[i] != null)
+                                {
+                                    xboxController.SetButtonState(xbox_button[i], true);
+                                }
                             }
                         }
                     }
@@ -354,6 +407,8 @@ namespace WaccaKeyBind
                             // Set joystick axis to midpoint
                             joystick.SetAxis((int)rx_mid, deviceId, HID_USAGES.HID_USAGE_RX);
                             joystick.SetAxis((int)ry_mid, deviceId, HID_USAGES.HID_USAGE_RY);
+                            xboxController.SetAxisValue(Xbox360Axis.RightThumbX, 0);
+                            xboxController.SetAxisValue(Xbox360Axis.RightThumbY, 0);
                         }
                         else
                         {
@@ -361,6 +416,10 @@ namespace WaccaKeyBind
                             y_current /= outer_number_of_pressed_panels;
                             joystick.SetAxis(x_current, deviceId, HID_USAGES.HID_USAGE_RX);
                             joystick.SetAxis(y_current, deviceId, HID_USAGES.HID_USAGE_RY);
+                            x_current = (short)((x_current << 1) - axis_max);
+                            y_current = (short)((y_current << 1) - axis_max);
+                            xboxController.SetAxisValue(Xbox360Axis.RightThumbX, (short)x_current);
+                            xboxController.SetAxisValue(Xbox360Axis.RightThumbY, (short)y_current);
                         }
                     }
                     else if (button_pressed[9] && !toggle11)
@@ -372,6 +431,10 @@ namespace WaccaKeyBind
                                 joystick.SetBtn(true, deviceId, i - 4); // Press button 17 to 20
                                 button_pressed_on_loop[i - 4] = true;
                                 button_pressed[i - 4] = true;
+                                if (xbox_button[i] != null)
+                                {
+                                    xboxController.SetButtonState(xbox_button[i], true);
+                                }
                             }
                         }
                     }
@@ -397,18 +460,25 @@ namespace WaccaKeyBind
                     }
                     else  // left stick
                     {
-                        x_current /= outer_number_of_pressed_panels;
-                        y_current /= outer_number_of_pressed_panels;
-                        joystick.SetAxis(x_current, deviceId, HID_USAGES.HID_USAGE_X);
-                        joystick.SetAxis(y_current, deviceId, HID_USAGES.HID_USAGE_Y);
-
+                            x_current /= outer_number_of_pressed_panels;
+                            y_current /= outer_number_of_pressed_panels;
+                            joystick.SetAxis(x_current, deviceId, HID_USAGES.HID_USAGE_X);
+                            joystick.SetAxis(y_current, deviceId, HID_USAGES.HID_USAGE_Y);
+                            x_current = (short)((x_current << 1) - axis_max);
+                            y_current = (short)((y_current << 1) - axis_max);
+                            xboxController.SetAxisValue(Xbox360Axis.LeftThumbX, (short)x_current);
+                            xboxController.SetAxisValue(Xbox360Axis.LeftThumbY, (short)y_current);
+                        
                     }
                 }
                 else  // rx not pressed on loop
                 {
-                    // Set joystick axis to midpoint
-                    joystick.SetAxis((int)rx_mid, deviceId, HID_USAGES.HID_USAGE_RX);
-                    joystick.SetAxis((int)ry_mid, deviceId, HID_USAGES.HID_USAGE_RY);
+                        // Set joystick axis to midpoint
+                        joystick.SetAxis((int)rx_mid, deviceId, HID_USAGES.HID_USAGE_RX);
+                        joystick.SetAxis((int)ry_mid, deviceId, HID_USAGES.HID_USAGE_RY);
+                        xboxController.SetAxisValue(Xbox360Axis.LeftThumbX, 0);
+                        xboxController.SetAxisValue(Xbox360Axis.LeftThumbY, 0);
+                    
                 }
                 for (uint i = 1; i < 25; i++)
                 {
@@ -421,6 +491,7 @@ namespace WaccaKeyBind
                         else if (toggle11)
                         {
                             joystick.SetBtn(false, deviceId, i); // Release button i
+                            ReleaseXboxButton(i);
                         }
                         else if (i == 2 || i == 3 || i == 9 || i == 10)
                         {
@@ -429,8 +500,9 @@ namespace WaccaKeyBind
                         else
                         {
                             joystick.SetBtn(false, deviceId, i); // Release button i
+                            ReleaseXboxButton(i);
                         }
-
+                        
                         button_pressed[i] = false;
                     }
                     button_pressed_on_loop[i] = false;

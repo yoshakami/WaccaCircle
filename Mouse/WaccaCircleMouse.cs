@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Linq;
 using System.IO;
 using System.Diagnostics;
+using System.Threading;
 
 class Program
 {
@@ -134,6 +135,37 @@ class Program
                     // Optionally, you can send an Enter key after the message
                     SendKeys.SendWait("{ENTER}");
         */
+        while (true)
+        {
+            try
+            {
+                Mouse();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("vvv---------- Message -----------vvv");
+                Console.WriteLine(e.Message);
+                Console.WriteLine("vvv---------- StackTrace --------vvv");
+                Console.WriteLine(e.StackTrace);
+                if (e.InnerException != null)
+                {
+                    Console.WriteLine("vvv---------- InnerException Message --------vvv");
+                    Console.WriteLine(e.InnerException.Message);
+                }
+                Console.WriteLine("vvv---------- Source ------------vvv");
+                Console.WriteLine(e.Source);
+                Console.WriteLine("vvv---------- TargetSite --------vvv");
+                Console.WriteLine(e.TargetSite);
+                Console.WriteLine("vvv---------- HelpLink --------vvv");
+                Console.WriteLine(e.HelpLink);
+            }
+            Thread.Sleep(1000);
+        }
+    }
+        
+    } // end Main()
+    static void Mouse()
+    {
         Point startPos = Cursor.Position;
         Point endPos;
         var controller = new TouchController();
@@ -257,5 +289,5 @@ class Program
                 button_pressed_on_loop[i] = false;
             } // end for buttons 17 to 20
         }  // end while(true)
-    } // end Main()
+    }
 }

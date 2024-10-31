@@ -11,8 +11,9 @@ namespace WaccaKeyBind
         static vJoy joystick = new vJoy();
         // Device ID (must be 1-16, based on vJoy configuration)
         static uint deviceId = 1;  // I compiled with this set to 1, 2, and 3
-        static int LAG_DELAY = 30; // tweak between 0ms and 100ms to reduce CPU usage or increase responsiveness
+        static int LAG_DELAY = 50; // tweak between 0ms and 100ms to reduce CPU usage or increase responsiveness
         static long axis_max = 32767;
+        static int canceled_value = 0;
         public static void Main(string[] args)
         {
             /*
@@ -28,36 +29,44 @@ namespace WaccaKeyBind
             //LilyConsole.TouchController = new LilyConsole.TouchController();
             // Initialize vJoy interface
             Console.CancelKeyPress += new ConsoleCancelEventHandler(OnCancelKeyPress);
-            try
+            while (true)
             {
-                TouchCombinedTest();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("vvv---------- Message -----------vvv");
-                Console.WriteLine(e.Message);
-                Console.WriteLine("vvv---------- StackTrace --------vvv");
-                Console.WriteLine(e.StackTrace);
-                if (e.InnerException != null)
+                try
                 {
-                    Console.WriteLine("vvv---------- InnerException Message --------vvv");
-                    Console.WriteLine(e.InnerException.Message);
+                    TouchCombinedTest();
                 }
-                Console.WriteLine("vvv---------- Source ------------vvv");
-                Console.WriteLine(e.Source);
-                Console.WriteLine("vvv---------- TargetSite --------vvv");
-                Console.WriteLine(e.TargetSite);
-                Console.WriteLine("vvv---------- HelpLink --------vvv");
-                Console.WriteLine(e.HelpLink);
+                catch (Exception e)
+                {
+
+                    joystick.RelinquishVJD(deviceId);
+                    Thread.Sleep(1000 + canceled_value);  // 0 unless ctrl + c is pressed
+                    Console.WriteLine("vvv---------- Message -----------vvv");
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine("vvv---------- StackTrace --------vvv");
+                    Console.WriteLine(e.StackTrace);
+                    if (e.InnerException != null)
+                    {
+                        Console.WriteLine("vvv---------- InnerException Message --------vvv");
+                        Console.WriteLine(e.InnerException.Message);
+                    }
+                    Console.WriteLine("vvv---------- Source ------------vvv");
+                    Console.WriteLine(e.Source);
+                    Console.WriteLine("vvv---------- TargetSite --------vvv");
+                    Console.WriteLine(e.TargetSite);
+                    Console.WriteLine("vvv---------- HelpLink --------vvv");
+                    Console.WriteLine(e.HelpLink);
+                }
             }
-            return;
         }
+
         static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
+            canceled_value = 2147480000;
             Console.WriteLine("ctrl+c detected!\ndisposing virtual Joystick....\ndone!\npress enter to exit...");
-            Console.ReadLine();
             // Release the device when done
+            Console.ReadLine();
             joystick.RelinquishVJD(deviceId);
+            Environment.Exit(0);
         }
         public static void TouchCombinedTest()
         {

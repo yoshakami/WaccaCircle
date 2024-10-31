@@ -31,29 +31,33 @@ namespace WaccaKeyBind
             //LilyConsole.TouchController = new LilyConsole.TouchController();
             // Initialize vJoy interface
             Console.CancelKeyPress += new ConsoleCancelEventHandler(OnCancelKeyPress);
-            try
+            while(true)
             {
-                TouchCombinedTest();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("vvv---------- Message -----------vvv");
-                Console.WriteLine(e.Message);
-                Console.WriteLine("vvv---------- StackTrace --------vvv");
-                Console.WriteLine(e.StackTrace);
-                if (e.InnerException != null)
+                try
                 {
-                    Console.WriteLine("vvv---------- InnerException Message --------vvv");
-                    Console.WriteLine(e.InnerException.Message);
+                    TouchCombinedTest();
                 }
-                Console.WriteLine("vvv---------- Source ------------vvv");
-                Console.WriteLine(e.Source);
-                Console.WriteLine("vvv---------- TargetSite --------vvv");
-                Console.WriteLine(e.TargetSite);
-                Console.WriteLine("vvv---------- HelpLink --------vvv");
-                Console.WriteLine(e.HelpLink);
+                catch (Exception e)
+                {
+                    Console.WriteLine("vvv---------- Message -----------vvv");
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine("vvv---------- StackTrace --------vvv");
+                    Console.WriteLine(e.StackTrace);
+                    if (e.InnerException != null)
+                    {
+                        Console.WriteLine("vvv---------- InnerException Message --------vvv");
+                        Console.WriteLine(e.InnerException.Message);
+                    }
+                    Console.WriteLine("vvv---------- Source ------------vvv");
+                    Console.WriteLine(e.Source);
+                    Console.WriteLine("vvv---------- TargetSite --------vvv");
+                    Console.WriteLine(e.TargetSite);
+                    Console.WriteLine("vvv---------- HelpLink --------vvv");
+                    Console.WriteLine(e.HelpLink);
+                }
+                joystick.RelinquishVJD(deviceId);
+                Thread.Sleep(1000);
             }
-            return;
         }
         static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {

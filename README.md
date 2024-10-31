@@ -3,12 +3,11 @@
  link : https://github.com/yellowberryHN/LilyConsole
 
 ## Usage
-You need to download vJoy and configure a controller (don't forget to set up buttons number. by default it's 8).<br>
+You need to download vJoy and configure a controller (don't forget to set up buttons number. by default it's 8, setting 128 or 96 is fine).<br>
 download: https://sourceforge.net/projects/vjoystick/ <br>
 source: https://github.com/shauleiz/vJoy <br>
 
-First, choose your lag delay, this will change the CPU usage of the app on Wacca
-You need to configure the joystick#1 before launching any exe of WaccaCircle.
+You need to configure the joystick#1 through vJoyConf.exe before launching any exe of WaccaCircle.
 the -id2 or -id3 at the end of the exe name means that it's acting with joystick#2 or joystick#3 respectively
 
 ## lnk
@@ -57,8 +56,8 @@ A: you need to paste all the dll files in the same folder as the .exe,<br>
    which means that if you're compiling, you need to paste all dll files in the bin folder.<br>
 
 
-Q: How do I add WaccaStartup to windows startup?<br>
-A: copy WaccaStartup.exe, press Win+R then type `shell:startup` and press enter, then paste shortcut (do not paste the exe, you definitely want a lnk there) 
+Q: How do I add WaccaStartupBackgroundLauncher to windows startup?<br>
+A: copy WaccaStartupBackgroundLauncher.exe, press Win+R then type `shell:startup` and press enter, then paste shortcut (do not paste the exe, you definitely want a lnk there) 
 
 Q: What are each exe for?<br>
 A: Read below
@@ -144,6 +143,7 @@ shared_audio = false <br>
 vsync = false <br>
 windowed = false <br>
 <br>
+
 | button id   | Description | location on the circle |
 | ----------- | ----------- | ---------------------- |
 | 12          | outer left  | outer left             |
@@ -163,17 +163,20 @@ windowed = false <br>
 | 15          | left        | outer left             |
 | 16          | right       | outer right            |
 
-## WaccaCircleDesktop
-the following conditions needs to be met before launching this one:
+## WaccaCircleDesktop24
+the following conditions needs to be met before launching this one:<br>
 you have 24 lnk on your desktop (named from 1 to 24),<br>
 you've set the screen resolution to 1080x1920 and the zoom to 100% (in display settings),<br>
-you've made the taskbar to be docked at the bottom, and always visible
-when you right click on an empty space of the desktop, the options are set as follows
-view > [check] show desktop icons
-view > large icons
-view > [uncheck] auto arrange icons
-view > [uncheck] align icons to grid
+you've made the taskbar to be docked at the bottom, and always visible<br>
+when you right click on an empty space of the desktop, the options are set as follows<br>
+view > [check] show desktop icons<br>
+view > large icons<br>
+view > [uncheck] auto arrange icons<br>
+view > [uncheck] align icons to grid<br>
 sort by > item type
+
+## WaccaCircleDesktop32
+same as above but you need to have 32 lnk files on your desktop
 
 
 ## WaccaStartupBackgroundLauncher

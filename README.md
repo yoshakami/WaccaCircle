@@ -102,7 +102,7 @@ new controls (no toggle for 11):
 outer circle + hold 11: minus for left part, and plus for right part<br>
 
 ## DXinput
-the exe made for Cemu uses DirectInput<br>
+the exe made for CemuWithMotion uses DirectInput<br>
 this one uses Xinput with the same controls, and still keeps the code to feed the Direct Input vJoy device
 
 ## Xinput
@@ -198,11 +198,21 @@ left part: sends Left Arrow<br>
 <br>
 for the inner 2 layers, the circle is divided by 12 areas (which are mapped by their clockwise position. 1 is at 1 o'clock)<br>
 for each area, if [number].lnk exists on your desktop, then it launches that lnk (you can press or hold, it doesn't matter, it'll only launch once per touch)<br>
-for example, if 12.lnk exists on my desktop and I touch the inner top of the circle, then it will launch 12.lnk<br>
+for example, if I hold the outer left circle, 12d.lnk exists on my desktop, and I touch the inner top of the circle, then it will launch 12.lnk<br>
 else, here's the mapping of the key presses and releases.<br>
+(outer pannels)<br>
+arrow1: Up<br>
+arrow2: Right<br>
+arrow3: Down<br>
+arrow4: Left<br>
+<br>
+hold left + touch inner circle: launch 1 to 12.lnk<br>
+hold right + touch inner circle: launch 13 to 24.lnk<br>
+hold up + touch inner circle: launch 25 to 32.lnk<br>
+remember that if a lnk file doesn't exist, it will launch two ahk files instead.<br>
+<br>
 the release will contain the ahk files launching the keystrokes below.<br>
-if you press Alt, then it'll add 12 to all panels, so you can press alt+tab and still have 10.lnk<br>
-example : Desktop/WaccaCircle/1d.ahk when panel is pressed down, and 1u.ahk when panel is released up. <br>
+example : Desktop/WaccaCircle/key1d.ahk when panel is pressed down, and key1u.ahk when panel is released up. <br>
 1:  F1<br>
 2:  Win<br>
 3:  Ctrl<br>
@@ -210,23 +220,18 @@ example : Desktop/WaccaCircle/1d.ahk when panel is pressed down, and 1u.ahk when
 5:  Escape<br>
 6:  F11 (located at the bottom of the inner circle)<br>
 7:  Shift<br>
+8:  Win + D<br>
 9:  Alt<br>
-10+12: Tab<br>
-11+12: F4<br>
-11: Win+D<br>
+10: Tab<br>
+11: F4<br>
 12: Enter + switch to WaccaCircle32 if dolphin or spice is launched<br>
 <br>
-(outer pannels)<br>
-25: Up<br>
-26: Right<br>
-27: Down<br>
-28: Left<br>
 <br>
 (Osu! outer pannels)
-29: Up<br>
-30: Enter<br>
-31: Down<br>
-32: Esc<br>
+osu1: Up<br>
+osu2: Enter<br>
+osu3: Down<br>
+osu4: Esc<br>
 Dolphin: focuses the window.
 
 ## WaccaCircle12

@@ -38,20 +38,21 @@ class Program
     [STAThread] // Required for SendKeys
     static void Main()
     {
+        Thread.Sleep(500);
         Click(new Point(1079, 1919));
         Thread.Sleep(1000);
-        int[] hours_x = { 540, 770, 938, 1000, 938, 770, 540, 310, 141, 80, 141, 309, 540, 700, 817, 860, 817, 700, 540, 380, 262, 220, 262, 379, 540, 697, 762, 697, 540, 382, 317, 382 };
-        int[] hours_y = { 447, 508, 677, 907, 1137, 1305, 1367, 1305, 1137, 907, 677, 508, 587, 629, 747, 907, 1067, 1184, 1227, 1184, 1067, 907, 747, 629, 684, 749, 907, 1064, 1129, 1064, 907, 382 };
+        int[] hours_x = { 540, 770, 938, 1000, 938, 770, 540, 310, 141, 80, 141, 309, 540, 700, 817, 860, 817, 700, 540, 380, 262, 220, 262, 379, 566, 705, 748, 668, 513, 374, 331, 411 };
+        int[] hours_y = { 447, 508, 677, 907, 1137, 1305, 1367, 1305, 1137, 907, 677, 508, 587, 629, 747, 907, 1067, 1184, 1227, 1184, 1067, 907, 747, 629, 698, 778, 933, 1072, 1115, 1035, 880, 411 };
         int x;
         int y;
         x = 150;
         y = 650;
-        int[] moved_x = { 365, 470, 575, 680 };
-        int[] moved_y = { 50, 50, 50, 50 };
+        int[] moved_x = { 365, 470, 575, 680, 785, 890, 995, 995 };
+        int[] moved_y = {  50,  50,  50,  50,  50,  50,  50, 200 };
         Point startPos;
         Point endPos;
         int y_space = 149;
-        int LAG_DELAY = 100;
+        int LAG_DELAY = 200;
         for (int k = 0; k < 4; k++)
         {
             Point startPos2 = new Point(x, y);
@@ -59,7 +60,18 @@ class Program
             // Perform a drag-click
             DragClick(startPos2, endPos2);
             Thread.Sleep(LAG_DELAY);
-            y += 150;
+            y += y_space;
+        }
+        x = 260;
+        y = 800;
+        for (int k = 4; k < 8; k++)
+        {
+            startPos = new Point(x, y);
+            endPos = new Point(moved_x[k], moved_y[k]);
+            // Perform a drag-click
+            DragClick(startPos, endPos);
+            Thread.Sleep(LAG_DELAY);
+            y += y_space;
         }
         x = 50;
         y = 200;
@@ -129,12 +141,20 @@ class Program
         // place circle
         DragClick(startPos, endPos);
         Thread.Sleep(LAG_DELAY);
-        for (int i = 25; i < 33; i++)
+        for (int i = 25; i < 29; i++)
         {
             startPos = new Point(x, y);
             endPos = new Point(hours_x[i], hours_y[i]);
             DragClick(startPos, endPos);
             y += y_space;
+        }
+        for (int i = 29; i < 33; i++)
+        {
+            Point startPos3 = new Point(moved_x[i-25], moved_y[i-25]);
+            Point endPos3 = new Point(hours_x[i], hours_y[i]);
+            // Perform a drag-click
+            DragClick(startPos3, endPos3);
+            Thread.Sleep(LAG_DELAY);
         }
         startPos = new Point(x, y);
         endPos = new Point(hours_x[24], hours_y[24]);

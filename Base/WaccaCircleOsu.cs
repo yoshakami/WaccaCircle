@@ -186,8 +186,8 @@ namespace WaccaKeyBind
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 33).ToArray();
             bool[] keydown = Enumerable.Repeat(false, 33).ToArray();
             sbyte n = -24;
-            sbyte s = -4;
-            sbyte u = 12;
+            sbyte s = -20;
+            sbyte u = -16;
             while (true)
             {
                 Thread.Sleep(LAG_DELAY); // change this setting to 0ms, 100ms, 200ms, or 500ms.
@@ -202,24 +202,24 @@ namespace WaccaKeyBind
                             {
                                 for (int k = 4; k < 5; k++)  // parse axes columns, split by 4 (x)
                                 {
-                                    if (!button_pressed[axes[j][k] + u])  // starts at 17 + 12 = 29
+                                    if (!button_pressed[axes[j][k] + u])  // starts at 17 + -16 = 1
                                     {
                                         button_pressed[axes[j][k] + u] = true;
-                                        if (File.Exists(Path.Combine(ahk, $"{axes[j][k] + u}d.ahk")))  // ends at 20 + 12 = 32
+                                        if (File.Exists(Path.Combine(ahk, $"osu{axes[j][k] + u}d.ahk")))  // ends at 20 + -16 = 4
                                         {
 
-                                            Process.Start(Path.Combine(ahk, $"{axes[j][k] + u}d.ahk"));
+                                            Process.Start(Path.Combine(ahk, $"osu{axes[j][k] + u}d.ahk"));
                                             keydown[axes[j][k] + u] = true;
                                         }
                                         else
                                         {
-                                            Console.WriteLine($"failed to find " + Path.Combine(ahk, $"{axes[j][k] + u}d.ahk"));
+                                            Console.WriteLine($"failed to find " + Path.Combine(ahk, $"osu{axes[j][k] + u}d.ahk"));
                                         }
                                     }
                                     button_pressed_on_loop[axes[j][k] + u] = true;
                                 }
                             }
-                            for (int k = 7; k < 8; k++)  // buttons from 1 to 8, but mapped internally from 21 to 28
+                            for (int k = 7; k < 8; k++)  // buttons from 1 to 8, but mapped internally from 5 to 12
                             {
                                 button_pressed_on_loop[axes[j][k] + s] = true;
                                 if (!button_pressed[axes[j][k] + s])
@@ -232,30 +232,30 @@ namespace WaccaKeyBind
                         }
                     }
                 }
-                for (uint i = 21; i < 33; i++)
+                for (uint i = 1; i < 13; i++)
                 {
                     if (button_pressed[i] && !button_pressed_on_loop[i])
                     {
                         joystick.SetBtn(false, deviceId, i); // Release button i
                         button_pressed[i] = false;
-                        if (i > 28) // 29 to 32
+                        if (i < 5) // 1 to 4
                         {
                             if (keydown[i])
                             {
-                                if (File.Exists(Path.Combine(ahk, $"{i}u.ahk")))
+                                if (File.Exists(Path.Combine(ahk, $"osu{i}u.ahk")))
                                 {
-                                    Process.Start(Path.Combine(ahk, $"{i}u.ahk"));
+                                    Process.Start(Path.Combine(ahk, $"osu{i}u.ahk"));
                                 }
                                 else
                                 {
-                                    Console.WriteLine($"failed to find " + Path.Combine(ahk, $"{i}u.ahk"));
+                                    Console.WriteLine($"failed to find " + Path.Combine(ahk, $"osu{i}u.ahk"));
                                 }
                                 keydown[i] = false;
                             }
                         }
                         else
                         {
-                            joystick.SetBtn(false, deviceId, (uint)(i + n - s));  // 21 - 24 + 4 should be 1
+                            joystick.SetBtn(false, deviceId, (uint)(i + n - s));  // 5 - 24 + 20 should be 1
                         }
                     }
                     button_pressed_on_loop[i] = false;

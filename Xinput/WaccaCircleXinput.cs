@@ -233,7 +233,7 @@ namespace WaccaKeyBind
                                         {
                                             toggle11 = toggle11 == false;
                                         }
-                                        else if (axes[j][k] == 2 || axes[j][k] == 3 || axes[j][k] == 9 || axes[j][k] == 10)
+                                        else if (axes[j][k] == 1 || axes[j][k] == 2 || axes[j][k] == 3 || axes[j][k] == 9 || axes[j][k] == 10)
                                         {
                                             if (toggle11)
                                             {
@@ -370,7 +370,7 @@ namespace WaccaKeyBind
                         {
                             ReleaseXboxButton(i);
                         }
-                        else if (i == 2 || i == 3 || i == 9 || i == 10)
+                        else if (i == 1 || i == 2 || i == 3 || i == 9 || i == 10)
                         {
                             //"do nothing";
                         }

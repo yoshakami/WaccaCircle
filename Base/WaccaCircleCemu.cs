@@ -1,8 +1,6 @@
 using LilyConsole;
 using System;
 using System.Linq;
-using System.Net.Sockets;
-using System.Net;
 using System.Threading;
 using vJoyInterfaceWrap;
 
@@ -15,8 +13,6 @@ namespace WaccaKeyBind
         static uint deviceId = 1;  // I compiled with this set to 1, 2, and 3
         static int LAG_DELAY = 50; // tweak between 0ms and 100ms to reduce CPU usage or increase responsiveness
         static long axis_max = 32767;
-
-        static DSUClient dsuClient = new DSUClient();
 
         public static void Main(string[] args)
         {
@@ -63,7 +59,6 @@ namespace WaccaKeyBind
             Console.ReadLine();
             // Release the device when done
             joystick.RelinquishVJD(deviceId);
-            dsuClient.Close();
         }
         
         public static void TouchCombinedTest()
@@ -248,12 +243,9 @@ namespace WaccaKeyBind
             bool rx_pressed_on_loop;
             int x_current;
             int y_current;
-            float giro_x;
-            float giro_y;
             byte outer_number_of_pressed_panels;
-            bool[] button_pressed = Enumerable.Repeat(false, 25).ToArray();
-            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 25).ToArray();
-            bool toggle11 = false;
+            bool[] button_pressed = Enumerable.Repeat(false, 29).ToArray();
+            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 29).ToArray();
 
             while (true)
             {
@@ -274,13 +266,13 @@ namespace WaccaKeyBind
                                 outer_number_of_pressed_panels++;
                                 x_current += axes[j][0];
                                 y_current += axes[j][1];
-                                for (int k = 4; k < 5; k++)  // outer buttons from 21 to 24
+                                for (int k = 4; k < 5; k++)  // outer buttons from 25 to 28
                                 {
-                                    button_pressed_on_loop[axes[j][k] + 4] = true;
-                                    if (!button_pressed[axes[j][k] + 4])
+                                    button_pressed_on_loop[axes[j][k] + 8] = true;
+                                    if (!button_pressed[axes[j][k] + 8])
                                     {   // don't send input yet! end for the circle scan to end
                                         // joystick.SetBtn(true, deviceId, (uint)(axes[j][k] + 8)); // Press button axes[j][k] + 12
-                                        button_pressed[axes[j][k] + 4] = true;
+                                        button_pressed[axes[j][k] + 8] = true;
                                     }
                                 }
                                 rx_pressed_on_loop = true;
@@ -292,16 +284,8 @@ namespace WaccaKeyBind
                                     button_pressed_on_loop[axes[j][k]] = true;
                                     if (!button_pressed[axes[j][k]])
                                     {
-                                        if (axes[j][k] == 11)
+                                        if (axes[j][k] == 1 || axes[j][k] == 3 || axes[j][k] == 9 || axes[j][k] == 11)
                                         {
-                                            toggle11 = toggle11 == false;
-                                        }
-                                        else if (axes[j][k] == 2 || axes[j][k] == 3 || axes[j][k] == 9 || axes[j][k] == 10)
-                                        {
-                                            if (toggle11)
-                                            {
-                                                joystick.SetBtn(true, deviceId, (uint)axes[j][k]); // Press button axes[j][k]
-                                            }
                                         }
                                         else
                                         {
@@ -316,38 +300,19 @@ namespace WaccaKeyBind
                 }
                 if (rx_pressed_on_loop)  // average all the axes towards the middle of all the pressed spots
                 {
-                    if (button_pressed[1]) // 4 buttons xdddd
+                    if (button_pressed[1]) // 4 buttons
                     {
-                        for (uint i = 21; i < 25; i++)
+                        for (uint i = 25; i < 29; i++)
                         {
                             if (button_pressed[i])
                             {
-                                joystick.SetBtn(true, deviceId, i - 8); // Press button 13 to 16
-                                button_pressed_on_loop[i - 8] = true;
-                                button_pressed[i - 8] = true;
+                                joystick.SetBtn(true, deviceId, i - 12); // Press button 13 to 16
+                                button_pressed_on_loop[i - 12] = true;
+                                button_pressed[i - 12] = true;
                             }
                         }
                     }
-                    else if (button_pressed[2] && !toggle11) // shake
-                    {
-                        if (!button_pressed_on_loop[10])
-                        {
-                            dsuClient.SendMotionData(controllerId: 0,
-                                                     accelX: 0.0f, accelY: 0.0f, accelZ: 9.8f,
-                                                     gyroX: 0.0f, gyroY: 0.0f, gyroZ: 0.0f);
-                        }
-                        else
-                        {
-                            x_current /= outer_number_of_pressed_panels;
-                            giro_y = (x_current / outer_number_of_pressed_panels / 2048.0f) - 8.0f;
-                            giro_x = (y_current / outer_number_of_pressed_panels / 2048.0f) - 8.0f;
-                            // Send shake motion data
-                            dsuClient.SendMotionData(controllerId: 0,
-                                                     accelX: giro_x, accelY: giro_y, accelZ: 9.8f + giro_y,
-                                                     gyroX: giro_x / 8, gyroY: giro_y / 8, gyroZ: giro_y / 8 + giro_x / 8);
-                        }
-                    }
-                    else if (button_pressed[3] && !toggle11)  // right stick
+                    else if (button_pressed[3])  // right stick
                     {
                         if (!button_pressed_on_loop[3])
                         {
@@ -363,36 +328,28 @@ namespace WaccaKeyBind
                             joystick.SetAxis(y_current, deviceId, HID_USAGES.HID_USAGE_RY);
                         }
                     }
-                    else if (button_pressed[9] && !toggle11)
+                    else if (button_pressed[9]) // D-PAD
                     {
-                        for (uint i = 21; i < 25; i++)
+                        for (uint i = 25; i < 29; i++)
                         {
                             if (button_pressed_on_loop[i])
                             {
-                                joystick.SetBtn(true, deviceId, i - 4); // Press button 17 to 20
-                                button_pressed_on_loop[i - 4] = true;
-                                button_pressed[i - 4] = true;
+                                joystick.SetBtn(true, deviceId, i - 8); // Press button 17 to 20
+                                button_pressed_on_loop[i - 8] = true;
+                                button_pressed[i - 8] = true;
                             }
                         }
                     }
-                    else if (button_pressed[10] && !toggle11)  // tilt
+                    else if (button_pressed[11]) // 4 buttons 
                     {
-                        if (!button_pressed_on_loop[10])
+                        for (uint i = 25; i < 29; i++)
                         {
-                            dsuClient.SendMotionData(controllerId: 0,
-                                                     accelX: 0.0f, accelY: 0.0f, accelZ: 9.8f,
-                                                     gyroX: 0.0f, gyroY: 0.0f, gyroZ: 0.0f);
-                        }
-                        else
-                        {
-                            x_current /= outer_number_of_pressed_panels;
-                            giro_y = (x_current / outer_number_of_pressed_panels / 16383.5f) - 1.0f;
-                            giro_x = (y_current / outer_number_of_pressed_panels / 16383.5f) - 1.0f;
-                            // Send tilt motion data
-                            dsuClient.SendMotionData(controllerId: 0,
-                                                     accelX: 0.0f, accelY: 0.0f, accelZ: 9.8f,
-                                                     gyroX: giro_x, gyroY: giro_y, gyroZ: 0.0f);
-
+                            if (button_pressed_on_loop[i])
+                            {
+                                joystick.SetBtn(true, deviceId, i - 4); // Press button 21 to 24
+                                button_pressed_on_loop[i - 4] = true;
+                                button_pressed[i - 4] = true;
+                            }
                         }
                     }
                     else  // left stick
@@ -410,19 +367,15 @@ namespace WaccaKeyBind
                     joystick.SetAxis((int)rx_mid, deviceId, HID_USAGES.HID_USAGE_RX);
                     joystick.SetAxis((int)ry_mid, deviceId, HID_USAGES.HID_USAGE_RY);
                 }
-                for (uint i = 1; i < 25; i++)
+                for (uint i = 1; i < 29; i++)
                 {
                     if (button_pressed[i] && !button_pressed_on_loop[i])
                     {
-                        if (i > 20)
+                        if (i > 24)
                         {
                             //pass
                         }
-                        else if (toggle11)
-                        {
-                            joystick.SetBtn(false, deviceId, i); // Release button i
-                        }
-                        else if (i == 2 || i == 3 || i == 9 || i == 10)
+                        else if (i == 1 || i == 3 || i == 9 || i == 11)
                         {
                             //"do nothing";
                         }
@@ -447,60 +400,6 @@ namespace WaccaKeyBind
         {
             // Use -Sin to calculate the X position and shift it to the range [0, axis_max]
             return (int)((-Math.Sin(v * Math.PI / 30) + 1) / 2 * axis_max);
-        }
-    }
-    class DSUClient
-    {
-        private readonly UdpClient udpClient;
-        private readonly IPEndPoint endPoint;
-
-        public DSUClient(string ip = "127.0.0.1", int port = 26760)
-        {
-            endPoint = new IPEndPoint(IPAddress.Parse(ip), port);
-            udpClient = new UdpClient();
-        }
-
-        public void SendMotionData(int controllerId, float accelX, float accelY, float accelZ, float gyroX, float gyroY, float gyroZ)
-        {
-            // Prepare the DSU packet
-            byte[] packet = new byte[100];
-            int offset = 0;
-
-            // DSU packet header
-            Array.Copy(BitConverter.GetBytes(0x01000000), 0, packet, offset, 4); // Protocol version (1)
-            offset += 4;
-            Array.Copy(BitConverter.GetBytes(controllerId), 0, packet, offset, 4); // Controller slot ID
-            offset += 4;
-            Array.Copy(BitConverter.GetBytes(3), 0, packet, offset, 4); // Message type 3 for data
-            offset += 4;
-
-            // Gyroscope data
-            Array.Copy(BitConverter.GetBytes(gyroX), 0, packet, offset, 4);
-            offset += 4;
-            Array.Copy(BitConverter.GetBytes(gyroY), 0, packet, offset, 4);
-            offset += 4;
-            Array.Copy(BitConverter.GetBytes(gyroZ), 0, packet, offset, 4);
-            offset += 4;
-
-            // Accelerometer data
-            Array.Copy(BitConverter.GetBytes(accelX), 0, packet, offset, 4);
-            offset += 4;
-            Array.Copy(BitConverter.GetBytes(accelY), 0, packet, offset, 4);
-            offset += 4;
-            Array.Copy(BitConverter.GetBytes(accelZ), 0, packet, offset, 4);
-            offset += 4;
-
-            // Fill remaining data as necessary (timestamp, buttons, battery, etc.)
-            byte[] timestamp = BitConverter.GetBytes((long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds);
-            Array.Copy(timestamp, 0, packet, offset, timestamp.Length);
-
-            // Send packet
-            udpClient.Send(packet, packet.Length, endPoint);
-        }
-
-        public void Close()
-        {
-            udpClient.Close();
         }
     }
 }

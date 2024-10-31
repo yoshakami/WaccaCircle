@@ -69,7 +69,7 @@ so there's no use to launching WaccaCircle96 if you intend to use it on dolphin.
 download latest version of dolphin that works : https://dl.dolphin-emu.org/builds/0c/ca/dolphin-master-5.0-16793-x64.7z<br>
 mirror : https://web.archive.org/web/20230605023019/https://dl.dolphin-emu.org/builds/0c/ca/dolphin-master-5.0-16793-x64.7z
 
-## Cemu
+## CemuWithMotion
 Cemu runs on a solid 60FPS on Wacca. it supports Xinput and Dinput, but you can't map names by hand in a config file<br>
 that's why the joystick made for cemu has no overlap in controls. Here are the controls:<br>
 outer circle: left stick (X and Y)<br>
@@ -85,16 +85,22 @@ outer circle + hold 3: right stick (RX and RY)<br>
 8: ZL<br>
 outer circle + hold 9: D-pad (buttons 17 to 20)<br>
 outer circle + hold 10: tilt<br>
-outer circle + hold 11: toggle motion<br>
+11: toggle motion<br>
 12: B<br>
 <br>
 if 11 is toggled: (tap again to turn off)<br>
-1: same thing (left right stick press, blow mic and show screen)<br>
+1: button 1<br>
 2: plus<br>
-3: X<br>
-9: Y<br>
+3: Y<br>
+9: X<br>
 10: minus<br>
 11: turn off<br>
+
+## Cemu
+new controls (no toggle for 11):
+2: Y<br>
+10: X<br>
+outer circle + hold 11: minus for left part, and plus for right part<br>
 
 ## DXinput
 the exe made for Cemu uses DirectInput<br>

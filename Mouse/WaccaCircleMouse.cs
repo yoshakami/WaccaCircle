@@ -2,7 +2,6 @@ using LilyConsole;
 using System;
 using System.Runtime.InteropServices;
 using System.Drawing;
-using System.Threading;
 using System.Windows.Forms;
 using System.Linq;
 using System.IO;
@@ -48,14 +47,14 @@ class Program
 
     private static int Y(double v)
     {
-        // Use Cos to calculate the Y position and shift it to the range [0, axis_max]
-        return (int)((Math.Cos(v * Math.PI / 30) + 1) / 2 * axis_max);
+        // Use Cos to calculate the Y position and shift it to the range [-axis_max, axis_max]
+        return (int)((Math.Cos(v * Math.PI / 30)) * axis_max);
     }
 
     private static int X(double v)
     {
-        // Use -Sin to calculate the X position and shift it to the range [0, axis_max]
-        return (int)((-Math.Sin(v * Math.PI / 30) + 1) / 2 * axis_max);
+        // Use -Sin to calculate the X position and shift it to the range [-axis_max, axis_max]
+        return (int)((-Math.Sin(v * Math.PI / 30)) * axis_max);
     }
 
     // yup. defining an array is faster than doing maths
@@ -158,7 +157,7 @@ class Program
                         if (i > 1)
                         {
                             startPos = Cursor.Position;
-                            endPos = new Point(startPos.X + axes[j][0], startPos.Y + axes[j][1]);
+                            endPos = new Point(startPos.X + axes[j][0], startPos.Y - axes[j][1]);
                             Cursor.Position = endPos;
                         }
                         else

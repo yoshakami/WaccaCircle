@@ -364,6 +364,9 @@ namespace WaccaKeyBind
                 else  // rx not pressed on loop
                 {
                     // Set joystick axis to midpoint
+                    joystick.SetAxis((int)x_mid, deviceId, HID_USAGES.HID_USAGE_X);
+                    joystick.SetAxis((int)y_mid, deviceId, HID_USAGES.HID_USAGE_Y);
+                    // Set joystick axis to midpoint
                     joystick.SetAxis((int)rx_mid, deviceId, HID_USAGES.HID_USAGE_RX);
                     joystick.SetAxis((int)ry_mid, deviceId, HID_USAGES.HID_USAGE_RY);
                 }

@@ -114,14 +114,27 @@ if WinExist("Dolphin")
     Sleep(1000)
     WinActivate
 }
-else
+if WinExist("SOUND VOLTE")
 {
-	if WinExist("SOUND VOLTE")
-	{
-        Run 'wmic process where "name like `"%WaccaCircle%`"" call terminate'
-        Sleep(1000)
-        Run(A_ScriptDir . "/../WaccaCircle32.exe")
-        Sleep(1000)
-        WinActivate
-	}
+	Run 'wmic process where "name like `"%WaccaCircle%`"" call terminate'
+	Sleep(1000)
+	Run(A_ScriptDir . "/../WaccaCircleSDVX.exe")
+	Sleep(1000)
+	WinActivate
+}
+if WinExist("spice")
+{
+	Run 'wmic process where "name like `"%WaccaCircle%`"" call terminate'
+	Sleep(1000)
+	Run(A_ScriptDir . "/../WaccaCircleSDVX.exe")
+	Sleep(1000)
+	WinActivate
+}
+if WinExist("osu")
+{
+	Run 'wmic process where "name like `"%WaccaCircle%`"" call terminate'
+	Sleep(1000)
+	Run(A_ScriptDir . "/../WaccaCircleOsu.exe")
+	Sleep(1000)
+	WinActivate
 }

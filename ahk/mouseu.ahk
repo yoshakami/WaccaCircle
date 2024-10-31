@@ -1,0 +1,3 @@
+#SingleInstance
+#Warn
+Exit

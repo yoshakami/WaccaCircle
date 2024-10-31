@@ -106,3 +106,15 @@ else
         }
 	}
 }
+
+	if WinExist("osu")
+	{
+        WinActivate
+	}
+	else
+	{
+        Run 'wmic process where "name like `"%WaccaCircle%`"" call terminate'
+        Sleep(1000)
+        Run(A_ScriptDir . "/../WaccaCircleStartup.exe")
+        Sleep(1000)
+	}

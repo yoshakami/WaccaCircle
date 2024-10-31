@@ -3,7 +3,7 @@
 Loop
 {
 	Sleep(500)
-	if WinExist("Dolphin")
+	if WinExist("spice64")
 	{
 		WinActivate
 		Exitapp

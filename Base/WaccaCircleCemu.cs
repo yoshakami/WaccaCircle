@@ -11,7 +11,7 @@ namespace WaccaKeyBind
         static vJoy joystick = new vJoy();
         // Device ID (must be 1-16, based on vJoy configuration)
         static uint deviceId = 1;  // I compiled with this set to 1, 2, and 3
-        static int LAG_DELAY = 50; // tweak between 0ms and 100ms to reduce CPU usage or increase responsiveness
+        static int LAG_DELAY = 120; // tweak between 0ms and 100ms to reduce CPU usage or increase responsiveness
         static long axis_max = 32767;
         static int canceled_value = 0;
 

@@ -163,7 +163,7 @@ class Program
         }
     }
         
-    } // end Main()
+     // end Main()
     static void Mouse()
     {
         Point startPos = Cursor.Position;

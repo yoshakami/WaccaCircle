@@ -47,8 +47,8 @@ class Program
         int y;
         x = 150;
         y = 650;
-        int[] moved_x = { 365, 470, 575, 680, 785, 890, 995, 995 };
-        int[] moved_y = {  50,  50,  50,  50,  50,  50,  50, 200 };
+        int[] moved_x = { 365, 470, 575, 680, 785, 890, 995, 365, 470, 575, 680, 785, };// 890, 995, };
+        int[] moved_y = {  50,  50,  50,  50,  50,  50,  50, 200, 200, 200, 200, 200, };// 200, 200, };
         Point startPos;
         Point endPos;
         int y_space = 149;
@@ -63,8 +63,8 @@ class Program
             y += y_space;
         }
         x = 260;
-        y = 800;
-        for (int k = 4; k < 8; k++)
+        y = 200;
+        for (int k = 4; k < moved_x.Length; k++)
         {
             startPos = new Point(x, y);
             endPos = new Point(moved_x[k], moved_y[k]);
@@ -141,22 +141,15 @@ class Program
         // place circle
         DragClick(startPos, endPos);
         Thread.Sleep(LAG_DELAY);
-        for (int i = 25; i < 29; i++)
+        for (int i = 25; i < 32; i++)
         {
-            startPos = new Point(x, y);
-            endPos = new Point(hours_x[i], hours_y[i]);
-            DragClick(startPos, endPos);
-            y += y_space;
-        }
-        for (int i = 29; i < 33; i++)
-        {
-            Point startPos3 = new Point(moved_x[i-25], moved_y[i-25]);
+            Point startPos3 = new Point(moved_x[i-21], moved_y[i-21]);
             Point endPos3 = new Point(hours_x[i], hours_y[i]);
             // Perform a drag-click
             DragClick(startPos3, endPos3);
             Thread.Sleep(LAG_DELAY);
         }
-        startPos = new Point(x, y);
+        startPos = new Point(moved_x[11], moved_y[11]);
         endPos = new Point(hours_x[24], hours_y[24]);
         // place circle
         DragClick(startPos, endPos);
@@ -208,7 +201,7 @@ class Program
         SendInput(1, ref mouseInput, Marshal.SizeOf(mouseInput));
 
         // Simulate mouse movement
-        MoveMouseSmoothly(start, end, 200, 30);  // Move smoothly over 200 ms with 30 steps
+        MoveMouseSmoothly(start, end, 900, 1000);  // Move smoothly over 200 ms with 30 steps
 
         // Simulate mouse up (left button release)
         mouseInput.mi.dwFlags = MOUSEEVENTF_LEFTUP;

@@ -9,8 +9,6 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Drawing;
-using System.Threading.Tasks;
-using System.Drawing.Drawing2D;
 
 namespace WaccaCircle
 {
@@ -23,8 +21,11 @@ namespace WaccaCircle
         static long axis_max = 32767;
         static int canceled_value = 0;
         static Joystick ioboard;
-        static Func<int>[] waccaCircleApps = { WaccaCircle12, WaccaCircle24, WaccaCircle32, WaccaCircle96, WaccaCircleTaiko, WaccaCircleSDVX, WaccaCircleRPG, WaccaCircleOsu, WaccaCircleCemu, WaccaCircleMouse };
-        static string[] waccaCircleText = { "WaccaCircle12", "WaccaCircle24", "WaccaCircle32", "WaccaCircle96", "WaccaCircleTaiko", "WaccaCircleSDVX", "WaccaCircleRPG", "WaccaCircleOsu", "WaccaCircleCemu", "WaccaCircleMouse", };
+        static Func<int>[] waccaCircleApps = { WaccaCircle12, WaccaCircle24, WaccaCircle32, WaccaCircle96, WaccaCircleTaiko,
+                                               WaccaCircleSDVX, WaccaCircleRPG, WaccaCircleOsu, WaccaCircleCemu, WaccaCircleMouse, WaccaCircleKeyboard };
+        static string[] waccaCircleText = { "WaccaCircle12", "WaccaCircle24", "WaccaCircle32", "WaccaCircle96", "WaccaCircleTaiko",
+                                        "WaccaCircleSDVX", "WaccaCircleRPG", "WaccaCircleOsu", "WaccaCircleCemu", "WaccaCircleMouse", "WaccaCircleKeyboard" };
+        static string exe_title = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "WaccaCircleTitle.exe");
         static TouchController controller;
 
         private delegate bool ConsoleCtrlHandlerDelegate(int sig);
@@ -34,6 +35,7 @@ namespace WaccaCircle
 
         static ConsoleCtrlHandlerDelegate _consoleCtrlHandler;
 
+        [STAThread]
         public static void Main(string[] args)
         {
             _consoleCtrlHandler += s =>
@@ -126,6 +128,10 @@ namespace WaccaCircle
                 try
                 {
                     // Launch the overlay window
+                    if (File.Exists(exe_title))
+                    {
+                        RunExternalCommand(exe_title, waccaCircleText[current]);
+                    }
                     return_val = waccaCircleApps[current]();
                     if (return_val == -2)
                     {
@@ -161,7 +167,19 @@ namespace WaccaCircle
                 }
             }
         }
+        public static void RunExternalCommand(string fileName, string arguments)
+        {
+            // Create a new process to start the external executable
+            Process process = new Process();
+            process.StartInfo.FileName = fileName;
+            process.StartInfo.Arguments = arguments;
+            process.StartInfo.UseShellExecute = false; // Optional, if you don't need output redirection
 
+            // Start the process
+            process.Start();
+
+            // Process runs asynchronously, and the main thread is not blocked
+        }
         static void CleanUpBeforeExit()
         {
             canceled_value = 2147480000;
@@ -1521,6 +1539,124 @@ namespace WaccaCircle
                             joystick.SetBtn(false, deviceId, i); // Release button i
                         }
 
+                        button_pressed[i] = false;
+                    }
+                    button_pressed_on_loop[i] = false;
+                }
+                a = IOBoardPoll();
+                if (a == 1)
+                {
+                    return -1;  // scroll down
+                }
+                if (a == 2)
+                {
+                    return 1; // scroll up
+                }
+            }
+        }
+        private static int WaccaCircleKeyboard()
+        {
+            int a;
+            bool[] button_pressed = Enumerable.Repeat(false, 49).ToArray();  // 48 + 1 since I made my table start at 1
+            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 49).ToArray();
+            bool[] keydown = Enumerable.Repeat(false, 49).ToArray();
+            sbyte n;
+            const sbyte u = -16;
+            const sbyte w = 28;
+            sbyte x;
+            string key = "key";
+            while (true)
+            {
+                Thread.Sleep(LAG_DELAY); // 0ms uses 35% CPU while 5ms uses 4% CPU.
+                controller.GetTouchData();
+
+                for (int i = 0; i < 4; i++)
+                {
+                    for (int j = 0; j < 60; j++)
+                    {
+                        if (controller.touchData[i, j])  // if the circle if touched
+                        {
+                            if (i > 1)  // RXY is only on the two outer layers, i==2 and i==3
+                            {
+                                for (int k = 4; k < 5; k++)  // parse axes columns
+                                {
+                                    if (!button_pressed[axes[j][k] + w])  // starts at 17 + 28 = 45
+                                    {
+                                        button_pressed[axes[j][k] + w] = true;
+                                        if (File.Exists(Path.Combine(ahk, $"arrow{axes[j][k] + u}d.ahk")))  // starts at 17 + -16 = 1
+                                        {
+
+                                            Process.Start(Path.Combine(ahk, $"arrow{axes[j][k] + u}d.ahk")); // ends at 20 + -16 = 4
+                                            keydown[axes[j][k] + w] = true;
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine($"failed to find " + Path.Combine(ahk, $"arrow{axes[j][k] + u}d.ahk"));
+                                        }
+                                    }
+
+                                    button_pressed_on_loop[axes[j][k] + w] = true;  // ends at  20 + 28 = 48
+                                }
+                            }
+                            else  // parse the 2 inner layers
+                            {
+                                for (int k = 2; k < 3; k++)
+                                {
+                                    n = 0;
+                                    x = 32;
+                                    key = "key";
+                                    button_pressed_on_loop[axes[j][k] + x] = true;
+                                    if (!button_pressed[axes[j][k] + x])
+                                    {
+                                        if (File.Exists(Path.Combine(ahk, $"{key}{axes[j][k] + n}d.ahk")))
+                                        {
+                                            Process.Start(Path.Combine(ahk, $"{key}{axes[j][k] + n}d.ahk"));
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine($"failed to find " + Path.Combine(ahk, $"{key}{axes[j][k] + n}d.ahk"));
+                                        }
+                                        button_pressed[axes[j][k] + x] = true;
+                                        keydown[axes[j][k] + x] = true;
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+                for (uint i = 33; i < 49; i++)
+                {
+                    if (button_pressed[i] && !button_pressed_on_loop[i])
+                    {
+                        if (keydown[i])
+                        {
+                            if (i > 44)
+                            {
+                                if (File.Exists(Path.Combine(ahk, $"arrow{i - 44}u.ahk")))  // starts at 45 + -44 = 1
+                                {
+
+                                    Process.Start(Path.Combine(ahk, $"arrow{i - 44}u.ahk")); // ends at 48 + -44 = 4
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"failed to find " + Path.Combine(ahk, $"arrow{i - 44}u.ahk"));
+                                }
+                            }
+                            else
+                            {
+                                if (File.Exists(Path.Combine(ahk, $"key{i - 32}u.ahk")))  // starts at 33 + -32 = 1
+                                {
+
+                                    Process.Start(Path.Combine(ahk, $"key{i - 32}u.ahk")); // ends at 44 + -32 = 12
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"failed to find " + Path.Combine(ahk, $"key{i - 32}u.ahk"));
+                                }
+                            }
+                            keydown[i] = false;
+                        }
                         button_pressed[i] = false;
                     }
                     button_pressed_on_loop[i] = false;

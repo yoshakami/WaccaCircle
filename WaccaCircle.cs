@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace WaccaCircle
 {
@@ -22,8 +23,25 @@ namespace WaccaCircle
         static int canceled_value = 0;
         static Joystick ioboard;
         static Func<int>[] waccaCircleApps = { WaccaCircle12, WaccaCircle24, WaccaCircle32, WaccaCircle96, WaccaCircleTaiko, WaccaCircleSDVX, WaccaCircleRPG, WaccaCircleOsu, WaccaCircleCemu, WaccaCircleMouse };
+        static string[] waccaCircleText = { "WaccaCircle12", "WaccaCircle24", "WaccaCircle32", "WaccaCircle96", "WaccaCircleTaiko", "WaccaCircleSDVX", "WaccaCircleRPG", "WaccaCircleOsu", "WaccaCircleCemu", "WaccaCircleMouse", };
+        static TouchController controller;
+
+        private delegate bool ConsoleCtrlHandlerDelegate(int sig);
+
+        [DllImport("Kernel32")]
+        private static extern bool SetConsoleCtrlHandler(ConsoleCtrlHandlerDelegate handler, bool add);
+
+        static ConsoleCtrlHandlerDelegate _consoleCtrlHandler;
+
         public static void Main(string[] args)
         {
+            _consoleCtrlHandler += s =>
+            {
+                CleanUpBeforeExit();
+                return false;
+            };
+            SetConsoleCtrlHandler(_consoleCtrlHandler, true);
+
             // Initialize DirectInput
             var directInput = new DirectInput();
 
@@ -74,6 +92,10 @@ namespace WaccaCircle
                 Console.WriteLine("DInput IOBoard should have more than 10 buttons. Please plug in USB1");
                 return;
             }
+            if (SetupJoystick() == -1)
+            {
+                return;
+            }
 
             /*
             LilyConsole.ActiveSegment = 
@@ -87,13 +109,31 @@ namespace WaccaCircle
             LilyConsole.VFDController; */
             //LilyConsole.TouchController = new LilyConsole.TouchController();
             // Initialize vJoy interface
-            Console.CancelKeyPress += new ConsoleCancelEventHandler(OnCancelKeyPress);
+
+            controller = new TouchController();
+            controller.Initialize();
+            Console.CursorVisible = false;
+            Console.WriteLine("Starting touch streams!");
+            controller.StartTouchStream();
+            Console.WriteLine("Started!");
+
+
             int current = 0;
             int return_val;
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
             while (true)
             {
                 try
                 {
+                    // Launch the overlay window
+                    Thread overlayThread = new Thread(() =>
+                    {
+                        Application.Run(new TransparentOverlay(waccaCircleText[current]));
+                    });
+
+                    overlayThread.SetApartmentState(ApartmentState.STA); // Required for WinForms
+                    overlayThread.Start();
                     return_val = waccaCircleApps[current]();
                     if (return_val == -2)
                     {
@@ -130,13 +170,13 @@ namespace WaccaCircle
             }
         }
 
-        static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        static void CleanUpBeforeExit()
         {
             canceled_value = 2147480000;
             Console.WriteLine("ctrl+c detected!\ndisposing virtual Joystick....\ndone!\npress enter to exit...");
             // Release the device when done
-            Console.ReadLine();
             joystick.RelinquishVJD(deviceId);
+            Console.ReadLine();
             Environment.Exit(0);
         }
 
@@ -227,6 +267,17 @@ namespace WaccaCircle
                 if (ioboard_buttons[9])
                 {
                     total += 8 << 4;
+                }
+                else
+                {
+                    if (File.Exists(Path.Combine(ahk, $"test.ahk")))
+                    {
+                        Process.Start(Path.Combine(ahk, $"test.ahk"));
+                    }
+                    else
+                    {
+                        Console.WriteLine($"failed to find " + Path.Combine(ahk, $"test.ahk"));
+                    }
                 }
                 ioboard_buttons[9] = true;
             }
@@ -417,17 +468,6 @@ namespace WaccaCircle
         private static int WaccaCircle12()
         {
             int a;
-            a = SetupJoystick();
-            if (a == -1)
-            {
-                return -2;
-            }
-            var controller = new TouchController();
-            controller.Initialize();
-            Console.CursorVisible = false;
-            Console.WriteLine("Starting touch streams!");
-            controller.StartTouchStream();
-            Console.WriteLine("Started!");
             /* bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false
             bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false */
             bool[] button_pressed = Enumerable.Repeat(false, 13).ToArray();
@@ -478,17 +518,6 @@ namespace WaccaCircle
         private static int WaccaCircle24()
         {
             int a;
-            a = SetupJoystick();
-            if (a == -1)
-            {
-                return -2;
-            }
-            var controller = new TouchController();
-            controller.Initialize();
-            Console.CursorVisible = false;
-            Console.WriteLine("Starting touch streams!");
-            controller.StartTouchStream();
-            Console.WriteLine("Started!");
             bool pressed_on_loop;
             bool rx_pressed_on_loop;
             bool sl_pressed_on_loop;
@@ -613,17 +642,6 @@ namespace WaccaCircle
         private static int WaccaCircle32()
         {
             int a;
-            a = SetupJoystick();
-            if (a == -1)
-            {
-                return -2;
-            }
-            var controller = new TouchController();
-            controller.Initialize();
-            Console.CursorVisible = false;
-            Console.WriteLine("Starting touch streams!");
-            controller.StartTouchStream();
-            Console.WriteLine("Started!");
             bool pressed_on_loop;
             bool rx_pressed_on_loop;
             bool sl_pressed_on_loop;
@@ -757,17 +775,6 @@ namespace WaccaCircle
         private static int WaccaCircle96()
         {
             int a;
-            a = SetupJoystick();
-            if (a == -1)
-            {
-                return -2;
-            }
-            var controller = new TouchController();
-            controller.Initialize();
-            Console.CursorVisible = false;
-            Console.WriteLine("Starting touch streams!");
-            controller.StartTouchStream();
-            Console.WriteLine("Started!");
             bool pressed_on_loop;
             bool rx_pressed_on_loop;
             bool sl_pressed_on_loop;
@@ -917,19 +924,6 @@ namespace WaccaCircle
         private static int WaccaCircleTaiko()
         {
             int a;
-            a = SetupJoystick();
-            if (a == -1)
-            {
-                return -2;
-            }
-            var controller = new TouchController();
-            controller.Initialize();
-            Console.CursorVisible = false;
-            Console.WriteLine("Starting touch streams!");
-            controller.StartTouchStream();
-            Console.WriteLine("Started!");
-            /* bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false
-            bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false */
             bool[] button_pressed = Enumerable.Repeat(false, 17).ToArray();
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 17).ToArray();
             sbyte u = -11;
@@ -994,11 +988,6 @@ namespace WaccaCircle
         private static int WaccaCircleSDVX()
         {
             int a;
-            a = SetupJoystick();
-            if (a == -1)
-            {
-                return -2;
-            }
             // yup. defining an array is faster than doing maths
             // efficiency.
             int[][] axes =
@@ -1064,13 +1053,6 @@ namespace WaccaCircle
                 new int[] { X(58.5),  Y(58.5),  13,   13,    17,    21,    24,    32},    // 58
                 new int[] { X(59.5),  Y(59.5),  13,   13,    17,    21,    24,    32},    // 59  top circle
             };
-
-            var controller = new TouchController();
-            controller.Initialize();
-            Console.CursorVisible = false;
-            Console.WriteLine("Starting touch streams!");
-            controller.StartTouchStream();
-            Console.WriteLine("Started!");
             int rx_current;
             int ry_current;
             byte outer_number_ry;
@@ -1182,21 +1164,69 @@ namespace WaccaCircle
         private static int WaccaCircleRPG()
         {
             int a;
-            a = SetupJoystick();
-            if (a == -1)
-            {
-                return -2;
-            }
-
-
-            var controller = new TouchController();
-            controller.Initialize();
-            Console.CursorVisible = false;
-            Console.WriteLine("Starting touch streams!");
-            controller.StartTouchStream();
-            Console.WriteLine("Started!");
-            /* bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false
-            bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false */
+            int[][] axes =
+           {      // RPG   x axis    y-axis   1-12   1-7   13-16  21-22  23-24  25-32
+                new int[] { X(0.5),   Y(0.5),   12,   4,    13,    21,    23,    25},    // 0  top circle
+                new int[] { X(1.5),   Y(1.5),   12,   4,    13,    21,    23,    25},    // 1
+                new int[] { X(2.5),   Y(2.5),   12,   4,    13,    21,    23,    25},    // 2
+                new int[] { X(3.5),   Y(3.5),   11,   4,    13,    21,    23,    25},    // 3
+                new int[] { X(4.5),   Y(4.5),   11,   4,    13,    21,    23,    25},    // 4
+                new int[] { X(5.5),   Y(5.5),   11,   4,    13,    21,    23,    25},    // 5
+                new int[] { X(6.5),   Y(6.5),   11,   4,    13,    21,    23,    25},    // 6
+                new int[] { X(7.5),   Y(7.5),   11,   4,    13,    21,    23,    25},    // 7
+                new int[] { X(8.5),   Y(8.5),   10,   1,    15,    21,    23,    26},    // 8
+                new int[] { X(9.5),   Y(9.5),   10,   1,    15,    21,    23,    26},    // 9
+                new int[] { X(10.5),  Y(10.5),  10,   1,    15,    21,    23,    26},    // 10
+                new int[] { X(11.5),  Y(11.5),  10,   1,    15,    21,    23,    26},    // 11
+                new int[] { X(12.5),  Y(12.5),  10,   1,    15,    21,    23,    26},    // 12
+                new int[] { X(13.5),  Y(13.5),   9,   1,    15,    21,    23,    26},    // 13
+                new int[] { X(14.5),  Y(14.5),   9,   1,    15,    21,    23,    26},    // 14  left
+                new int[] { X(15.5),  Y(15.5),   9,   1,    15,    22,    23,    26},    // 15  left 
+                new int[] { X(16.5),  Y(16.5),   9,   1,    15,    22,    23,    27},    // 16
+                new int[] { X(17.5),  Y(17.5),   9,   1,    15,    22,    23,    27},    // 17
+                new int[] { X(18.5),  Y(18.5),   8,   1,    15,    22,    23,    27},    // 18
+                new int[] { X(19.5),  Y(19.5),   8,   1,    15,    22,    23,    27},    // 19
+                new int[] { X(20.5),  Y(20.5),   8,   1,    15,    22,    23,    27},    // 20
+                new int[] { X(21.5),  Y(21.5),   8,   1,    15,    22,    23,    27},    // 21
+                new int[] { X(22.5),  Y(22.5),   8,   1,    15,    22,    23,    27},    // 22
+                new int[] { X(23.5),  Y(23.5),   7,   7,    14,    22,    23,    28},    // 23
+                new int[] { X(24.5),  Y(24.5),   7,   7,    14,    22,    23,    28},    // 24
+                new int[] { X(25.5),  Y(25.5),   7,   7,    14,    22,    23,    28},    // 25
+                new int[] { X(26.5),  Y(26.5),   7,   7,    14,    22,    23,    28},    // 26
+                new int[] { X(27.5),  Y(27.5),   7,   7,    14,    22,    23,    28},    // 27
+                new int[] { X(28.5),  Y(28.5),   6,   7,    14,    22,    23,    28},    // 28
+                new int[] { X(29.5),  Y(29.5),   6,   7,    14,    22,    23,    28},    // 29  bottom
+                new int[] { X(30.5),  Y(30.5),   6,   7,    14,    22,    24,    29},    // 30  bottom
+                new int[] { X(31.5),  Y(31.5),   6,   7,    14,    22,    24,    29},    // 31
+                new int[] { X(32.5),  Y(32.5),   6,   7,    14,    22,    24,    29},    // 32
+                new int[] { X(33.5),  Y(33.5),   5,   7,    14,    22,    24,    29},    // 33
+                new int[] { X(34.5),  Y(34.5),   5,   7,    14,    22,    24,    29},    // 34
+                new int[] { X(35.5),  Y(35.5),   5,   7,    14,    22,    24,    29},    // 35
+                new int[] { X(36.5),  Y(36.5),   5,   7,    14,    22,    24,    29},    // 36
+                new int[] { X(37.5),  Y(37.5),   5,   7,    14,    22,    24,    30},    // 37
+                new int[] { X(38.5),  Y(38.5),   4,   2,    16,    22,    24,    30},    // 38
+                new int[] { X(39.5),  Y(39.5),   4,   2,    16,    22,    24,    30},    // 39
+                new int[] { X(40.5),  Y(40.5),   4,   2,    16,    22,    24,    30},    // 40
+                new int[] { X(41.5),  Y(41.5),   4,   2,    16,    22,    24,    30},    // 41
+                new int[] { X(42.5),  Y(42.5),   4,   2,    16,    22,    24,    30},    // 42
+                new int[] { X(43.5),  Y(43.5),   3,   2,    16,    22,    24,    30},    // 43
+                new int[] { X(44.5),  Y(44.5),   3,   2,    16,    22,    24,    31},    // 44  right
+                new int[] { X(45.5),  Y(45.5),   3,   2,    16,    21,    24,    31},    // 45  right
+                new int[] { X(46.5),  Y(46.5),   3,   2,    16,    21,    24,    31},    // 46
+                new int[] { X(47.5),  Y(47.5),   3,   2,    16,    21,    24,    31},    // 47
+                new int[] { X(48.5),  Y(48.5),   2,   2,    16,    21,    24,    31},    // 48
+                new int[] { X(49.5),  Y(49.5),   2,   2,    16,    21,    24,    31},    // 49
+                new int[] { X(50.5),  Y(50.5),   2,   2,    16,    21,    24,    31},    // 50
+                new int[] { X(51.5),  Y(51.5),   2,   2,    16,    21,    24,    31},    // 51
+                new int[] { X(52.5),  Y(52.5),   2,   2,    16,    21,    24,    32},    // 52
+                new int[] { X(53.5),  Y(53.5),   1,   4,    13,    21,    24,    32},    // 53
+                new int[] { X(54.5),  Y(54.5),   1,   4,    13,    21,    24,    32},    // 54
+                new int[] { X(55.5),  Y(55.5),   1,   4,    13,    21,    24,    32},    // 55
+                new int[] { X(56.5),  Y(56.5),   1,   4,    13,    21,    24,    32},    // 56
+                new int[] { X(57.5),  Y(57.5),   1,   4,    13,    21,    24,    32},    // 57
+                new int[] { X(58.5),  Y(58.5),  12,   4,    13,    21,    24,    32},    // 58
+                new int[] { X(59.5),  Y(59.5),  12,   4,    13,    21,    24,    32},    // 59  top circle
+            };
             bool[] button_pressed = Enumerable.Repeat(false, 17).ToArray();
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 17).ToArray();
 
@@ -1260,19 +1290,6 @@ namespace WaccaCircle
         private static int WaccaCircleOsu()
         {
             int a;
-            a = SetupJoystick();
-            if (a == -1)
-            {
-                return -2;
-            }
-            var controller = new TouchController();
-            controller.Initialize();
-            Console.CursorVisible = false;
-            Console.WriteLine("Starting touch streams!");
-            controller.StartTouchStream();
-            Console.WriteLine("Started!");
-            /* bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false
-            bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false */
             bool[] button_pressed = Enumerable.Repeat(false, 33).ToArray();
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 33).ToArray();
             bool[] keydown = Enumerable.Repeat(false, 33).ToArray();
@@ -1365,17 +1382,6 @@ namespace WaccaCircle
         private static int WaccaCircleCemu()
         {
             int a;
-            a = SetupJoystick();
-            if (a == -1)
-            {
-                return -2;
-            }
-            var controller = new TouchController();
-            controller.Initialize();
-            Console.CursorVisible = false;
-            Console.WriteLine("Starting touch streams!");
-            controller.StartTouchStream();
-            Console.WriteLine("Started!");
             bool rx_pressed_on_loop;
             int x_current;
             int y_current;
@@ -1593,8 +1599,9 @@ namespace WaccaCircle
             // Use -Sin to calculate the X position and shift it to the range [-axis_max, axis_max]
             return (int)((-Math.Sin(v * Math.PI / 30)) * 10);
         }
-        static void WaccaCircleMouse()
+        private static int WaccaCircleMouse()
         {
+            int a;
             int[][] axes =
             {      //       x axis    y-axis   1-12  13-16  17-20  21-22  23-24  25-32
                 new int[] { A(0.5),   B(0.5),   12,   16,    17,    21,    23,    25},    // 0  top circle
@@ -1660,12 +1667,6 @@ namespace WaccaCircle
             };
             Point startPos = Cursor.Position;
             Point endPos;
-            var controller = new TouchController();
-            controller.Initialize();
-            Console.CursorVisible = false;
-            Console.WriteLine("Starting touch streams!");
-            controller.StartTouchStream();
-            Console.WriteLine("Started!");
             bool[] button_pressed = Enumerable.Repeat(false, 25).ToArray();
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 25).ToArray();
             while (true)
@@ -1780,7 +1781,105 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 } // end for buttons 17 to 20
+                a = IOBoardPoll();
+                if (a == 1)
+                {
+                    return -1;  // scroll down
+                }
+                if (a == 2)
+                {
+                    return 1; // scroll up
+                }
             }  // end while(true)
         }  // end of Mouse()
     }  // end of Class
+    internal class TransparentOverlay : Form
+    {
+        private string displayText;
+
+        public TransparentOverlay(string text)
+        {
+            displayText = text;
+
+            // Remove window border and make it transparent
+            FormBorderStyle = FormBorderStyle.None;
+            StartPosition = FormStartPosition.CenterScreen;
+            TopMost = true; // Always stay on top
+            Width = 800;
+            Height = 200;
+            BackColor = Color.Black; // Transparency key requires this
+            TransparencyKey = Color.Black; // Make the form background transparent
+
+            // Enable click-through (optional)
+            int initialStyle = NativeMethods.GetWindowLong(Handle, NativeMethods.GWL_EXSTYLE);
+            NativeMethods.SetWindowLong(Handle, NativeMethods.GWL_EXSTYLE, initialStyle | NativeMethods.WS_EX_LAYERED | NativeMethods.WS_EX_TOPMOST);
+
+            // Timer to close after 5 seconds
+            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer
+            {
+                Interval = 5000 // 5 seconds
+            };
+            timer.Tick += (s, e) =>
+            {
+                timer.Stop();
+                Close();
+            };
+            timer.Start();
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+
+            // Set rectangle size and position
+            int padding = 20;
+            SizeF textSize;
+            using (Font font = new Font("Arial", 24, FontStyle.Bold))
+            {
+                textSize = e.Graphics.MeasureString(displayText, font);
+            }
+
+            RectangleF rect = new RectangleF(
+                (Width - textSize.Width) / 2 - padding,  // Horizontal center with padding
+                (Height - textSize.Height) / 2 - padding, // Vertical center with padding
+                textSize.Width + 2 * padding,            // Total width with padding
+                textSize.Height + 2 * padding            // Total height with padding
+            );
+
+            // Draw a semi-transparent black rectangle as the background
+            using (Brush backgroundBrush = new SolidBrush(Color.FromArgb(127, 0, 0, 0))) // RGBA(0, 0, 0, 127)
+            {
+                e.Graphics.FillRectangle(backgroundBrush, rect);
+            }
+
+            // Draw white text on top
+            using (Font font = new Font("Arial", 24, FontStyle.Bold))
+            using (Brush textBrush = new SolidBrush(Color.White))
+            {
+                StringFormat stringFormat = new StringFormat
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center
+                };
+
+                // Center the text in the rectangle
+                e.Graphics.DrawString(displayText, font, textBrush, rect, stringFormat);
+            }
+        }
+
+
+    }
+    internal static class NativeMethods
+    {
+        public const int GWL_EXSTYLE = -20;
+        public const int WS_EX_LAYERED = 0x80000;
+        public const int WS_EX_TOPMOST = 0x00000008;
+
+        [DllImport("user32.dll")]
+        public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll")]
+        public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+    }
+
 }  // end of namespace

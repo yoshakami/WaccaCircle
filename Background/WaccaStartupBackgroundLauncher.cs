@@ -46,7 +46,7 @@ class Program
                     process2.WaitForExit();
                     if (output == "\r\r\n\r\r\n")  // mercury and waccacircle are not launched => We're on the menu!
                     {
-                        Process.Start(WaccaCircleStartup);
+                        Process.Start(WaccaCircle);
                     }
                 }
             }

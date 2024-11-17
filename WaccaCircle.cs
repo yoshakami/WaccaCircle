@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Threading.Tasks;
+using System.Drawing.Drawing2D;
 
 namespace WaccaCircle
 {
@@ -1805,10 +1806,11 @@ namespace WaccaCircle
             FormBorderStyle = FormBorderStyle.None;
             StartPosition = FormStartPosition.CenterScreen;
             TopMost = true; // Always stay on top
+            this.TopMost = true;
             Width = 800;
             Height = 200;
-            BackColor = Color.Black; // Transparency key requires this
-            TransparencyKey = Color.Black; // Make the form background transparent
+            BackColor = Color.Blue; // Transparency key requires this
+            TransparencyKey = Color.Blue; // Make the form background transparent
 
             // Enable click-through (optional)
             int initialStyle = NativeMethods.GetWindowLong(Handle, NativeMethods.GWL_EXSTYLE);
@@ -1839,17 +1841,41 @@ namespace WaccaCircle
                 textSize = e.Graphics.MeasureString(displayText, font);
             }
 
+            // Define your rectangle with padding and size
             RectangleF rect = new RectangleF(
-                (Width - textSize.Width) / 2 - padding,  // Horizontal center with padding
+                (Width - textSize.Width) / 2 - padding, // Horizontal center with padding
                 (Height - textSize.Height) / 2 - padding, // Vertical center with padding
                 textSize.Width + 2 * padding,            // Total width with padding
                 textSize.Height + 2 * padding            // Total height with padding
             );
 
-            // Draw a semi-transparent black rectangle as the background
-            using (Brush backgroundBrush = new SolidBrush(Color.FromArgb(127, 0, 0, 0))) // RGBA(0, 0, 0, 127)
+            // Create a GraphicsPath to define the rounded rectangle
+            using (GraphicsPath path = new GraphicsPath())
             {
-                e.Graphics.FillRectangle(backgroundBrush, rect);
+                // Set the radius for the rounded corners
+                float cornerRadius = 50f; // Adjust this value to control the roundness
+                path.AddArc(rect.X, rect.Y, cornerRadius, cornerRadius, 180, 90); // Top-left corner
+                path.AddArc(rect.Right - cornerRadius, rect.Y, cornerRadius, cornerRadius, 270, 90); // Top-right corner
+                path.AddArc(rect.Right - cornerRadius, rect.Bottom - cornerRadius, cornerRadius, cornerRadius, 0, 90); // Bottom-right corner
+                path.AddArc(rect.X, rect.Bottom - cornerRadius, cornerRadius, cornerRadius, 90, 90); // Bottom-left corner
+                path.CloseFigure();
+
+                // Fill the outer corners with blue
+                using (Brush blueBrush = new SolidBrush(Color.Blue))
+                {
+                    // Draw circles at each of the 4 corners
+                    float circleDiameter = cornerRadius * 2;
+                    e.Graphics.FillEllipse(blueBrush, rect.X - cornerRadius, rect.Y - cornerRadius, circleDiameter, circleDiameter); // Top-left
+                    e.Graphics.FillEllipse(blueBrush, rect.Right - cornerRadius * 2, rect.Y - cornerRadius, circleDiameter, circleDiameter); // Top-right
+                    e.Graphics.FillEllipse(blueBrush, rect.Right - cornerRadius * 2, rect.Bottom - cornerRadius * 2, circleDiameter, circleDiameter); // Bottom-right
+                    e.Graphics.FillEllipse(blueBrush, rect.X - cornerRadius, rect.Bottom - cornerRadius * 2, circleDiameter, circleDiameter); // Bottom-left
+                }
+
+                // Draw the semi-transparent background with rounded corners
+                using (Brush backgroundBrush = new SolidBrush(Color.FromArgb(255, Color.Black))) // Semi-transparent black
+                {
+                    e.Graphics.FillPath(backgroundBrush, path);
+                }
             }
 
             // Draw white text on top

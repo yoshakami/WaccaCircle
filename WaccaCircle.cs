@@ -121,20 +121,11 @@ namespace WaccaCircle
 
             int current = 0;
             int return_val;
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
             while (true)
             {
                 try
                 {
                     // Launch the overlay window
-                    Thread overlayThread = new Thread(() =>
-                    {
-                        Application.Run(new TransparentOverlay(waccaCircleText[current]));
-                    });
-
-                    overlayThread.SetApartmentState(ApartmentState.STA); // Required for WinForms
-                    overlayThread.Start();
                     return_val = waccaCircleApps[current]();
                     if (return_val == -2)
                     {
@@ -1794,118 +1785,4 @@ namespace WaccaCircle
             }  // end while(true)
         }  // end of Mouse()
     }  // end of Class
-    internal class TransparentOverlay : Form
-    {
-        private string displayText;
-
-        public TransparentOverlay(string text)
-        {
-            displayText = text;
-
-            // Remove window border and make it transparent
-            FormBorderStyle = FormBorderStyle.None;
-            StartPosition = FormStartPosition.CenterScreen;
-            TopMost = true; // Always stay on top
-            this.TopMost = true;
-            Width = 800;
-            Height = 200;
-            BackColor = Color.Blue; // Transparency key requires this
-            TransparencyKey = Color.Blue; // Make the form background transparent
-
-            // Enable click-through (optional)
-            int initialStyle = NativeMethods.GetWindowLong(Handle, NativeMethods.GWL_EXSTYLE);
-            NativeMethods.SetWindowLong(Handle, NativeMethods.GWL_EXSTYLE, initialStyle | NativeMethods.WS_EX_LAYERED | NativeMethods.WS_EX_TOPMOST);
-
-            // Timer to close after 5 seconds
-            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer
-            {
-                Interval = 5000 // 5 seconds
-            };
-            timer.Tick += (s, e) =>
-            {
-                timer.Stop();
-                Close();
-            };
-            timer.Start();
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-
-            // Set rectangle size and position
-            int padding = 20;
-            SizeF textSize;
-            using (Font font = new Font("Arial", 24, FontStyle.Bold))
-            {
-                textSize = e.Graphics.MeasureString(displayText, font);
-            }
-
-            // Define your rectangle with padding and size
-            RectangleF rect = new RectangleF(
-                (Width - textSize.Width) / 2 - padding, // Horizontal center with padding
-                (Height - textSize.Height) / 2 - padding, // Vertical center with padding
-                textSize.Width + 2 * padding,            // Total width with padding
-                textSize.Height + 2 * padding            // Total height with padding
-            );
-
-            // Create a GraphicsPath to define the rounded rectangle
-            using (GraphicsPath path = new GraphicsPath())
-            {
-                // Set the radius for the rounded corners
-                float cornerRadius = 50f; // Adjust this value to control the roundness
-                path.AddArc(rect.X, rect.Y, cornerRadius, cornerRadius, 180, 90); // Top-left corner
-                path.AddArc(rect.Right - cornerRadius, rect.Y, cornerRadius, cornerRadius, 270, 90); // Top-right corner
-                path.AddArc(rect.Right - cornerRadius, rect.Bottom - cornerRadius, cornerRadius, cornerRadius, 0, 90); // Bottom-right corner
-                path.AddArc(rect.X, rect.Bottom - cornerRadius, cornerRadius, cornerRadius, 90, 90); // Bottom-left corner
-                path.CloseFigure();
-
-                // Fill the outer corners with blue
-                using (Brush blueBrush = new SolidBrush(Color.Blue))
-                {
-                    // Draw circles at each of the 4 corners
-                    float circleDiameter = cornerRadius * 2;
-                    e.Graphics.FillEllipse(blueBrush, rect.X - cornerRadius, rect.Y - cornerRadius, circleDiameter, circleDiameter); // Top-left
-                    e.Graphics.FillEllipse(blueBrush, rect.Right - cornerRadius * 2, rect.Y - cornerRadius, circleDiameter, circleDiameter); // Top-right
-                    e.Graphics.FillEllipse(blueBrush, rect.Right - cornerRadius * 2, rect.Bottom - cornerRadius * 2, circleDiameter, circleDiameter); // Bottom-right
-                    e.Graphics.FillEllipse(blueBrush, rect.X - cornerRadius, rect.Bottom - cornerRadius * 2, circleDiameter, circleDiameter); // Bottom-left
-                }
-
-                // Draw the semi-transparent background with rounded corners
-                using (Brush backgroundBrush = new SolidBrush(Color.FromArgb(255, Color.Black))) // Semi-transparent black
-                {
-                    e.Graphics.FillPath(backgroundBrush, path);
-                }
-            }
-
-            // Draw white text on top
-            using (Font font = new Font("Arial", 24, FontStyle.Bold))
-            using (Brush textBrush = new SolidBrush(Color.White))
-            {
-                StringFormat stringFormat = new StringFormat
-                {
-                    Alignment = StringAlignment.Center,
-                    LineAlignment = StringAlignment.Center
-                };
-
-                // Center the text in the rectangle
-                e.Graphics.DrawString(displayText, font, textBrush, rect, stringFormat);
-            }
-        }
-
-
-    }
-    internal static class NativeMethods
-    {
-        public const int GWL_EXSTYLE = -20;
-        public const int WS_EX_LAYERED = 0x80000;
-        public const int WS_EX_TOPMOST = 0x00000008;
-
-        [DllImport("user32.dll")]
-        public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
-
-        [DllImport("user32.dll")]
-        public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
-    }
-
 }  // end of namespace

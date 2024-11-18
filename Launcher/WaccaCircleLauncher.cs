@@ -19,22 +19,28 @@ namespace SpinWheelApp
     }
     public partial class MainWindow : Window
     {
-        private const double Radius = 1000; // Larger radius for better positioning
-        private const int ImageCount = 10;
-        private double currentAngle = 270; // Current rotation angle in radians
+        private const double Radius = 3000; // Larger radius for better positioning
+        private const int ImageCount = 80;
+        private double currentAngle = 0; // Current rotation angle in radians
         private MediaElement videoPlayer;
+        private Canvas myCanvas;
         public MainWindow()
         {
             InitializeComponent();
-            DrawWheel();
             PlayVideo();
+            // Start video playback when the window is loaded
+            this.Loaded += (s, e) =>
+            {
+                videoPlayer.Play();
+                DrawWheel();
+            };
         }
-        static double screenWidth = SystemParameters.PrimaryScreenWidth; // Full screen width
-        static double screenHeight = SystemParameters.PrimaryScreenHeight; // Full screen height
-        static double centerX = screenWidth / 2;  // Center point for rotation in the canvas
-        static double centerY = 1000;  // Center point for rotation in the canvas
+        static int screenWidth = (int)SystemParameters.PrimaryScreenWidth; // Full screen width
+        static int screenHeight = (int)SystemParameters.PrimaryScreenHeight; // Full screen height
+        static int centerX = 520;  // Center point for rotation in the canvas
+        static int centerY = 3960;  // Center point for rotation in the canvas
 
-        static int imgRadius = 300;
+        static int imgRadius = 256;
         private void PlayVideo()
         {
             // Set up the window
@@ -44,6 +50,10 @@ namespace SpinWheelApp
             this.ResizeMode = ResizeMode.NoResize; // Fixed size
             this.Topmost = true; // Always on top
             this.Background = Brushes.Black; // Background for video display
+
+            // Create a Grid to layer elements
+            var mainGrid = new Grid();
+            this.Content = mainGrid;
 
             // Create and configure the MediaElement
             videoPlayer = new MediaElement
@@ -58,37 +68,43 @@ namespace SpinWheelApp
                 VerticalAlignment = VerticalAlignment.Center
             };
 
-            // Add the MediaElement to the Window
-            this.Content = videoPlayer;
+            mainGrid.Children.Add(videoPlayer);
 
-            // Start playback when the window is shown
-            this.Loaded += (s, e) =>
+            // Add Canvas for images
+            myCanvas = new Canvas
             {
-                videoPlayer.Play();
+                Width = 1080,
+                Height = 1920,
+                Background = Brushes.Transparent // Ensure transparency
             };
+            mainGrid.Children.Add(myCanvas);
         }
         private void DrawWheel()
         {
-            myCanvas.Children.Clear(); // Clear existing images
+            myCanvas.Children.Clear();
+
+            double centerX = myCanvas.Width / 2;
+            double centerY = myCanvas.Height / 2;
 
             for (int i = 0; i < ImageCount; i++)
             {
-                // Calculate position based on angle
-                double angle = Math.PI * 2 * i / ImageCount + currentAngle; // Position angle
-                double x = centerX + Radius * Math.Cos(angle) - (imgRadius/2); // Adjust for image size
-                double y = centerY + Radius * Math.Sin(angle) - (imgRadius/2);
+                // Set the size based on the index
+                double imgSize = (i == 30) ? imgRadius : imgRadius; // Larger size for child 30, smaller for others
+                double angle = Math.PI * 2 * i / ImageCount + currentAngle;
+                double x = centerX + Radius * Math.Cos(angle) - imgRadius / 2;
+                double y = centerY + Radius * Math.Sin(angle) - imgRadius / 2;
 
                 // Create the image
                 var img = new Image
                 {
-                    Source = new BitmapImage(new Uri("C:\\Hatsune-Miku\\ico\\TransparentWacca.ico")),
-                    Width = imgRadius,
-                    Height = imgRadius
+                    Source = new BitmapImage(new Uri("C:\\Hatsune-Miku\\ico\\TransparentWacca.ico")), // Update this path
+                    Width = imgSize,
+                    Height = imgSize
                 };
 
                 // Apply a transform group: position the image and keep it upright
                 var transformGroup = new TransformGroup();
-                transformGroup.Children.Add(new RotateTransform(-currentAngle * (180 / Math.PI))); // Counteract wheel rotation
+                transformGroup.Children.Add(new RotateTransform(-currentAngle * (180 / Math.PI))); // Keep image upright
                 img.RenderTransform = transformGroup;
                 img.RenderTransformOrigin = new Point(0.5, 0.5); // Center of the image for rotation
 
@@ -97,6 +113,7 @@ namespace SpinWheelApp
                 myCanvas.Children.Add(img);
             }
         }
+
 
         static bool cannotcall = false;
 
@@ -161,9 +178,21 @@ namespace SpinWheelApp
         {
             // Example: Rotate left and right using arrow keys
             if (e.Key == System.Windows.Input.Key.Left)
-                RotateWheel(-Math.PI / ImageCount); // Rotate counterclockwise
+                RotateWheel(-Math.PI / 360.0); // Rotate counterclockwise
             else if (e.Key == System.Windows.Input.Key.Right)
-                RotateWheel(Math.PI / ImageCount); // Rotate clockwise
+                RotateWheel(Math.PI / 360.0); // Rotate clockwise
+            else if (e.Key == System.Windows.Input.Key.Up)
+            {
+                centerY += 100;  // Center point for rotation in the canvas
+                DrawWheel();
+            }
+            else if (e.Key == System.Windows.Input.Key.Down)
+            {
+                centerY -= 100;  // Center point for rotation in the canvas
+                DrawWheel();
+            }
+            else if (e.Key == System.Windows.Input.Key.RightShift)
+                DrawWheel();
             // Optional: Add keyboard controls for the video
             if (e.Key == System.Windows.Input.Key.Space) // Pause/Play with Space
             {

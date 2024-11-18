@@ -40,7 +40,7 @@ namespace WaccaCircle
             StartPosition = FormStartPosition.CenterScreen;
             TopMost = true; // Always stay on top
             this.TopMost = true;
-            Width = 800;
+            Width = 1000;
             Height = 200;
             BackColor = System.Drawing.Color.Blue; // Transparency key requires this
             TransparencyKey = System.Drawing.Color.Blue; // Make the form background transparent
@@ -93,19 +93,8 @@ namespace WaccaCircle
                 path.AddArc(rect.X, rect.Bottom - cornerRadius, cornerRadius, cornerRadius, 90, 90); // Bottom-left corner
                 path.CloseFigure();
 
-                // Fill the outer corners with blue
-                using (Brush blueBrush = new SolidBrush(Color.Blue))
-                {
-                    // Draw circles at each of the 4 corners
-                    float circleDiameter = cornerRadius * 2;
-                    e.Graphics.FillEllipse(blueBrush, rect.X - cornerRadius, rect.Y - cornerRadius, circleDiameter, circleDiameter); // Top-left
-                    e.Graphics.FillEllipse(blueBrush, rect.Right - cornerRadius * 2, rect.Y - cornerRadius, circleDiameter, circleDiameter); // Top-right
-                    e.Graphics.FillEllipse(blueBrush, rect.Right - cornerRadius * 2, rect.Bottom - cornerRadius * 2, circleDiameter, circleDiameter); // Bottom-right
-                    e.Graphics.FillEllipse(blueBrush, rect.X - cornerRadius, rect.Bottom - cornerRadius * 2, circleDiameter, circleDiameter); // Bottom-left
-                }
-
                 // Draw the semi-transparent background with rounded corners
-                using (Brush backgroundBrush = new SolidBrush(Color.FromArgb(255, Color.Black))) // Semi-transparent black
+                using (Brush backgroundBrush = new SolidBrush(Color.FromArgb(255, 0, 0, 0))) // Semi-transparent black
                 {
                     e.Graphics.FillPath(backgroundBrush, path);
                 }

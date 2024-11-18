@@ -81,30 +81,26 @@ namespace SpinWheelApp
         }
         private void DrawWheel()
         {
-            myCanvas.Children.Clear();
-
-            double centerX = myCanvas.Width / 2;
-            double centerY = myCanvas.Height / 2;
-
+            myCanvas.Children.Clear(); // Clear existing images
             for (int i = 0; i < ImageCount; i++)
             {
-                // Set the size based on the index
-                double imgSize = (i == 30) ? imgRadius : imgRadius; // Larger size for child 30, smaller for others
-                double angle = Math.PI * 2 * i / ImageCount + currentAngle;
-                double x = centerX + Radius * Math.Cos(angle) - imgRadius / 2;
-                double y = centerY + Radius * Math.Sin(angle) - imgRadius / 2;
+                double imgSize = (i == 60) ? imgRadius : imgRadius / 2; // Larger size for child 30, smaller for others
+                // Calculate position based on angle
+                double angle = Math.PI * 2 * i / ImageCount + currentAngle; // Position angle
+                double x = centerX + Radius * Math.Cos(angle) - (imgSize / 2); // Adjust for image size
+                double y = centerY + Radius * Math.Sin(angle) - (imgSize / 2);
 
                 // Create the image
                 var img = new Image
                 {
-                    Source = new BitmapImage(new Uri("C:\\Hatsune-Miku\\ico\\TransparentWacca.ico")), // Update this path
+                    Source = new BitmapImage(new Uri("C:\\Hatsune-Miku\\ico\\TransparentWacca.ico")),
                     Width = imgSize,
                     Height = imgSize
                 };
 
                 // Apply a transform group: position the image and keep it upright
                 var transformGroup = new TransformGroup();
-                transformGroup.Children.Add(new RotateTransform(-currentAngle * (180 / Math.PI))); // Keep image upright
+                transformGroup.Children.Add(new RotateTransform(-currentAngle * (180 / Math.PI))); // Counteract wheel rotation
                 img.RenderTransform = transformGroup;
                 img.RenderTransformOrigin = new Point(0.5, 0.5); // Center of the image for rotation
 
@@ -113,7 +109,6 @@ namespace SpinWheelApp
                 myCanvas.Children.Add(img);
             }
         }
-
 
         static bool cannotcall = false;
 
@@ -178,10 +173,10 @@ namespace SpinWheelApp
         {
             // Example: Rotate left and right using arrow keys
             if (e.Key == System.Windows.Input.Key.Left)
-                RotateWheel(-Math.PI / 360.0); // Rotate counterclockwise
+                RotateWheel(-Math.PI / 45.0); // Rotate counterclockwise
             else if (e.Key == System.Windows.Input.Key.Right)
-                RotateWheel(Math.PI / 360.0); // Rotate clockwise
-            else if (e.Key == System.Windows.Input.Key.Up)
+                RotateWheel(Math.PI / 45.0); // Rotate clockwise
+                                              else if (e.Key == System.Windows.Input.Key.Up)
             {
                 centerY += 100;  // Center point for rotation in the canvas
                 DrawWheel();

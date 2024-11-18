@@ -22,11 +22,12 @@ namespace SpinWheelApp
         private const double Radius = 1000; // Larger radius for better positioning
         private const int ImageCount = 10;
         private double currentAngle = 270; // Current rotation angle in radians
-
+        private MediaElement videoPlayer;
         public MainWindow()
         {
             InitializeComponent();
             DrawWheel();
+            PlayVideo();
         }
         static double screenWidth = SystemParameters.PrimaryScreenWidth; // Full screen width
         static double screenHeight = SystemParameters.PrimaryScreenHeight; // Full screen height
@@ -34,6 +35,38 @@ namespace SpinWheelApp
         static double centerY = 1000;  // Center point for rotation in the canvas
 
         static int imgRadius = 300;
+        private void PlayVideo()
+        {
+            // Set up the window
+            this.Width = screenWidth;
+            this.Height = screenHeight;
+            this.WindowStyle = WindowStyle.None; // No borders
+            this.ResizeMode = ResizeMode.NoResize; // Fixed size
+            this.Topmost = true; // Always on top
+            this.Background = Brushes.Black; // Background for video display
+
+            // Create and configure the MediaElement
+            videoPlayer = new MediaElement
+            {
+                Width = 1080,
+                Height = 1920,
+                LoadedBehavior = MediaState.Manual, // Control playback manually
+                UnloadedBehavior = MediaState.Close, // Release resources when not in use
+                Stretch = Stretch.Fill, // Scale to fill the screen
+                Source = new Uri("C:\\Users\\yoshi\\Downloads\\2024-11-18 09-02-11.mkv"), // Update with your video path
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            // Add the MediaElement to the Window
+            this.Content = videoPlayer;
+
+            // Start playback when the window is shown
+            this.Loaded += (s, e) =>
+            {
+                videoPlayer.Play();
+            };
+        }
         private void DrawWheel()
         {
             myCanvas.Children.Clear(); // Clear existing images
@@ -131,6 +164,18 @@ namespace SpinWheelApp
                 RotateWheel(-Math.PI / ImageCount); // Rotate counterclockwise
             else if (e.Key == System.Windows.Input.Key.Right)
                 RotateWheel(Math.PI / ImageCount); // Rotate clockwise
+            // Optional: Add keyboard controls for the video
+            if (e.Key == System.Windows.Input.Key.Space) // Pause/Play with Space
+            {
+                if (videoPlayer.CanPause)
+                    videoPlayer.Pause();
+                else
+                    videoPlayer.Play();
+            }
+            else if (e.Key == System.Windows.Input.Key.Escape) // Close the window with Escape
+            {
+                this.Close();
+            }
         }
     }
 }

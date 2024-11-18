@@ -24,6 +24,7 @@ namespace SpinWheelApp
         private double currentAngle = 0; // Current rotation angle in radians
         private MediaElement videoPlayer;
         private Canvas myCanvas;
+        static int current = 61;
         public MainWindow()
         {
             InitializeComponent();
@@ -37,7 +38,7 @@ namespace SpinWheelApp
         }
         static int screenWidth = (int)SystemParameters.PrimaryScreenWidth; // Full screen width
         static int screenHeight = (int)SystemParameters.PrimaryScreenHeight; // Full screen height
-        static int centerX = 520;  // Center point for rotation in the canvas
+        static int centerX = 540;  // Center point for rotation in the canvas
         static int centerY = 3960;  // Center point for rotation in the canvas
 
         static int imgRadius = 256;
@@ -111,11 +112,59 @@ namespace SpinWheelApp
         }
 
         static bool cannotcall = false;
-
         public void RotateWheel(double angleDelta)
         {
             if (cannotcall) return;
             cannotcall = true;
+
+            int i = 0;
+            // Update each child's size dynamically
+            foreach (UIElement child in myCanvas.Children)
+            {
+                if (child is Image img)
+                {
+                    var childRotateTransform = child.RenderTransform as RotateTransform;
+                    if (childRotateTransform == null)
+                    {
+                        childRotateTransform = new RotateTransform(0);
+                        child.RenderTransform = childRotateTransform;
+                        child.RenderTransformOrigin = new Point(0.5, 0.5); // Rotate around the center of each image
+                    }
+
+                    // Animate the counter-rotation of the child to negate the canvas rotation
+                    var childAnimation = new DoubleAnimation
+                    {
+                        From = childRotateTransform.Angle,
+                        To = childRotateTransform.Angle - angleDelta * (180 / Math.PI), // Counter-rotation to cancel canvas rotation
+                        Duration = TimeSpan.FromSeconds(0.3), // Smooth 0.5-second animation
+                        EasingFunction = new SineEase() // Smooth easing
+                    };
+
+                    // Apply the counter-rotation animation to each child
+                    childRotateTransform.BeginAnimation(RotateTransform.AngleProperty, childAnimation);
+
+                    i += 1;
+                    // Calculate new size based on position or index
+                    double imgCenterX = Canvas.GetLeft(img) + img.Width / 2;
+                    double imgCenterY = Canvas.GetTop(img) + img.Height / 2;
+
+                    // Check proximity to the canvas center for scaling
+                    double distanceFromCenter = Math.Sqrt(
+                        Math.Pow(imgCenterX - centerX, 2) + Math.Pow(imgCenterY - centerY, 2)
+                    );
+
+                    // Adjust size dynamically (closer images are larger)
+                    int scaleFactor = (i == current) ? 2 : 1; // Larger size for child 30, smaller for others
+                    int newSize = 128 * scaleFactor;
+
+                    img.Width = newSize;
+                    img.Height = newSize;
+
+                    // Optionally re-center the image
+                    Canvas.SetLeft(img, imgCenterX - newSize / 2);
+                    Canvas.SetTop(img, imgCenterY - newSize / 2);
+                }
+            }
 
             // Create or update the RotateTransform on the Canvas (myCanvas)
             var canvasRotateTransform = myCanvas.RenderTransform as RotateTransform;
@@ -137,45 +186,27 @@ namespace SpinWheelApp
                 EasingFunction = new SineEase() // Smooth easing
             };
 
-            // Apply the animation to the RotateTransform of the Canvas
             canvasRotateTransform.BeginAnimation(RotateTransform.AngleProperty, canvasAnimation);
-
-            // Now, counter-rotate each child element to keep them fixed
-            foreach (UIElement child in myCanvas.Children)
-            {
-                var childRotateTransform = child.RenderTransform as RotateTransform;
-                if (childRotateTransform == null)
-                {
-                    childRotateTransform = new RotateTransform(0);
-                    child.RenderTransform = childRotateTransform;
-                    child.RenderTransformOrigin = new Point(0.5, 0.5); // Rotate around the center of each image
-                }
-
-                // Animate the counter-rotation of the child to negate the canvas rotation
-                var childAnimation = new DoubleAnimation
-                {
-                    From = childRotateTransform.Angle,
-                    To = childRotateTransform.Angle - angleDelta * (180 / Math.PI), // Counter-rotation to cancel canvas rotation
-                    Duration = TimeSpan.FromSeconds(0.3), // Smooth 0.5-second animation
-                    EasingFunction = new SineEase() // Smooth easing
-                };
-
-                // Apply the counter-rotation animation to each child
-                childRotateTransform.BeginAnimation(RotateTransform.AngleProperty, childAnimation);
-            }
 
             cannotcall = false;
         }
 
 
 
+        bool ispaused = false;
         protected override void OnKeyDown(System.Windows.Input.KeyEventArgs e)
         {
             // Example: Rotate left and right using arrow keys
             if (e.Key == System.Windows.Input.Key.Left)
-                RotateWheel(-Math.PI / 45.0); // Rotate counterclockwise
+            {
+                current += 1;
+                RotateWheel(-Math.PI / 40.0); // Rotate counterclockwise
+            }
             else if (e.Key == System.Windows.Input.Key.Right)
-                RotateWheel(Math.PI / 45.0); // Rotate clockwise
+            {
+                current -= 1;
+                RotateWheel(Math.PI / 40.0); // Rotate clockwise
+            }
                                               else if (e.Key == System.Windows.Input.Key.Up)
             {
                 centerY += 100;  // Center point for rotation in the canvas
@@ -191,10 +222,16 @@ namespace SpinWheelApp
             // Optional: Add keyboard controls for the video
             if (e.Key == System.Windows.Input.Key.Space) // Pause/Play with Space
             {
-                if (videoPlayer.CanPause)
-                    videoPlayer.Pause();
-                else
+                if (ispaused)
+                {
                     videoPlayer.Play();
+                    ispaused = false;
+                }
+                else
+                {
+                    videoPlayer.Pause();
+                    ispaused = true;
+                }
             }
             else if (e.Key == System.Windows.Input.Key.Escape) // Close the window with Escape
             {

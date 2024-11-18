@@ -47,7 +47,7 @@ namespace SpinWheelApp
         static int screenHeight = (int)SystemParameters.PrimaryScreenHeight; // Full screen height
         static int centerX = 540;  // Center point for rotation in the canvas
         static int centerY = 3960;  // Center point for rotation in the canvas
-        
+
         private void PlayVideo()
         {
             // Set up the window
@@ -105,7 +105,7 @@ namespace SpinWheelApp
             positions.Add(new Point(-3000, 3000)); // Outside Left 2
             positions.Add(new Point(-200, 900)); // Outside Left 1
             positions.Add(new Point(16, 868)); // Left
-            positions.Add(new Point(278-96, 835)); // Middle-left
+            positions.Add(new Point(278 - 96, 835)); // Middle-left
             positions.Add(new Point(540 - 128, 960 - 128)); // Center
             positions.Add(new Point(704, 835)); // Middle-right
             positions.Add(new Point(868, 868)); // Right
@@ -148,7 +148,7 @@ namespace SpinWheelApp
                 return;
             prevent_execution = true;
             current += direction;
-                if (current == wheelImages.Count)
+            if (current == wheelImages.Count)
             {
                 current = 0;
             }

@@ -73,6 +73,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WaccaCircle.cs" />
+    <Compile Include="WaccaTable.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

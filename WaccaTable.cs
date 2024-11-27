@@ -1,7 +1,9 @@
 
 using LilyConsole;
+using SharpDX.DirectInput;
 using System;
-using System.Runtime.CompilerServices;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace WaccaCircle
 {
@@ -95,7 +97,7 @@ namespace WaccaCircle
             new int[] { X(59.5),  Y(59.5),  12,   13,    17,    21,    24,    25},    // 59  top circle
         };
         public static readonly int[][] mouseAxes =
-        {      //       x axis    y-axis   1-12  13-16  17-20  21-22  23-24  25-32
+        {          //       x axis    y-axis   1-12  13-16  17-20  21-22  23-24  25-32
                 new int[] { A(0.5),   B(0.5),   12,   16,    17,    21,    23,    25},    // 0  top circle
                 new int[] { A(1.5),   B(1.5),   12,   16,    17,    21,    23,    25},    // 1
                 new int[] { A(2.5),   B(2.5),   12,   16,    17,    21,    23,    25},    // 2
@@ -157,7 +159,7 @@ namespace WaccaCircle
                 new int[] { A(58.5),  B(58.5),  12,   13,    17,    21,    24,    32},    // 58
                 new int[] { A(59.5),  B(59.5),  12,   13,    17,    21,    24,    32},    // 59  top circle
             };
-        public static readonly int[][] SDVXaxes = 
+        public static readonly int[][] SDVXaxes =
             {      // SDVX  x axis    y-axis   1-13  13-16  17-20  21-22  23-24  25-32
                 new int[] { X(0.5),   Y(30.5),  13,   16,    17,    21,    23,    25},    // 0  top circle
                 new int[] { X(1.5),   Y(31.5),  13,   16,    17,    21,    23,    25},    // 1
@@ -221,7 +223,7 @@ namespace WaccaCircle
                 new int[] { X(59.5),  Y(59.5),  13,   13,    17,    21,    24,    32},    // 59  top circle
             };
         public static readonly int[][] RPGaxes =
-            {      // RPG   x axis    y-axis   1-12   1-7   13-16  21-22  23-24  25-32
+            {     //  RPG   x axis    y-axis   1-12  1-7   13-16  21-22  23-24  25-32
                 new int[] { X(0.5),   Y(0.5),   12,   4,    13,    21,    23,    25},    // 0  top circle
                 new int[] { X(1.5),   Y(1.5),   12,   4,    13,    21,    23,    25},    // 1
                 new int[] { X(2.5),   Y(2.5),   12,   4,    13,    21,    23,    25},    // 2
@@ -283,7 +285,6 @@ namespace WaccaCircle
                 new int[] { X(58.5),  Y(58.5),  12,   4,    13,    21,    24,    32},    // 58
                 new int[] { X(59.5),  Y(59.5),  12,   4,    13,    21,    24,    32},    // 59  top circle
             };
-
         public static readonly LightFrame whiteFrame060 = new LightFrame(new LightColor[]
                 {
                     new LightColor(0, 0, 0),
@@ -347,11 +348,6 @@ namespace WaccaCircle
                     new LightColor(58, 58, 58),
                     new LightColor(59, 59, 59),
             });
-
-        // lights.SendLightFrame(new LightFrame(new LightColor(255, 0, 255)), controller.segments);
-        //
-        //var testFrame = new LightFrame(LightColor.Green);
-        //lights.SendLightFrame(testFrame);
         public static void SendWhiteLightFrame(LightController lights)
         {
             LightColor[] l0 = new LightColor[]
@@ -625,6 +621,334 @@ new LightColor(179, 179, 179),
             };
 
 
+            lights.SendLightFrame(gradientFrame);
+        }
+
+        public static LightColor color0;
+        public static LightColor color1;
+        public static LightColor color2;
+        public static LightColor color3;
+        public static LightColor color4;
+        public static LightColor color5;
+        public static LightColor color6;
+        public static LightColor color7;
+        public static LightColor color8;
+        public static LightColor color9;
+        public static LightColor color10;
+        public static LightColor color11;
+        public static LightColor outerL;
+        public static LightColor innerL;
+        public static LightColor innerR;
+        public static LightColor outerR;
+        public static LightColor osu0;
+        public static LightColor osu1;
+        public static LightColor osu2;
+        public static LightColor osu3;
+        public static LightColor osu4;
+        public static LightColor osu5;
+        public static LightColor osu6;
+        public static LightColor osu7;
+        public static LightColor sdvx0;
+        public static LightColor sdvx1;
+        public static LightColor sdvx2;
+        public static LightColor sdvx3;
+        public static LightColor sdvx4;
+        public static LightColor sdvx5;
+        public static LightColor sdvx6;
+        public static LightColor sdvx7;
+        public static LightColor sdvx8;
+        public static LightColor sdvx9;
+        public static LightColor sdvx10;
+        public static LightColor sdvx11;
+        public static LightColor sdvx12;
+        public static LightColor sdvxPink;
+        public static LightColor sdvxBlue;
+        public static LightColor rpgBack;
+        public static LightColor rpgEnter;
+        public static LightColor rpgMenu;
+        public static LightColor rpgAttacc;
+        public static LightColor rpgUp;
+        public static LightColor rpgDown;
+        public static LightColor rpgLeft;
+        public static LightColor rpgRight;
+        public static LightColor mouseUp;
+        public static LightColor mouseRight;
+        public static LightColor mouseDown;
+        public static LightColor mouseLeft;
+        public static LightColor mouseOuter;
+        public static LightColor r;
+        public static LightColor[] color_num = { color0, color1, color2, color3, color4, color5, color6, color7, color8, color9, color10, color11, innerL, innerR, outerL, outerR, r, mouseUp, mouseRight, mouseDown, mouseLeft };
+        public static LightColor[] osu = { osu0, osu1, osu2, osu3, osu4, osu5, osu6, osu7 };
+        public static LightColor[] sdvx = { sdvx0, sdvx1, sdvx2, sdvx3, sdvx4, sdvx5, sdvx6, sdvx7, sdvx8, sdvx9, sdvx10, sdvx11, sdvx12 };
+        public static LightColor[] rpg = { r, rpgBack, rpgEnter, r, rpgMenu, r, r, rpgAttacc, rpgUp, rpgDown, rpgLeft, rpgRight };
+        public static LightColor[] circle12;
+        public static LightColor[] circleMouse;
+        public static LightColor[] circleOsu;
+        public static LightColor[] circleSDVX;
+        public static LightColor[] circleTaikoInner;
+        public static LightColor[] circleTaikoOuter;
+        public static LightColor[] circleRPGInner;
+        public static LightColor[] circleRPGOuter;
+        public static void Initialise()
+        {
+            List<LightColor> circleList = new List<LightColor>();
+            List<LightColor> circleMouseList = new List<LightColor>();
+            List<LightColor> circleTaikoInnerList = new List<LightColor>();
+            List<LightColor> circleTaikoOuterList = new List<LightColor>();
+            List<LightColor> circleRPGInnerList = new List<LightColor>();
+            List<LightColor> circleRPGOuterList = new List<LightColor>();
+            List<LightColor> circleOsuList = new List<LightColor>();
+            List<LightColor> circleSDVXList = new List<LightColor>();
+            for (int i = 0; i < axes.Length; i++)
+            {
+                circleList.Add(color_num[axes[i][2] - 1]);
+                circleMouseList.Add(color_num[mouseAxes[i][4]]);
+                circleTaikoInnerList.Add(color_num[axes[i][6] - 23 + 12]);
+                circleTaikoOuterList.Add(color_num[axes[i][6] - 23 + 14]);
+                circleRPGInnerList.Add(rpg[RPGaxes[i][3]]);
+                circleRPGOuterList.Add(rpg[axes[i][4] - 13 + 8]);
+                circleOsuList.Add(osu[axes[i][7] - 25]);
+                circleSDVXList.Add(sdvx[SDVXaxes[i][2] - 1]);
+            }
+            circle12 = circleList.ToArray();
+            circleMouse = circleMouseList.ToArray();
+            circleTaikoInner = circleTaikoInnerList.ToArray();
+            circleTaikoOuter = circleTaikoOuterList.ToArray();
+            circleRPGInner = circleRPGInnerList.ToArray();
+            circleRPGOuter = circleRPGOuterList.ToArray();
+            circleOsu = circleOsuList.ToArray();
+            circleSDVX = circleSDVXList.ToArray();
+        }
+
+        /// <summary>
+        /// Represents the current state of the breathing animation factor.
+        /// </summary>
+        /// <remarks>
+        /// This value should be reset to <c>1.0</c> to restart the breathing animation.
+        /// </remarks>
+        public static double f = 1.0;
+        public static void ChangeF()
+        {
+            f += 0.1;
+            if (f > 2.0 || f < -2.0)
+            {
+                f += 1.0;
+            }
+            if (f > 20.0)
+            {
+                f = -20.0;
+            }
+        }
+
+        public static int[][] colors12 =
+        {
+            new int[] { 255, 0, 0 },
+            new int[] { 255, 128, 0 },
+            new int[] { 255, 255, 0 },
+            new int[] { 128, 255, 0 },
+            new int[] { 0, 255, 0 },
+            new int[] { 0, 255, 128 },
+            new int[] { 0, 255, 255 },
+            new int[] { 0, 128, 255 },
+            new int[] { 0, 0, 255 },
+            new int[] { 128, 0, 255 },
+            new int[] { 255, 0, 255 },
+            new int[] { 255, 0, 128 },
+        };
+
+        // lights.SendLightFrame(new LightFrame(new LightColor(255, 0, 255)), controller.segments);
+        //
+        //var testFrame = new LightFrame(LightColor.Green);
+        //lights.SendLightFrame(testFrame);
+
+
+        /// <summary>
+        /// Sends a light configuration to the specified light controller to simulate a breathing animation.
+        /// </summary>
+        /// <param name="lights">
+        /// The <see cref="LightController"/> instance that will receive the light animation settings.
+        /// </param>
+        /// <remarks>
+        /// Call this method repeatedly to produce a breathing animation effect.  
+        /// To reset the animation, set <see cref="f"/> back to <c>1.0</c>.
+        /// </remarks>
+        public static void SendLight12(LightController lights)
+        {
+            for (int i = 0; i < 12; i++)
+            {
+                color_num[i] = new LightColor((byte)(colors12[i][0] / f), (byte)(colors12[i][1] / f), (byte)(colors12[i][2] / f));
+            }
+            ChangeF();
+            LightLayer layer0 = new LightLayer();
+            for (byte i = 0; i < 60; i++)
+            {
+                layer0.SetSegmentColor(0, i, circle12[i]);
+                layer0.SetSegmentColor(1, i, circle12[i]);
+                layer0.SetSegmentColor(2, i, circle12[i]);
+                layer0.SetSegmentColor(3, i, circle12[i]);
+            }
+
+            LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
+            lights.SendLightFrame(gradientFrame);
+        }
+        public static void SendLightSDVX(LightController lights, byte state)
+        {
+            sdvx0 = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
+            sdvx1 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            sdvx2 = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
+            sdvx3 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            sdvx4 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            sdvx5 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            sdvx6 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            sdvx7 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            sdvx8 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            sdvx9 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            sdvx10 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            sdvx11 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            sdvx12 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            sdvxPink = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
+            sdvxBlue = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            if (state == 0)
+            {
+                sdvxPink = sdvxBlue; // full blue
+            }
+            else if (state == 2)
+            {
+                sdvxBlue = sdvxPink; // full pink
+            }
+            ChangeF();
+
+            LightLayer layer0 = new LightLayer();
+            for (byte i = 0; i < 60; i++)
+            {
+                layer0.SetSegmentColor(0, i, circle12[i]);
+                layer0.SetSegmentColor(1, i, circle12[i]);
+                if (i < 30)
+                {
+                    layer0.SetSegmentColor(2, i, sdvxBlue);
+                    layer0.SetSegmentColor(3, i, sdvxBlue);
+                }
+                else
+                {
+                    layer0.SetSegmentColor(2, i, sdvxPink);
+                    layer0.SetSegmentColor(3, i, sdvxPink);
+                }
+            }
+
+            LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
+            lights.SendLightFrame(gradientFrame);
+        }
+
+        public static void SendLightOsu(LightController lights)
+        {
+            osu0 = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
+            osu1 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            osu2 = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
+            osu3 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            osu4 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            osu5 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            osu6 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            osu7 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            ChangeF();
+
+            LightLayer layer0 = new LightLayer();
+            for (byte i = 0; i < 60; i++)
+            {
+                layer0.SetSegmentColor(0, i, circleOsu[i]);
+                layer0.SetSegmentColor(1, i, circleOsu[i]);
+                layer0.SetSegmentColor(2, i, circleOsu[i]);
+                layer0.SetSegmentColor(3, i, circleOsu[i]);
+            }
+
+            LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
+            lights.SendLightFrame(gradientFrame);
+        }
+        public static void SendLightMouse(LightController lights)
+        {
+            mouseUp = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
+            mouseDown = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            mouseLeft = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
+            mouseRight = new LightColor((byte)(255 / f), (byte)(64 / f), (byte)(255 / f));
+            mouseOuter = new LightColor((byte)(255 / f), (byte)(255 / f), (byte)(255 / f));
+            ChangeF();
+
+            LightLayer layer0 = new LightLayer();
+            for (byte i = 0; i < 60; i++)
+            {
+                layer0.SetSegmentColor(0, i, circleMouse[i]);
+                layer0.SetSegmentColor(1, i, circleMouse[i]);
+                layer0.SetSegmentColor(2, i, mouseOuter);
+                layer0.SetSegmentColor(3, i, mouseOuter);
+            }
+
+            LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
+            lights.SendLightFrame(gradientFrame);
+        }
+        public static void SendLightRPG(LightController lights)
+        {
+            rpgBack = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
+            rpgEnter = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            rpgMenu = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            rpgAttacc = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
+            rpgUp = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
+            rpgDown = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
+            rpgLeft = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
+            rpgRight = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
+            ChangeF();
+
+            LightLayer layer0 = new LightLayer();
+            for (byte i = 0; i < 60; i++)
+            {
+                layer0.SetSegmentColor(0, i, circleRPGInner[i]);
+                layer0.SetSegmentColor(1, i, circleRPGInner[i]);
+                layer0.SetSegmentColor(2, i, circleRPGOuter[i]);
+                layer0.SetSegmentColor(3, i, circleRPGOuter[i]);
+            }
+
+            LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
+            lights.SendLightFrame(gradientFrame);
+        }
+        public static void SendLightTaiko(LightController lights)
+        {
+            outerL = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
+            innerL = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            innerR = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
+            outerR = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            ChangeF();
+
+            LightLayer layer0 = new LightLayer();
+            for (byte i = 0; i < 60; i++)
+            {
+                layer0.SetSegmentColor(0, i, circleTaikoInner[i]);
+                layer0.SetSegmentColor(1, i, circleTaikoInner[i]);
+                layer0.SetSegmentColor(2, i, circleTaikoOuter[i]);
+                layer0.SetSegmentColor(3, i, circleTaikoOuter[i]);
+            }
+
+            LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
+            lights.SendLightFrame(gradientFrame);
+        }
+
+        public static LightColor white;
+        public static void SendLight32(LightController lights)
+        {
+            for (int i = 0; i < 12; i++)
+            {
+                color_num[i] = new LightColor((byte)(colors12[i][0] / f), (byte)(colors12[i][1] / f), (byte)(colors12[i][2] / f));
+            }
+            white = new LightColor((byte)(255 / f), (byte)(255 / f), (byte)(255 / f));
+            ChangeF();
+
+            LightLayer layer0 = new LightLayer();
+            for (byte i = 0; i < 60; i++)
+            {
+                layer0.SetSegmentColor(0, i, circle12[i]);
+                layer0.SetSegmentColor(1, i, circle12[i]);
+                layer0.SetSegmentColor(2, i, white);
+                layer0.SetSegmentColor(3, i, white);
+            }
+
+            LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
             lights.SendLightFrame(gradientFrame);
         }
     }

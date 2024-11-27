@@ -460,6 +460,7 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
+                WaccaTable.SendLight12(lights);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -585,6 +586,7 @@ namespace WaccaCircle
                     joystick.SetAxis((int)sl1_mid, deviceId, HID_USAGES.HID_USAGE_SL1);
                 }
 
+                WaccaTable.SendLight32(lights);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -718,6 +720,7 @@ namespace WaccaCircle
                     joystick.SetAxis((int)sl1_mid, deviceId, HID_USAGES.HID_USAGE_SL1);
                 }
 
+                WaccaTable.SendLight32(lights);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -878,6 +881,7 @@ namespace WaccaCircle
                     joystick.SetAxis((int)sl0_mid, deviceId, HID_USAGES.HID_USAGE_SL0);
                     joystick.SetAxis((int)sl1_mid, deviceId, HID_USAGES.HID_USAGE_SL1);
                 }
+                WaccaTable.SendLight32(lights);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -942,6 +946,7 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
+                WaccaTable.SendLightTaiko(lights);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -1056,6 +1061,7 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
+                WaccaTable.SendLightSDVX(lights, state);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -1120,6 +1126,7 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
+                WaccaTable.SendLightRPG(lights);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -1212,6 +1219,7 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
+                WaccaTable.SendLightOsu(lights);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -1377,6 +1385,7 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
+                WaccaTable.SendLight32(lights);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -1495,6 +1504,7 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
+                WaccaTable.SendLight12(lights);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -1658,6 +1668,7 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 } // end for buttons 17 to 20
+                WaccaTable.SendLightMouse(lights);
                 a = IOBoardPoll();
                 if (a == 1)
                 {

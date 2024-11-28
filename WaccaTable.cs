@@ -681,28 +681,6 @@ new LightColor(179, 179, 179),
         public static LightColor[] osu = { osu0, osu1, osu2, osu3, osu4, osu5, osu6, osu7 };
         public static LightColor[] sdvx = { sdvx0, sdvx1, sdvx2, sdvx3, sdvx4, sdvx5, sdvx6, sdvx7, sdvx8, sdvx9, sdvx10, sdvx11, sdvx12 };
         public static LightColor[] rpg = { r, rpgBack, rpgEnter, r, rpgMenu, r, r, rpgAttacc, rpgUp, rpgDown, rpgLeft, rpgRight };
-        public static List<LightColor> circle12 = new List<LightColor>();
-        public static List<LightColor> circleMouse = new List<LightColor>();
-        public static List<LightColor> circleTaikoInner = new List<LightColor>();
-        public static List<LightColor> circleTaikoOuter = new List<LightColor>();
-        public static List<LightColor> circleRPGInner = new List<LightColor>();
-        public static List<LightColor> circleRPGOuter = new List<LightColor>();
-        public static List<LightColor> circleOsu = new List<LightColor>();
-        public static List<LightColor> circleSDVX = new List<LightColor>();
-        public static void Initialise()
-        {
-            for (int i = 0; i < axes.Length; i++)
-            {
-                circle12.Add(color_num[axes[i][2] - 1]);
-                circleMouse.Add(color_num[mouseAxes[i][4]]);
-                circleTaikoInner.Add(color_num[axes[i][6] - 23 + 12]);
-                circleTaikoOuter.Add(color_num[axes[i][6] - 23 + 14]);
-                circleRPGInner.Add(rpg[RPGaxes[i][3]]);
-                circleRPGOuter.Add(rpg[RPGaxes[i][4] - 13 + 8]);
-                circleOsu.Add(osu[axes[i][7] - 25]);
-                circleSDVX.Add(sdvx[SDVXaxes[i][2] - 1]);
-            }
-        }
 
         /// <summary>
         /// Represents the current state of the breathing animation factor.
@@ -786,115 +764,15 @@ new LightColor(179, 179, 179),
             color10 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
             n++;
             color11 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
-            if (f == 100.0)
-            {
-
-                Console.WriteLine((byte)(colors12[0][0] / f));
-                Console.WriteLine((byte)(colors12[0][1] / f));
-                Console.WriteLine((byte)(colors12[0][2] / f));
-            }
-            if (color11 != circle12[0])
-            {
-                Console.WriteLine("WHAT");
-                Console.ReadLine();
-                Console.WriteLine(color11);
-                Console.WriteLine(circle12[0]);
-            }
-            ChangeF();
+        LightColor[] color_num = { color0, color1, color2, color3, color4, color5, color6, color7, color8, color9, color10, color11, innerL, innerR, outerL, outerR, r, mouseUp, mouseRight, mouseDown, mouseLeft };
+        ChangeF();
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
-                if (i < 3)
-                {
-                    layer0.SetSegmentColor(0, i, color11);
-                    layer0.SetSegmentColor(1, i, color11);
-                    layer0.SetSegmentColor(2, i, color11);
-                    layer0.SetSegmentColor(3, i, color11);
-                }
-                else if (i < 8)
-                {
-                    layer0.SetSegmentColor(0, i, color10);
-                    layer0.SetSegmentColor(1, i, color10);
-                    layer0.SetSegmentColor(2, i, color10);
-                    layer0.SetSegmentColor(3, i, color10);
-                }
-                else if (i < 13)
-                {
-                    layer0.SetSegmentColor(0, i, color9);
-                    layer0.SetSegmentColor(1, i, color9);
-                    layer0.SetSegmentColor(2, i, color9);
-                    layer0.SetSegmentColor(3, i, color9);
-                }
-                else if (i < 18)
-                {
-                    layer0.SetSegmentColor(0, i, color8);
-                    layer0.SetSegmentColor(1, i, color8);
-                    layer0.SetSegmentColor(2, i, color8);
-                    layer0.SetSegmentColor(3, i, color8);
-                }
-                else if (i < 23)
-                {
-                    layer0.SetSegmentColor(0, i, color7);
-                    layer0.SetSegmentColor(1, i, color7);
-                    layer0.SetSegmentColor(2, i, color7);
-                    layer0.SetSegmentColor(3, i, color7);
-                }
-                else if (i < 28)
-                {
-                    layer0.SetSegmentColor(0, i, color6);
-                    layer0.SetSegmentColor(1, i, color6);
-                    layer0.SetSegmentColor(2, i, color6);
-                    layer0.SetSegmentColor(3, i, color6);
-                }
-                else if (i < 33)
-                {
-                    layer0.SetSegmentColor(0, i, color5);
-                    layer0.SetSegmentColor(1, i, color5);
-                    layer0.SetSegmentColor(2, i, color5);
-                    layer0.SetSegmentColor(3, i, color5);
-                }
-                else if (i < 38)
-                {
-                    layer0.SetSegmentColor(0, i, color4);
-                    layer0.SetSegmentColor(1, i, color4);
-                    layer0.SetSegmentColor(2, i, color4);
-                    layer0.SetSegmentColor(3, i, color4);
-                }
-                else if (i < 43)
-                {
-                    layer0.SetSegmentColor(0, i, color3);
-                    layer0.SetSegmentColor(1, i, color3);
-                    layer0.SetSegmentColor(2, i, color3);
-                    layer0.SetSegmentColor(3, i, color3);
-                }
-                else if (i < 48)
-                {
-                    layer0.SetSegmentColor(0, i, color2);
-                    layer0.SetSegmentColor(1, i, color2);
-                    layer0.SetSegmentColor(2, i, color2);
-                    layer0.SetSegmentColor(3, i, color2);
-                }
-                else if (i < 53)
-                {
-                    layer0.SetSegmentColor(0, i, color1);
-                    layer0.SetSegmentColor(1, i, color1);
-                    layer0.SetSegmentColor(2, i, color1);
-                    layer0.SetSegmentColor(3, i, color1);
-                }
-                else if (i < 58)
-                {
-                    layer0.SetSegmentColor(0, i, color0);
-                    layer0.SetSegmentColor(1, i, color0);
-                    layer0.SetSegmentColor(2, i, color0);
-                    layer0.SetSegmentColor(3, i, color0);
-                }
-                else
-                {
-                    layer0.SetSegmentColor(0, i, color11);
-                    layer0.SetSegmentColor(1, i, color11);
-                    layer0.SetSegmentColor(2, i, color11);
-                    layer0.SetSegmentColor(3, i, color11);
-                }
+                    layer0.SetSegmentColor(0, i, color_num[axes[i][2] - 1]);
+                    layer0.SetSegmentColor(1, i, color_num[axes[i][2] - 1]);
+                    layer0.SetSegmentColor(2, i, color_num[axes[i][2] - 1]);
+                    layer0.SetSegmentColor(3, i, color_num[axes[i][2] - 1]);
             }
 
             LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
@@ -917,6 +795,7 @@ new LightColor(179, 179, 179),
             sdvx12 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
             sdvxPink = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
             sdvxBlue = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
+            LightColor[] sdvx = { sdvx0, sdvx1, sdvx2, sdvx3, sdvx4, sdvx5, sdvx6, sdvx7, sdvx8, sdvx9, sdvx10, sdvx11, sdvx12 };
             if (state == 0)
             {
                 sdvxPink = sdvxBlue; // full blue
@@ -930,8 +809,8 @@ new LightColor(179, 179, 179),
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
-                layer0.SetSegmentColor(0, i, circleSDVX[i]);
-                layer0.SetSegmentColor(1, i, circleSDVX[i]);
+                layer0.SetSegmentColor(0, i, sdvx[SDVXaxes[i][2] - 1]);
+                layer0.SetSegmentColor(1, i, sdvx[SDVXaxes[i][2] - 1]);
                 if (i < 30)
                 {
                     layer0.SetSegmentColor(2, i, sdvxBlue);
@@ -963,10 +842,10 @@ new LightColor(179, 179, 179),
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
-                layer0.SetSegmentColor(0, i, circleOsu[i]);
-                layer0.SetSegmentColor(1, i, circleOsu[i]);
-                layer0.SetSegmentColor(2, i, circleOsu[i]);
-                layer0.SetSegmentColor(3, i, circleOsu[i]);
+                layer0.SetSegmentColor(0, i, osu[axes[i][7] - 25]);
+                layer0.SetSegmentColor(1, i, osu[axes[i][7] - 25]);
+                layer0.SetSegmentColor(2, i, osu[axes[i][7] - 25]);
+                layer0.SetSegmentColor(3, i, osu[axes[i][7] - 25]);
             }
 
             LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
@@ -984,8 +863,8 @@ new LightColor(179, 179, 179),
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
-                layer0.SetSegmentColor(0, i, circleMouse[i]);
-                layer0.SetSegmentColor(1, i, circleMouse[i]);
+                layer0.SetSegmentColor(0, i, color_num[mouseAxes[i][4]]);
+                layer0.SetSegmentColor(1, i, color_num[mouseAxes[i][4]]);
                 layer0.SetSegmentColor(2, i, mouseOuter);
                 layer0.SetSegmentColor(3, i, mouseOuter);
             }
@@ -1008,10 +887,10 @@ new LightColor(179, 179, 179),
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
-                layer0.SetSegmentColor(0, i, circleRPGInner[i]);
-                layer0.SetSegmentColor(1, i, circleRPGInner[i]);
-                layer0.SetSegmentColor(2, i, circleRPGOuter[i]);
-                layer0.SetSegmentColor(3, i, circleRPGOuter[i]);
+                layer0.SetSegmentColor(0, i, rpg[RPGaxes[i][3]]);
+                layer0.SetSegmentColor(1, i, rpg[RPGaxes[i][3]]);
+                layer0.SetSegmentColor(2, i, rpg[RPGaxes[i][4] - 13 + 8]);
+                layer0.SetSegmentColor(3, i, rpg[RPGaxes[i][4] - 13 + 8]);
             }
 
             LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
@@ -1028,10 +907,10 @@ new LightColor(179, 179, 179),
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
-                layer0.SetSegmentColor(0, i, circleTaikoInner[i]);
-                layer0.SetSegmentColor(1, i, circleTaikoInner[i]);
-                layer0.SetSegmentColor(2, i, circleTaikoOuter[i]);
-                layer0.SetSegmentColor(3, i, circleTaikoOuter[i]);
+                layer0.SetSegmentColor(0, i, color_num[axes[i][6] - 23 + 12]);
+                layer0.SetSegmentColor(1, i, color_num[axes[i][6] - 23 + 12]);
+                layer0.SetSegmentColor(2, i, color_num[axes[i][6] - 23 + 14]);
+                layer0.SetSegmentColor(3, i, color_num[axes[i][6] - 23 + 14]);
             }
 
             LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
@@ -1051,8 +930,8 @@ new LightColor(179, 179, 179),
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
-                layer0.SetSegmentColor(0, i, circle12[i]);
-                layer0.SetSegmentColor(1, i, circle12[i]);
+                layer0.SetSegmentColor(0, i, color_num[axes[i][2] - 1]);
+                layer0.SetSegmentColor(1, i, color_num[axes[i][2] - 1]);
                 layer0.SetSegmentColor(2, i, white);
                 layer0.SetSegmentColor(3, i, white);
             }

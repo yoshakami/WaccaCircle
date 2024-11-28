@@ -43,8 +43,6 @@ namespace WaccaCircle
         {
 
             Console.WriteLine("Hello!");
-            Console.WriteLine("WaccaTable initialize");
-            WaccaTable.Initialise();
             // Initialize DirectInput
             var directInput = new DirectInput();
 

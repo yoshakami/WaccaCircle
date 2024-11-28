@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Drawing;
 using LilyConsole.Helpers;
-using WaccaCircle;  // needed to use WaccaTable.cs
+//using WaccaCircle;  // needed to use WaccaTable.cs
 
 namespace WaccaCircle
 {
@@ -42,6 +42,9 @@ namespace WaccaCircle
         public static void Main(string[] args)
         {
 
+            Console.WriteLine("Hello!");
+            Console.WriteLine("WaccaTable initialize");
+            WaccaTable.Initialise();
             // Initialize DirectInput
             var directInput = new DirectInput();
 
@@ -69,21 +72,27 @@ namespace WaccaCircle
                 return;
             }
 
+            Console.WriteLine("Hello!2");
             // Instantiate the joystick
             ioboard = new Joystick(directInput, joystickGuid);
+            Console.WriteLine("Hello!3");
 
             Console.WriteLine($"Found Joystick/Gamepad: {ioboard.Information.ProductName}");
 
+            Console.WriteLine("Hello!4");
             // Acquire the joystick
             ioboard.Acquire();
+            Console.WriteLine("Hello!5");
 
             // Poll joystick state
             var state = new JoystickState();
+            Console.WriteLine("Hello!6");
 
             Console.WriteLine("Press buttons to see their states. Press Ctrl+C to exit.");
             // Poll the joystick for input
             ioboard.Poll();
             state = ioboard.GetCurrentState();
+            Console.WriteLine("Hello!7");
 
             // Get button states
             var buttons = state.Buttons;
@@ -139,6 +148,7 @@ namespace WaccaCircle
                     {
                         RunExternalCommand(exe_title, waccaCircleText[current]);
                     }
+                    Console.WriteLine("Launching app");
                     return_val = waccaCircleApps[current]();
                     if (return_val == -2)
                     {

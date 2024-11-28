@@ -762,10 +762,30 @@ new LightColor(179, 179, 179),
         /// </remarks>
         public static void SendLight12(LightController lights)
         {
-            for (int i = 0; i < 12; i++)
-            {
-                color_num[i] = new LightColor((byte)(colors12[i][0] / f), (byte)(colors12[i][1] / f), (byte)(colors12[i][2] / f));
-            }
+            byte n = 0;
+            color0 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
+            n++;
+            color1 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
+            n++;
+            color2 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
+            n++;
+            color3 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
+            n++;
+            color4 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
+            n++;
+            color5 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
+            n++;
+            color6 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
+            n++;
+            color7 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
+            n++;
+            color8 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
+            n++;
+            color9 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
+            n++;
+            color10 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
+            n++;
+            color11 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
             if (f == 100.0)
             {
 
@@ -784,10 +804,97 @@ new LightColor(179, 179, 179),
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
-                layer0.SetSegmentColor(0, i, circle12[i]);
-                layer0.SetSegmentColor(1, i, circle12[i]);
-                layer0.SetSegmentColor(2, i, circle12[i]);
-                layer0.SetSegmentColor(3, i, circle12[i]);
+                if (i < 3)
+                {
+                    layer0.SetSegmentColor(0, i, color11);
+                    layer0.SetSegmentColor(1, i, color11);
+                    layer0.SetSegmentColor(2, i, color11);
+                    layer0.SetSegmentColor(3, i, color11);
+                }
+                else if (i < 8)
+                {
+                    layer0.SetSegmentColor(0, i, color10);
+                    layer0.SetSegmentColor(1, i, color10);
+                    layer0.SetSegmentColor(2, i, color10);
+                    layer0.SetSegmentColor(3, i, color10);
+                }
+                else if (i < 13)
+                {
+                    layer0.SetSegmentColor(0, i, color9);
+                    layer0.SetSegmentColor(1, i, color9);
+                    layer0.SetSegmentColor(2, i, color9);
+                    layer0.SetSegmentColor(3, i, color9);
+                }
+                else if (i < 18)
+                {
+                    layer0.SetSegmentColor(0, i, color8);
+                    layer0.SetSegmentColor(1, i, color8);
+                    layer0.SetSegmentColor(2, i, color8);
+                    layer0.SetSegmentColor(3, i, color8);
+                }
+                else if (i < 23)
+                {
+                    layer0.SetSegmentColor(0, i, color7);
+                    layer0.SetSegmentColor(1, i, color7);
+                    layer0.SetSegmentColor(2, i, color7);
+                    layer0.SetSegmentColor(3, i, color7);
+                }
+                else if (i < 28)
+                {
+                    layer0.SetSegmentColor(0, i, color6);
+                    layer0.SetSegmentColor(1, i, color6);
+                    layer0.SetSegmentColor(2, i, color6);
+                    layer0.SetSegmentColor(3, i, color6);
+                }
+                else if (i < 33)
+                {
+                    layer0.SetSegmentColor(0, i, color5);
+                    layer0.SetSegmentColor(1, i, color5);
+                    layer0.SetSegmentColor(2, i, color5);
+                    layer0.SetSegmentColor(3, i, color5);
+                }
+                else if (i < 38)
+                {
+                    layer0.SetSegmentColor(0, i, color4);
+                    layer0.SetSegmentColor(1, i, color4);
+                    layer0.SetSegmentColor(2, i, color4);
+                    layer0.SetSegmentColor(3, i, color4);
+                }
+                else if (i < 43)
+                {
+                    layer0.SetSegmentColor(0, i, color3);
+                    layer0.SetSegmentColor(1, i, color3);
+                    layer0.SetSegmentColor(2, i, color3);
+                    layer0.SetSegmentColor(3, i, color3);
+                }
+                else if (i < 48)
+                {
+                    layer0.SetSegmentColor(0, i, color2);
+                    layer0.SetSegmentColor(1, i, color2);
+                    layer0.SetSegmentColor(2, i, color2);
+                    layer0.SetSegmentColor(3, i, color2);
+                }
+                else if (i < 53)
+                {
+                    layer0.SetSegmentColor(0, i, color1);
+                    layer0.SetSegmentColor(1, i, color1);
+                    layer0.SetSegmentColor(2, i, color1);
+                    layer0.SetSegmentColor(3, i, color1);
+                }
+                else if (i < 58)
+                {
+                    layer0.SetSegmentColor(0, i, color0);
+                    layer0.SetSegmentColor(1, i, color0);
+                    layer0.SetSegmentColor(2, i, color0);
+                    layer0.SetSegmentColor(3, i, color0);
+                }
+                else
+                {
+                    layer0.SetSegmentColor(0, i, color11);
+                    layer0.SetSegmentColor(1, i, color11);
+                    layer0.SetSegmentColor(2, i, color11);
+                    layer0.SetSegmentColor(3, i, color11);
+                }
             }
 
             LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };

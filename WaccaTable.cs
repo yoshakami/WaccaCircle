@@ -623,7 +623,7 @@ new LightColor(179, 179, 179),
 
             lights.SendLightFrame(gradientFrame);
         }
-        
+
         public static LightColor color0;
         public static LightColor color1;
         public static LightColor color2;
@@ -678,9 +678,6 @@ new LightColor(179, 179, 179),
         public static LightColor mouseOuter;
         public static LightColor r;
         public static LightColor[] color_num = { color0, color1, color2, color3, color4, color5, color6, color7, color8, color9, color10, color11, innerL, innerR, outerL, outerR, r, mouseUp, mouseRight, mouseDown, mouseLeft };
-        public static LightColor[] osu = { osu0, osu1, osu2, osu3, osu4, osu5, osu6, osu7 };
-        public static LightColor[] sdvx = { sdvx0, sdvx1, sdvx2, sdvx3, sdvx4, sdvx5, sdvx6, sdvx7, sdvx8, sdvx9, sdvx10, sdvx11, sdvx12 };
-        public static LightColor[] rpg = { r, rpgBack, rpgEnter, r, rpgMenu, r, r, rpgAttacc, rpgUp, rpgDown, rpgLeft, rpgRight };
 
         /// <summary>
         /// Represents the current state of the breathing animation factor.
@@ -740,39 +737,19 @@ new LightColor(179, 179, 179),
         /// </remarks>
         public static void SendLight12(LightController lights)
         {
-            byte n = 0;
-            color0 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
-            n++;
-            color1 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
-            n++;
-            color2 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
-            n++;
-            color3 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
-            n++;
-            color4 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
-            n++;
-            color5 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
-            n++;
-            color6 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
-            n++;
-            color7 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
-            n++;
-            color8 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
-            n++;
-            color9 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
-            n++;
-            color10 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
-            n++;
-            color11 = new LightColor((byte)(colors12[n][0] / f), (byte)(colors12[n][1] / f), (byte)(colors12[n][2] / f));
-        LightColor[] color_num = { color0, color1, color2, color3, color4, color5, color6, color7, color8, color9, color10, color11, innerL, innerR, outerL, outerR, r, mouseUp, mouseRight, mouseDown, mouseLeft };
-        ChangeF();
+
+            for (int i = 0; i < 12; i++)
+            {
+                color_num[i] = new LightColor((byte)(colors12[i][0] / f), (byte)(colors12[i][1] / f), (byte)(colors12[i][2] / f));
+            }
+            ChangeF();
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
-                    layer0.SetSegmentColor(0, i, color_num[axes[i][2] - 1]);
-                    layer0.SetSegmentColor(1, i, color_num[axes[i][2] - 1]);
-                    layer0.SetSegmentColor(2, i, color_num[axes[i][2] - 1]);
-                    layer0.SetSegmentColor(3, i, color_num[axes[i][2] - 1]);
+                layer0.SetSegmentColor(0, i, color_num[axes[i][2] - 1]);
+                layer0.SetSegmentColor(1, i, color_num[axes[i][2] - 1]);
+                layer0.SetSegmentColor(2, i, color_num[axes[i][2] - 1]);
+                layer0.SetSegmentColor(3, i, color_num[axes[i][2] - 1]);
             }
 
             LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
@@ -838,7 +815,7 @@ new LightColor(179, 179, 179),
             osu6 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
             osu7 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
             ChangeF();
-
+            LightColor[] osu = { osu0, osu1, osu2, osu3, osu4, osu5, osu6, osu7 };
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
@@ -859,7 +836,7 @@ new LightColor(179, 179, 179),
             mouseRight = new LightColor((byte)(255 / f), (byte)(64 / f), (byte)(255 / f));
             mouseOuter = new LightColor((byte)(255 / f), (byte)(255 / f), (byte)(255 / f));
             ChangeF();
-
+            LightColor[] color_num = { color0, color1, color2, color3, color4, color5, color6, color7, color8, color9, color10, color11, innerL, innerR, outerL, outerR, r, mouseUp, mouseRight, mouseDown, mouseLeft };
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
@@ -883,6 +860,7 @@ new LightColor(179, 179, 179),
             rpgLeft = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
             rpgRight = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
             ChangeF();
+            LightColor[] rpg = { r, rpgBack, rpgEnter, r, rpgMenu, r, r, rpgAttacc, rpgUp, rpgDown, rpgLeft, rpgRight };
 
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
@@ -903,6 +881,7 @@ new LightColor(179, 179, 179),
             innerR = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
             outerR = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
             ChangeF();
+            LightColor[] color_num = { color0, color1, color2, color3, color4, color5, color6, color7, color8, color9, color10, color11, innerL, innerR, outerL, outerR, r, mouseUp, mouseRight, mouseDown, mouseLeft };
 
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)

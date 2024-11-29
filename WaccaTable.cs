@@ -9,7 +9,83 @@ namespace WaccaCircle
 {
     public static class WaccaTable
     {
-        public static readonly long axis_max = 32767;
+
+public struct Color
+    {
+        public double H { get; } // Hue: 0-360 degrees
+        public double S { get; } // Saturation: 0-1
+        public double V { get; } // Value: 0-1
+
+        public Color(double h, double s, double v)
+        {
+            H = h;
+            S = s;
+            V = v;
+        }
+
+            /// <summary>
+            /// Converts the HSV color to an RGB color and returns the result as a tuple of 3 bytes.
+            /// </summary>
+            /// <returns>A tuple containing R, G, and B as bytes (0-255).</returns>
+            /// <summary>
+            /// Converts the HSV color to an RGB color and returns the result as a byte array.
+            /// </summary>
+            /// <returns>An array of 3 bytes representing R, G, and B (0-255).</returns>
+            public byte[] ToRGB()
+            {
+                double r = 0, g = 0, b = 0;
+
+                if (S == 0) // Achromatic (gray)
+                {
+                    r = g = b = V;
+                }
+                else
+                {
+                    double sector = H / 60.0; // Sector index (0-5)
+                    int sectorIndex = (int)Math.Floor(sector);
+                    double fractionalPart = sector - sectorIndex; // Fractional part of sector
+
+                    double p = V * (1 - S);
+                    double q = V * (1 - S * fractionalPart);
+                    double t = V * (1 - S * (1 - fractionalPart));
+
+                    switch (sectorIndex)
+                    {
+                        case 0:
+                            r = V; g = t; b = p;
+                            break;
+                        case 1:
+                            r = q; g = V; b = p;
+                            break;
+                        case 2:
+                            r = p; g = V; b = t;
+                            break;
+                        case 3:
+                            r = p; g = q; b = V;
+                            break;
+                        case 4:
+                            r = t; g = p; b = V;
+                            break;
+                        case 5:
+                            r = V; g = p; b = q;
+                            break;
+                    }
+                }
+
+                // Convert to 0-255 range and return as bytes
+                return new byte[] { (byte)(r * 255), (byte)(g * 255), (byte)(b * 255) };
+            }
+
+
+            public override string ToString()
+        {
+                var rgbBytes = ToRGB();
+                return $"HSV({H}, {S}, {V}) -> R: {rgbBytes[0]}, G: {rgbBytes[1]}, B: {rgbBytes[2]}";
+
+        }
+    }
+
+    public static readonly long axis_max = 32767;
         private static int A(double v)
         {
             // Use -Sin to calculate the X position and shift it to the range [-axis_max, axis_max]
@@ -685,21 +761,41 @@ new LightColor(179, 179, 179),
         /// <remarks>
         /// This value should be reset to <c>1.0</c> to restart the breathing animation.
         /// </remarks>
-        public static double f = 1.0;
+        public static byte f = 0;
+        public static byte f2 = 0;
+        public static bool dimmer = true;
         public static void ChangeF()
         {
-            f += 0.1;
-            if (f >= -1.1 && f < 1.0)
+            if (f == 0)
             {
-                f = 1.0;  // reset f
+                if (f2 > 10)
+                {
+                    f2 = 0;
+                    f++;
+                    dimmer = true;
+                }
+                f2++;
             }
-            if (f > 2.0 || f < -2.0)
+            else if (f == 255)
             {
-                f += 1.0;  // accelerate anim
+                if (f2 > 10)
+                {
+                    f2 = 0;
+                    f--;
+                    dimmer = false;
+                }
+                f2++;
             }
-            if (f > 20.0)
+            else
             {
-                f = -20.0;  // reverse anim
+                if (dimmer)
+                {
+                    f++;
+                }
+                else
+                {
+                    f--;
+                }
             }
         }
 
@@ -718,6 +814,21 @@ new LightColor(179, 179, 179),
             new int[] { 255, 0, 255 },
             new int[] { 255, 0, 128 },
         };
+        public static readonly Color[] Colors12 =
+{
+    new Color(0, 1, 1),       // Red
+    new Color(30, 1, 1),      // Orange
+    new Color(60, 1, 1),      // Yellow
+    new Color(90, 1, 1),      // Light Green
+    new Color(120, 1, 1),     // Green
+    new Color(150, 1, 1),     // Cyan-Green
+    new Color(180, 1, 1),     // Cyan
+    new Color(210, 1, 1),     // Blue-Cyan
+    new Color(240, 1, 1),     // Blue
+    new Color(270, 1, 1),     // Purple
+    new Color(300, 1, 1),     // Magenta
+    new Color(330, 1, 1),     // Pink
+};
 
         // lights.SendLightFrame(new LightFrame(new LightColor(255, 0, 255)), controller.segments);
         //
@@ -740,7 +851,7 @@ new LightColor(179, 179, 179),
 
             for (int i = 0; i < 12; i++)
             {
-                color_num[i] = new LightColor((byte)(colors12[i][0] / f), (byte)(colors12[i][1] / f), (byte)(colors12[i][2] / f));
+                color_num[i] = new LightColor((byte)(colors12[i][0]), (byte)(colors12[i][1]), (byte)(colors12[i][2]), (byte)(255 - f));
             }
             ChangeF();
             LightLayer layer0 = new LightLayer();

@@ -1,6 +1,5 @@
 
 using LilyConsole;
-using SharpDX.DirectInput;
 using System;
 
 namespace WaccaCircle
@@ -55,10 +54,53 @@ namespace WaccaCircle
             }
             return v;
         }
+        public static double HSVmid()
+        {
+            if (v <= 0.25)
+            {
+                if (f2 > 10)
+                {
+                    f2 = 0;
+                    v += step;
+                    dimmer = false;
+                }
+                f2++;
+            }
+            else if (v >= 0.75)
+            {
+                if (f2 > 10)
+                {
+                    f2 = 0;
+                    v -= step;
+                    dimmer = true;
+                }
+                f2++;
+            }
+            else
+            {
+                if (dimmer)
+                {
+                    v -= step;
+                }
+                else
+                {
+                    v += step;
+                }
+            }
+            if (v < 0.0)
+            {
+                v = 0.0;
+            }
+            else if (v > 1.0)
+            {
+                v = 1.0;
+            }
+            return v;
+        }
     }
     public static class WaccaTable
     {
-
+        public static Func<double> anim = WaccaLightAnimation.HSVmid;
         public struct Color
         {
             public double H { get; } // Hue: 0-360 degrees
@@ -846,7 +888,7 @@ new LightColor(179, 179, 179),
                 byte[] rgbBytes = ColorsHSV12[i].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            WaccaLightAnimation.HSVbreathe();
+            anim();
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
@@ -887,11 +929,11 @@ new LightColor(179, 179, 179),
                 rgbBytes = SDVXColorsHSV[i].ToRGB();
                 sdvx[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            WaccaLightAnimation.HSVbreathe();
+            anim();
             rgbBytes = Pink.ToRGB();
             sdvxPink = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             rgbBytes = Blue.ToRGB();
-            sdvxPink = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+            sdvxBlue = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             if (state == 0)
             {
                 sdvxPink = sdvxBlue; // full blue
@@ -943,7 +985,7 @@ new LightColor(179, 179, 179),
                 byte[] rgbBytes = OsuColorsHSV[i].ToRGB();
                 osu[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            WaccaLightAnimation.HSVbreathe();
+            anim();
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
@@ -975,7 +1017,7 @@ new LightColor(179, 179, 179),
             }
             rgbBytes = mouseHSV[4].ToRGB();
             mouseOuter = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
-            WaccaLightAnimation.HSVbreathe();
+            anim();
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
@@ -1012,7 +1054,7 @@ new LightColor(179, 179, 179),
                 byte[] rgbBytes = RPGColorsHSV[i].ToRGB();
                 rpg[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            WaccaLightAnimation.HSVbreathe();
+            anim();
 
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
@@ -1041,7 +1083,7 @@ new LightColor(179, 179, 179),
                 byte[] rgbBytes = TaikoColorsHSV[i - 12].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            WaccaLightAnimation.HSVbreathe();
+            anim();
 
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
@@ -1069,7 +1111,7 @@ new LightColor(179, 179, 179),
             }
             rgbBytes = whiteHSV.ToRGB();
             white = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
-            WaccaLightAnimation.HSVbreathe();
+            anim();
 
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)

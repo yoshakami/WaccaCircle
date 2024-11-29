@@ -1,9 +1,241 @@
 
 using LilyConsole;
+using Newtonsoft.Json;
 using System;
+using System.IO;
 
 namespace WaccaCircle
 {
+    public struct Color
+    {
+        public double H { get; } // Hue: 0-360 degrees
+        public double S { get; set; } // Saturation: 0-1
+        public double V { get; set; } // Value: 0-1
+
+        public Color(double h, double s, double v)
+        {
+            H = h;
+            S = s;
+            V = v;
+        }
+
+        /// <summary>
+        /// Converts the HSV color to an RGB color and returns the result as a tuple of 3 bytes.
+        /// </summary>
+        /// <returns>A tuple containing R, G, and B as bytes (0-255).</returns>
+        /// <summary>
+        /// Converts the HSV color to an RGB color and returns the result as a byte array.
+        /// </summary>
+        /// <returns>An array of 3 bytes representing R, G, and B (0-255).</returns>
+        public byte[] ToRGB()
+        {
+            double r = 0, g = 0, b = 0;
+
+            if (S == 0) // Achromatic (gray)
+            {
+                r = g = b = V;
+            }
+            else
+            {
+                double sector = H / 60.0; // Sector index (0-5)
+                int sectorIndex = (int)Math.Floor(sector);
+                double fractionalPart = sector - sectorIndex; // Fractional part of sector
+
+                double p = V * (1 - S);
+                double q = V * (1 - S * fractionalPart);
+                double t = V * (1 - S * (1 - fractionalPart));
+
+                switch (sectorIndex)
+                {
+                    case 0:
+                        r = V; g = t; b = p;
+                        break;
+                    case 1:
+                        r = q; g = V; b = p;
+                        break;
+                    case 2:
+                        r = p; g = V; b = t;
+                        break;
+                    case 3:
+                        r = p; g = q; b = V;
+                        break;
+                    case 4:
+                        r = t; g = p; b = V;
+                        break;
+                    case 5:
+                        r = V; g = p; b = q;
+                        break;
+                }
+            }
+
+            // Convert to 0-255 range and return as bytes
+            return new byte[] { (byte)(r * 255), (byte)(g * 255), (byte)(b * 255) };
+        }
+
+
+        public override string ToString()
+        {
+            var rgbBytes = ToRGB();
+            return $"HSV({H}, {S}, {V}) -> R: {rgbBytes[0]}, G: {rgbBytes[1]}, B: {rgbBytes[2]}";
+
+        }
+    }
+    public class ColorData
+    {
+        public Func<double> anim { get; set; }
+        public Color[] ColorsHSV12 { get; set; }
+        public Color outer { get; set; }
+        public Color SDVXouterL { get; set; }
+        public Color SDVXouterR { get; set; }
+        public Color[] SDVXColorsHSV { get; set; }
+        public Color[] OsuColorsHSV { get; set; }
+        public Color[] mouseHSV { get; set; }
+        public Color[] TaikoColorsHSV { get; set; }
+        public Color[] RPGColorsHSV { get; set; }
+    }
+    public static class ColorStorage
+    {
+        public static Func<double> anim = WaccaLightAnimation.HSVmid;
+
+        public static readonly Color[] ColorsHSV12 =
+        {
+            new Color(0, 1, 1),       // Red
+            new Color(30, 0.8, 1),      // Orange
+            new Color(60, 1, 1),      // Yellow
+            new Color(90, 0.8, 1),      // Light Green
+            new Color(120, 1, 1),     // Green
+            new Color(150, 0.8, 1),     // Cyan-Green
+            new Color(180, 1, 1),     // Cyan
+            new Color(210, 0.8, 1),     // Blue-Cyan
+            new Color(240, 1, 1),     // Blue
+            new Color(270, 0.8, 1),     // Purple
+            new Color(300, 1, 1),     // Magenta
+            new Color(330, 0.8, 1),     // Pink
+        };
+
+        public static Color outer = new Color(0, 0, 1);
+
+        public static Color SDVXouterL = new Color(200, 0.8, 1);     // Blue 
+        public static Color SDVXouterR = new Color(330, 1, 1);     // Pink 
+
+        public static readonly Color[] SDVXColorsHSV =
+        {
+            new Color(0, 1, 1),       // Red
+            new Color(60, 1, 1),      // Yellow
+            new Color(120, 1, 1),     // Green
+            new Color(30, 1, 1),      // Orange
+            new Color(0, 0, 1),      // White
+            new Color(0, 0, 0.7),      // Light Grey
+            new Color(0, 0, 0.4),      // Dark Grey
+            new Color(0, 0, 1),      // White
+            new Color(30, 1, 1),      // Orange
+            new Color(120, 1, 1),     // Green
+            new Color(60, 1, 1),      // Yellow
+            new Color(0, 1, 1),       // Red
+            new Color(320, 1, 1),     // Pink
+        };
+
+
+        public static readonly Color[] OsuColorsHSV =
+        {
+            new Color(00, 1, 1),      // Red
+            new Color(50, 1, 1),      // Orange
+            new Color(80, 1, 1),      // Yellow
+            new Color(120, 1, 1),     // Green
+            new Color(180, 1, 1),     // Cyan
+            new Color(265, 1, 1),     // Purple
+            new Color(300, 1, 1),     // Magenta
+            new Color(330, 1, 1),     // Pink
+        };
+
+
+        public static Color[] mouseHSV = {
+            new Color(0, 1, 1),       // Up
+            new Color(60, 1, 1),      // Right
+            new Color(120, 1, 1),     // Down
+            new Color(240, 1, 1),     // Left
+            new Color(0, 0, 1),     // Outer
+            };
+
+        public static readonly Color[] TaikoColorsHSV =
+        {
+            new Color(0, 1, 1),       // Red Outer
+            new Color(230, 1, 1),      // Blue
+            new Color(60, 1, 1),      // Yellow
+            new Color(195, 1, 1),     // Cyan
+        };
+        public static readonly Color[] RPGColorsHSV =
+        {
+            new Color(),       // Unused
+            new Color(0, 1, 1),      // back
+            new Color(50, 1, 1),      // enter
+            new Color(),      // Unused
+            new Color(270, 1, 1),     // Menu
+            new Color(),     // Unused
+            new Color(),     // Unused
+            new Color(175, 1, 1),     // Attacc
+            new Color(0, 0, 1),     // Up
+            new Color(0, 0, 1),     // Down
+            new Color(0, 0, 0.7),     // Left
+            new Color(0, 0, 0.7),     // Right
+        };
+        public static void SaveAllColors()
+        {
+            ColorData data = new ColorData
+            {
+                anim = ColorStorage.anim,
+                ColorsHSV12 = ColorStorage.ColorsHSV12,
+                outer = outer,
+                SDVXouterL = SDVXouterL,
+                SDVXouterR = SDVXouterR,
+                SDVXColorsHSV = SDVXColorsHSV,
+                OsuColorsHSV = OsuColorsHSV,
+                mouseHSV = mouseHSV,
+                TaikoColorsHSV = TaikoColorsHSV,
+                RPGColorsHSV = RPGColorsHSV,
+            };
+            string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+            File.WriteAllText("WaccaCircleConfig.json", json);
+        }
+        public static void LoadAllColors()
+        {
+            if (File.Exists("WaccaCircleConfig.json"))
+            {
+                string json = File.ReadAllText("WaccaCircleConfig.json");
+                var data = JsonConvert.DeserializeObject<ColorData>(json);
+
+                Console.WriteLine("ColorsHSV12:");
+                anim = data.anim;
+                outer = data.outer;
+                SDVXouterL = data.SDVXouterL;
+                SDVXouterR = data.SDVXouterR;
+                for (int i = 0; i < 12; i++)
+                {
+                    ColorsHSV12[i] = data.ColorsHSV12[i];
+                    SDVXColorsHSV[i] = data.SDVXColorsHSV[i];
+                    RPGColorsHSV[i] = data.RPGColorsHSV[i];
+                }
+                SDVXColorsHSV[12] = data.SDVXColorsHSV[12];
+                for (int i = 0; i < 4; i++)
+                {
+                    OsuColorsHSV[i] = data.OsuColorsHSV[i];
+                    mouseHSV[i] = data.mouseHSV[i];
+                    TaikoColorsHSV[i] = data.TaikoColorsHSV[i];
+                }
+                OsuColorsHSV[4] = data.OsuColorsHSV[4];
+                OsuColorsHSV[5] = data.OsuColorsHSV[5];
+                OsuColorsHSV[6] = data.OsuColorsHSV[6];
+                OsuColorsHSV[7] = data.OsuColorsHSV[7];
+                mouseHSV[4] = data.mouseHSV[4];
+            }
+            else
+            {
+                Console.WriteLine("WaccaCircleConfig.json not found!");
+            }
+        }
+
+
+    }
     public static class WaccaLightAnimation
     {
         private static double v = 1.0;
@@ -101,80 +333,6 @@ namespace WaccaCircle
     public static class WaccaTable
     {
         public static Func<double> anim = WaccaLightAnimation.HSVmid;
-        public struct Color
-        {
-            public double H { get; } // Hue: 0-360 degrees
-            public double S { get; set; } // Saturation: 0-1
-            public double V { get; set; } // Value: 0-1
-
-            public Color(double h, double s, double v)
-            {
-                H = h;
-                S = s;
-                V = v;
-            }
-
-            /// <summary>
-            /// Converts the HSV color to an RGB color and returns the result as a tuple of 3 bytes.
-            /// </summary>
-            /// <returns>A tuple containing R, G, and B as bytes (0-255).</returns>
-            /// <summary>
-            /// Converts the HSV color to an RGB color and returns the result as a byte array.
-            /// </summary>
-            /// <returns>An array of 3 bytes representing R, G, and B (0-255).</returns>
-            public byte[] ToRGB()
-            {
-                double r = 0, g = 0, b = 0;
-
-                if (S == 0) // Achromatic (gray)
-                {
-                    r = g = b = V;
-                }
-                else
-                {
-                    double sector = H / 60.0; // Sector index (0-5)
-                    int sectorIndex = (int)Math.Floor(sector);
-                    double fractionalPart = sector - sectorIndex; // Fractional part of sector
-
-                    double p = V * (1 - S);
-                    double q = V * (1 - S * fractionalPart);
-                    double t = V * (1 - S * (1 - fractionalPart));
-
-                    switch (sectorIndex)
-                    {
-                        case 0:
-                            r = V; g = t; b = p;
-                            break;
-                        case 1:
-                            r = q; g = V; b = p;
-                            break;
-                        case 2:
-                            r = p; g = V; b = t;
-                            break;
-                        case 3:
-                            r = p; g = q; b = V;
-                            break;
-                        case 4:
-                            r = t; g = p; b = V;
-                            break;
-                        case 5:
-                            r = V; g = p; b = q;
-                            break;
-                    }
-                }
-
-                // Convert to 0-255 range and return as bytes
-                return new byte[] { (byte)(r * 255), (byte)(g * 255), (byte)(b * 255) };
-            }
-
-
-            public override string ToString()
-            {
-                var rgbBytes = ToRGB();
-                return $"HSV({H}, {S}, {V}) -> R: {rgbBytes[0]}, G: {rgbBytes[1]}, B: {rgbBytes[2]}";
-
-            }
-        }
 
         public static readonly long axis_max = 32767;
         private static int A(double v)

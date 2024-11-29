@@ -2,26 +2,75 @@
 using LilyConsole;
 using SharpDX.DirectInput;
 using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
 
 namespace WaccaCircle
 {
+    public static class WaccaLightAnimation
+    {
+        private static double v = 1.0;
+        private static byte f2 = 0;
+        private static bool dimmer = true;
+        private static readonly double step = 0.05;
+        public static double V() { return v; }
+        public static double HSVbreathe()
+        {
+            if (v <= 0.0)
+            {
+                if (f2 > 10)
+                {
+                    f2 = 0;
+                    v += step;
+                    dimmer = false;
+                }
+                f2++;
+            }
+            else if (v >= 1.0)
+            {
+                if (f2 > 10)
+                {
+                    f2 = 0;
+                    v -= step;
+                    dimmer = true;
+                }
+                f2++;
+            }
+            else
+            {
+                if (dimmer)
+                {
+                    v -= step;
+                }
+                else
+                {
+                    v += step;
+                }
+            }
+            if (v < 0.0)
+            {
+                v = 0.0;
+            }
+            else if (v > 1.0)
+            {
+                v = 1.0;
+            }
+            return v;
+        }
+    }
     public static class WaccaTable
     {
 
-public struct Color
-    {
-        public double H { get; } // Hue: 0-360 degrees
-        public double S { get; } // Saturation: 0-1
-        public double V { get; } // Value: 0-1
-
-        public Color(double h, double s, double v)
+        public struct Color
         {
-            H = h;
-            S = s;
-            V = v;
-        }
+            public double H { get; } // Hue: 0-360 degrees
+            public double S { get; set; } // Saturation: 0-1
+            public double V { get; set; } // Value: 0-1
+
+            public Color(double h, double s, double v)
+            {
+                H = h;
+                S = s;
+                V = v;
+            }
 
             /// <summary>
             /// Converts the HSV color to an RGB color and returns the result as a tuple of 3 bytes.
@@ -78,14 +127,14 @@ public struct Color
 
 
             public override string ToString()
-        {
+            {
                 var rgbBytes = ToRGB();
                 return $"HSV({H}, {S}, {V}) -> R: {rgbBytes[0]}, G: {rgbBytes[1]}, B: {rgbBytes[2]}";
 
+            }
         }
-    }
 
-    public static readonly long axis_max = 32767;
+        public static readonly long axis_max = 32767;
         private static int A(double v)
         {
             // Use -Sin to calculate the X position and shift it to the range [-axis_max, axis_max]
@@ -755,80 +804,22 @@ new LightColor(179, 179, 179),
         public static LightColor r;
         public static LightColor[] color_num = { color0, color1, color2, color3, color4, color5, color6, color7, color8, color9, color10, color11, innerL, innerR, outerL, outerR, r, mouseUp, mouseRight, mouseDown, mouseLeft };
 
-        /// <summary>
-        /// Represents the current state of the breathing animation factor.
-        /// </summary>
-        /// <remarks>
-        /// This value should be reset to <c>1.0</c> to restart the breathing animation.
-        /// </remarks>
-        public static byte f = 0;
-        public static byte f2 = 0;
-        public static bool dimmer = true;
-        public static void ChangeF()
-        {
-            if (f == 0)
-            {
-                if (f2 > 10)
-                {
-                    f2 = 0;
-                    f++;
-                    dimmer = true;
-                }
-                f2++;
-            }
-            else if (f == 255)
-            {
-                if (f2 > 10)
-                {
-                    f2 = 0;
-                    f--;
-                    dimmer = false;
-                }
-                f2++;
-            }
-            else
-            {
-                if (dimmer)
-                {
-                    f++;
-                }
-                else
-                {
-                    f--;
-                }
-            }
-        }
 
-        public static int[][] colors12 =
+        public static readonly Color[] ColorsHSV12 =
         {
-            new int[] { 255, 0, 0 },
-            new int[] { 255, 128, 0 },
-            new int[] { 255, 255, 0 },
-            new int[] { 128, 255, 0 },
-            new int[] { 0, 255, 0 },
-            new int[] { 0, 255, 128 },
-            new int[] { 0, 255, 255 },
-            new int[] { 0, 128, 255 },
-            new int[] { 0, 0, 255 },
-            new int[] { 128, 0, 255 },
-            new int[] { 255, 0, 255 },
-            new int[] { 255, 0, 128 },
+            new Color(0, 1, 1),       // Red
+            new Color(30, 1, 1),      // Orange
+            new Color(60, 1, 1),      // Yellow
+            new Color(90, 1, 1),      // Light Green
+            new Color(120, 1, 1),     // Green
+            new Color(150, 1, 1),     // Cyan-Green
+            new Color(180, 1, 1),     // Cyan
+            new Color(210, 1, 1),     // Blue-Cyan
+            new Color(240, 1, 1),     // Blue
+            new Color(270, 1, 1),     // Purple
+            new Color(300, 1, 1),     // Magenta
+            new Color(330, 1, 1),     // Pink
         };
-        public static readonly Color[] Colors12 =
-{
-    new Color(0, 1, 1),       // Red
-    new Color(30, 1, 1),      // Orange
-    new Color(60, 1, 1),      // Yellow
-    new Color(90, 1, 1),      // Light Green
-    new Color(120, 1, 1),     // Green
-    new Color(150, 1, 1),     // Cyan-Green
-    new Color(180, 1, 1),     // Cyan
-    new Color(210, 1, 1),     // Blue-Cyan
-    new Color(240, 1, 1),     // Blue
-    new Color(270, 1, 1),     // Purple
-    new Color(300, 1, 1),     // Magenta
-    new Color(330, 1, 1),     // Pink
-};
 
         // lights.SendLightFrame(new LightFrame(new LightColor(255, 0, 255)), controller.segments);
         //
@@ -849,11 +840,13 @@ new LightColor(179, 179, 179),
         public static void SendLight12(LightController lights)
         {
 
-            for (int i = 0; i < 12; i++)
+            for (int i = 0; i < ColorsHSV12.Length; i++)
             {
-                color_num[i] = new LightColor((byte)(colors12[i][0]), (byte)(colors12[i][1]), (byte)(colors12[i][2]), (byte)(255 - f));
+                ColorsHSV12[i].V = WaccaLightAnimation.V();
+                byte[] rgbBytes = ColorsHSV12[i].ToRGB();
+                color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            ChangeF();
+            WaccaLightAnimation.HSVbreathe();
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
@@ -866,24 +859,39 @@ new LightColor(179, 179, 179),
             LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
             lights.SendLightFrame(gradientFrame);
         }
+        public static readonly Color[] SDVXColorsHSV =
+        {
+            new Color(0, 1, 1),       // Red
+            new Color(30, 1, 1),      // Orange
+            new Color(60, 1, 1),      // Yellow
+            new Color(90, 1, 1),      // Light Green
+            new Color(120, 1, 1),     // Green
+            new Color(150, 1, 1),     // Cyan-Green
+            new Color(180, 1, 1),     // Cyan
+            new Color(210, 1, 1),     // Blue-Cyan
+            new Color(240, 1, 1),     // Blue
+            new Color(270, 1, 1),     // Purple
+            new Color(300, 1, 1),     // Magenta
+            new Color(330, 1, 1),     // Pink
+            new Color(105, 1, 1),     // Green
+        };
+        static Color Pink = new Color(330, 1, 1);     // Pink 
+        static Color Blue = new Color(240, 1, 1);     // Blue 
+        public static LightColor[] sdvx = { sdvx0, sdvx1, sdvx2, sdvx3, sdvx4, sdvx5, sdvx6, sdvx7, sdvx8, sdvx9, sdvx10, sdvx11, sdvx12 };
         public static void SendLightSDVX(LightController lights, byte state)
         {
-            sdvx0 = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
-            sdvx1 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            sdvx2 = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
-            sdvx3 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            sdvx4 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            sdvx5 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            sdvx6 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            sdvx7 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            sdvx8 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            sdvx9 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            sdvx10 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            sdvx11 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            sdvx12 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            sdvxPink = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
-            sdvxBlue = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            LightColor[] sdvx = { sdvx0, sdvx1, sdvx2, sdvx3, sdvx4, sdvx5, sdvx6, sdvx7, sdvx8, sdvx9, sdvx10, sdvx11, sdvx12 };
+            byte[] rgbBytes;
+            for (int i = 0; i < SDVXColorsHSV.Length; i++)
+            {
+                SDVXColorsHSV[i].V = WaccaLightAnimation.V();
+                rgbBytes = SDVXColorsHSV[i].ToRGB();
+                sdvx[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+            }
+            WaccaLightAnimation.HSVbreathe();
+            rgbBytes = Pink.ToRGB();
+            sdvxPink = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+            rgbBytes = Blue.ToRGB();
+            sdvxPink = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             if (state == 0)
             {
                 sdvxPink = sdvxBlue; // full blue
@@ -892,7 +900,6 @@ new LightColor(179, 179, 179),
             {
                 sdvxBlue = sdvxPink; // full pink
             }
-            ChangeF();
 
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
@@ -915,18 +922,28 @@ new LightColor(179, 179, 179),
             lights.SendLightFrame(gradientFrame);
         }
 
+
+        public static readonly Color[] OsuColorsHSV =
+        {
+            new Color(30, 1, 1),      // Orange
+            new Color(90, 1, 1),      // Light Green
+            new Color(120, 1, 1),     // Green
+            new Color(180, 1, 1),     // Cyan
+            new Color(230, 1, 1),     // Blue
+            new Color(265, 1, 1),     // Purple
+            new Color(300, 1, 1),     // Magenta
+            new Color(330, 1, 1),     // Pink
+        };
+        public static LightColor[] osu = { osu0, osu1, osu2, osu3, osu4, osu5, osu6, osu7 };
         public static void SendLightOsu(LightController lights)
         {
-            osu0 = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
-            osu1 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            osu2 = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
-            osu3 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            osu4 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            osu5 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            osu6 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            osu7 = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            ChangeF();
-            LightColor[] osu = { osu0, osu1, osu2, osu3, osu4, osu5, osu6, osu7 };
+            for (int i = 0; i < OsuColorsHSV.Length; i++)
+            {
+                OsuColorsHSV[i].V = WaccaLightAnimation.V();
+                byte[] rgbBytes = OsuColorsHSV[i].ToRGB();
+                osu[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+            }
+            WaccaLightAnimation.HSVbreathe();
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
@@ -935,19 +952,30 @@ new LightColor(179, 179, 179),
                 layer0.SetSegmentColor(2, i, osu[axes[i][7] - 25]);
                 layer0.SetSegmentColor(3, i, osu[axes[i][7] - 25]);
             }
-
             LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
             lights.SendLightFrame(gradientFrame);
         }
+        public static Color[] mouseHSV = {
+
+            new Color(0, 1, 1),       // Up
+            new Color(60, 1, 1),      // Right
+            new Color(120, 1, 1),     // Down
+            new Color(240, 1, 1),     // Left
+            new Color(300, 1, 1),     // Outer
+            };
         public static void SendLightMouse(LightController lights)
         {
-            mouseUp = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
-            mouseDown = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            mouseLeft = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
-            mouseRight = new LightColor((byte)(255 / f), (byte)(64 / f), (byte)(255 / f));
-            mouseOuter = new LightColor((byte)(255 / f), (byte)(255 / f), (byte)(255 / f));
-            ChangeF();
-            LightColor[] color_num = { color0, color1, color2, color3, color4, color5, color6, color7, color8, color9, color10, color11, innerL, innerR, outerL, outerR, r, mouseUp, mouseRight, mouseDown, mouseLeft };
+            byte[] rgbBytes;
+            for (int i = 17; i < color_num.Length; i++)
+            {
+
+                mouseHSV[i - 17].V = WaccaLightAnimation.V();
+                rgbBytes = mouseHSV[i - 17].ToRGB();
+                color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+            }
+            rgbBytes = mouseHSV[4].ToRGB();
+            mouseOuter = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+            WaccaLightAnimation.HSVbreathe();
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
@@ -960,18 +988,31 @@ new LightColor(179, 179, 179),
             LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
             lights.SendLightFrame(gradientFrame);
         }
+        public static LightColor[] rpg = { r, rpgBack, rpgEnter, r, rpgMenu, r, r, rpgAttacc, rpgUp, rpgDown, rpgLeft, rpgRight };
+        public static readonly Color[] RPGColorsHSV =
+        {
+            new Color(),       // Unused
+            new Color(30, 1, 1),      // back
+            new Color(60, 1, 1),      // enter
+            new Color(),      // Unused
+            new Color(120, 1, 1),     // Menu
+            new Color(),     // Unused
+            new Color(),     // Unused
+            new Color(210, 1, 1),     // Attacc
+            new Color(240, 1, 1),     // Up
+            new Color(270, 1, 1),     // Down
+            new Color(300, 1, 1),     // Left
+            new Color(330, 1, 1),     // Right
+        };
         public static void SendLightRPG(LightController lights)
         {
-            rpgBack = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
-            rpgEnter = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            rpgMenu = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            rpgAttacc = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
-            rpgUp = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
-            rpgDown = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
-            rpgLeft = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
-            rpgRight = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
-            ChangeF();
-            LightColor[] rpg = { r, rpgBack, rpgEnter, r, rpgMenu, r, r, rpgAttacc, rpgUp, rpgDown, rpgLeft, rpgRight };
+            for (int i = 0; i < RPGColorsHSV.Length; i++)
+            {
+                RPGColorsHSV[i].V = WaccaLightAnimation.V();
+                byte[] rgbBytes = RPGColorsHSV[i].ToRGB();
+                rpg[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+            }
+            WaccaLightAnimation.HSVbreathe();
 
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
@@ -985,14 +1026,22 @@ new LightColor(179, 179, 179),
             LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
             lights.SendLightFrame(gradientFrame);
         }
+        public static readonly Color[] TaikoColorsHSV =
+        {
+            new Color(0, 1, 1),       // Red
+            new Color(30, 1, 1),      // Orange
+            new Color(60, 1, 1),      // Yellow
+            new Color(270, 1, 1),     // Purple
+        };
         public static void SendLightTaiko(LightController lights)
         {
-            outerL = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
-            innerL = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            innerR = new LightColor((byte)(255 / f), (byte)(128 / f), (byte)(128 / f));
-            outerR = new LightColor((byte)(100 / f), (byte)(64 / f), (byte)(255 / f));
-            ChangeF();
-            LightColor[] color_num = { color0, color1, color2, color3, color4, color5, color6, color7, color8, color9, color10, color11, innerL, innerR, outerL, outerR, r, mouseUp, mouseRight, mouseDown, mouseLeft };
+            for (int i = 12; i < 16; i++)
+            {
+                TaikoColorsHSV[i - 12].V = WaccaLightAnimation.V();
+                byte[] rgbBytes = TaikoColorsHSV[i - 12].ToRGB();
+                color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+            }
+            WaccaLightAnimation.HSVbreathe();
 
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
@@ -1007,15 +1056,20 @@ new LightColor(179, 179, 179),
             lights.SendLightFrame(gradientFrame);
         }
 
+        public static Color whiteHSV = new Color(0, 0, 1);
         public static LightColor white;
         public static void SendLight32(LightController lights)
         {
-            for (int i = 0; i < 12; i++)
+            byte[] rgbBytes;
+            for (int i = 0; i < ColorsHSV12.Length; i++)
             {
-                color_num[i] = new LightColor((byte)(colors12[i][0] / f), (byte)(colors12[i][1] / f), (byte)(colors12[i][2] / f));
+                ColorsHSV12[i].V = WaccaLightAnimation.V();
+                rgbBytes = ColorsHSV12[i].ToRGB();
+                color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            white = new LightColor((byte)(255 / f), (byte)(255 / f), (byte)(255 / f));
-            ChangeF();
+            rgbBytes = whiteHSV.ToRGB();
+            white = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+            WaccaLightAnimation.HSVbreathe();
 
             LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)

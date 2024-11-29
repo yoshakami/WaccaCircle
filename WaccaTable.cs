@@ -2,6 +2,8 @@
 using LilyConsole;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace WaccaCircle
@@ -82,21 +84,72 @@ namespace WaccaCircle
     }
     public class ColorData
     {
-        public Func<double> anim { get; set; }
-        public Color[] ColorsHSV12 { get; set; }
-        public Color outer { get; set; }
+        public byte animIndex { get; set; }
+        public double animBreatheSpeedStepBetween0And1 { get; set; }
+        public double animColorSpeedStepBetween0And360 { get; set; }
+        public double animColorJumpStepBetween0And360 { get; set; }
+        public uint animColorJumpDelayCount { get; set; }
+        public Color Color1 { get; set; }
+        public Color Color2 { get; set; }
+        public Color Color3 { get; set; }
+        public Color Color4 { get; set; }
+        public Color Color5 { get; set; }
+        public Color Color6 { get; set; }
+        public Color Color7 { get; set; }
+        public Color Color8 { get; set; }
+        public Color Color9 { get; set; }
+        public Color Color10 { get; set; }
+        public Color Color11 { get; set; }
+        public Color Color12 { get; set; }
+        public Color OuterCircleColor { get; set; }
         public Color SDVXouterL { get; set; }
         public Color SDVXouterR { get; set; }
-        public Color[] SDVXColorsHSV { get; set; }
-        public Color[] OsuColorsHSV { get; set; }
-        public Color[] mouseHSV { get; set; }
-        public Color[] TaikoColorsHSV { get; set; }
-        public Color[] RPGColorsHSV { get; set; }
+        public Color SDVX1 { get; set; }
+        public Color SDVX2 { get; set; }
+        public Color SDVX3 { get; set; }
+        public Color SDVX4rightFX { get; set; }
+        public Color SDVX5rightLane { get; set; }
+        public Color SDVX6middleRightLane { get; set; }
+        public Color SDVX7middleLeftLane { get; set; }
+        public Color SDVX8leftLane { get; set; }
+        public Color SDVX9leftFX { get; set; }
+        public Color SDVX10 { get; set; }
+        public Color SDVX11 { get; set; }
+        public Color SDVX12 { get; set; }
+        public Color SDVX13top { get; set; }
+        public Color Osu1topRight { get; set; }
+        public Color Osu2 { get; set; }
+        public Color Osu3 { get; set; }
+        public Color Osu4BottomRight { get; set; }
+        public Color Osu5BottomLeft { get; set; }
+        public Color Osu6 { get; set; }
+        public Color Osu7 { get; set; }
+        public Color Osu8topLeft { get; set; }
+        public Color MouseUp { get; set; }
+        public Color MouseDown { get; set; }
+        public Color MouseLeft { get; set; }
+        public Color MouseRight { get; set; }
+        public Color MouseOuter { get; set; }
+        public Color TaikoOuterL;
+        public Color TaikoInnerL;
+        public Color TaikoInnerR;
+        public Color TaikoOuterR;
+        public Color rpgBack;
+        public Color rpgEnter;
+        public Color rpgMenu;
+        public Color rpgAttacc;
+        public Color rpgOuterUp;
+        public Color rpgOuterDown;
+        public Color rpgOuterLeft;
+        public Color rpgOuterRight;
     }
     public static class ColorStorage
     {
-        public static Func<double> anim = WaccaLightAnimation.HSVmid;
-
+        public static byte animIndex = 0;
+        public static double animBreatheSpeedStepBetween0And1 = 0.05;
+        public static double animColorSpeedStepBetween0And360 = 2.0;
+        public static double animColorJumpStepBetween0And360 = 15.0;
+        public static uint animColorJumpDelayCount = 10;
         public static readonly Color[] ColorsHSV12 =
         {
             new Color(0, 1, 1),       // Red
@@ -183,16 +236,64 @@ namespace WaccaCircle
         {
             ColorData data = new ColorData
             {
-                anim = ColorStorage.anim,
-                ColorsHSV12 = ColorStorage.ColorsHSV12,
-                outer = outer,
+                animBreatheSpeedStepBetween0And1 = animBreatheSpeedStepBetween0And1,
+                animColorJumpDelayCount = animColorJumpDelayCount,
+                animColorJumpStepBetween0And360 = animColorJumpStepBetween0And360,
+                animColorSpeedStepBetween0And360 = animColorSpeedStepBetween0And360,
+                animIndex = ColorStorage.animIndex,
+                Color1 = ColorStorage.ColorsHSV12[0],
+                Color2 = ColorStorage.ColorsHSV12[1],
+                Color3 = ColorStorage.ColorsHSV12[2],
+                Color4 = ColorStorage.ColorsHSV12[3],
+                Color5 = ColorStorage.ColorsHSV12[4],
+                Color6 = ColorStorage.ColorsHSV12[5],
+                Color7 = ColorStorage.ColorsHSV12[6],
+                Color8 = ColorStorage.ColorsHSV12[7],
+                Color9 = ColorStorage.ColorsHSV12[8],
+                Color10 = ColorStorage.ColorsHSV12[9],
+                Color11 = ColorStorage.ColorsHSV12[10],
+                Color12 = ColorStorage.ColorsHSV12[11],
+                OuterCircleColor = outer,
                 SDVXouterL = SDVXouterL,
                 SDVXouterR = SDVXouterR,
-                SDVXColorsHSV = SDVXColorsHSV,
-                OsuColorsHSV = OsuColorsHSV,
-                mouseHSV = mouseHSV,
-                TaikoColorsHSV = TaikoColorsHSV,
-                RPGColorsHSV = RPGColorsHSV,
+                SDVX1 = SDVXColorsHSV[0],
+                SDVX2 = SDVXColorsHSV[1],
+                SDVX3 = SDVXColorsHSV[2],
+                SDVX4rightFX = SDVXColorsHSV[3],
+                SDVX5rightLane = SDVXColorsHSV[4],
+                SDVX6middleRightLane = SDVXColorsHSV[5],
+                SDVX7middleLeftLane = SDVXColorsHSV[6],
+                SDVX8leftLane = SDVXColorsHSV[7],
+                SDVX9leftFX = SDVXColorsHSV[8],
+                SDVX10 = SDVXColorsHSV[9],
+                SDVX11 = SDVXColorsHSV[10],
+                SDVX12 = SDVXColorsHSV[11],
+                SDVX13top = SDVXColorsHSV[12],
+                Osu1topRight = OsuColorsHSV[0],
+                Osu2 = OsuColorsHSV[1],
+                Osu3 = OsuColorsHSV[2],
+                Osu4BottomRight = OsuColorsHSV[3],
+                Osu5BottomLeft = OsuColorsHSV[4],
+                Osu6 = OsuColorsHSV[5],
+                Osu7 = OsuColorsHSV[6],
+                Osu8topLeft = OsuColorsHSV[7],
+                MouseUp = mouseHSV[0],
+                MouseRight = mouseHSV[1],
+                MouseDown = mouseHSV[2],
+                MouseLeft = mouseHSV[3],
+                MouseOuter = mouseHSV[4],
+                TaikoOuterL = TaikoColorsHSV[0],
+                TaikoOuterR = TaikoColorsHSV[1],
+                TaikoInnerL = TaikoColorsHSV[2],
+                TaikoInnerR = TaikoColorsHSV[3],
+                rpgBack = RPGColorsHSV[1],
+                rpgEnter = RPGColorsHSV[2],
+                rpgMenu = RPGColorsHSV[4],
+                rpgAttacc = RPGColorsHSV[7],
+                rpgOuterUp = RPGColorsHSV[8],
+                rpgOuterDown = RPGColorsHSV[9],
+                rpgOuterLeft = RPGColorsHSV[10],
+                rpgOuterRight = RPGColorsHSV[11],
             };
             string json = JsonConvert.SerializeObject(data, Formatting.Indented);
             File.WriteAllText("WaccaCircleConfig.json", json);
@@ -201,36 +302,81 @@ namespace WaccaCircle
         {
             if (File.Exists("WaccaCircleConfig.json"))
             {
-                string json = File.ReadAllText("WaccaCircleConfig.json");
-                var data = JsonConvert.DeserializeObject<ColorData>(json);
-
-                Console.WriteLine("ColorsHSV12:");
-                anim = data.anim;
-                outer = data.outer;
-                SDVXouterL = data.SDVXouterL;
-                SDVXouterR = data.SDVXouterR;
-                for (int i = 0; i < 12; i++)
+                try
                 {
-                    ColorsHSV12[i] = data.ColorsHSV12[i];
-                    SDVXColorsHSV[i] = data.SDVXColorsHSV[i];
-                    RPGColorsHSV[i] = data.RPGColorsHSV[i];
+                    string json = File.ReadAllText("WaccaCircleConfig.json");
+                    var data = JsonConvert.DeserializeObject<ColorData>(json);
+                    ColorStorage.animIndex = data.animIndex;
+                    animBreatheSpeedStepBetween0And1 = data.animBreatheSpeedStepBetween0And1;
+                    animColorSpeedStepBetween0And360 = data.animColorSpeedStepBetween0And360;
+                    animColorJumpStepBetween0And360 = data.animColorJumpStepBetween0And360;
+                    animColorJumpDelayCount = data.animColorJumpDelayCount;
+                    WaccaTable.UpdateMyAnimBasedOnList();
+                    ColorStorage.ColorsHSV12[0] = data.Color1;
+                    ColorStorage.ColorsHSV12[1] = data.Color2;
+                    ColorStorage.ColorsHSV12[2] = data.Color3;
+                    ColorStorage.ColorsHSV12[3] = data.Color4;
+                    ColorStorage.ColorsHSV12[4] = data.Color5;
+                    ColorStorage.ColorsHSV12[5] = data.Color6;
+                    ColorStorage.ColorsHSV12[6] = data.Color7;
+                    ColorStorage.ColorsHSV12[7] = data.Color8;
+                    ColorStorage.ColorsHSV12[8] = data.Color9;
+                    ColorStorage.ColorsHSV12[9] = data.Color10;
+                    ColorStorage.ColorsHSV12[10] = data.Color11;
+                    ColorStorage.ColorsHSV12[11] = data.Color12;
+                    outer = data.OuterCircleColor;
+                    SDVXouterL = data.SDVXouterL;
+                    SDVXouterR = data.SDVXouterR;
+                    SDVXColorsHSV[0] = data.SDVX1;
+                    SDVXColorsHSV[1] = data.SDVX2;
+                    SDVXColorsHSV[2] = data.SDVX3;
+                    SDVXColorsHSV[3] = data.SDVX4rightFX;
+                    SDVXColorsHSV[4] = data.SDVX5rightLane;
+                    SDVXColorsHSV[5] = data.SDVX6middleRightLane;
+                    SDVXColorsHSV[6] = data.SDVX7middleLeftLane;
+                    SDVXColorsHSV[7] = data.SDVX8leftLane;
+                    SDVXColorsHSV[8] = data.SDVX9leftFX;
+                    SDVXColorsHSV[9] = data.SDVX10;
+                    SDVXColorsHSV[10] = data.SDVX11;
+                    SDVXColorsHSV[11] = data.SDVX12;
+                    SDVXColorsHSV[12] = data.SDVX13top;
+                    OsuColorsHSV[0] = data.Osu1topRight;
+                    OsuColorsHSV[1] = data.Osu2;
+                    OsuColorsHSV[2] = data.Osu3;
+                    OsuColorsHSV[3] = data.Osu4BottomRight;
+                    OsuColorsHSV[4] = data.Osu5BottomLeft;
+                    OsuColorsHSV[5] = data.Osu6;
+                    OsuColorsHSV[6] = data.Osu7;
+                    OsuColorsHSV[7] = data.Osu8topLeft;
+                    mouseHSV[0] = data.MouseUp;
+                    mouseHSV[1] = data.MouseRight;
+                    mouseHSV[2] = data.MouseDown;
+                    mouseHSV[3] = data.MouseLeft;
+                    mouseHSV[4] = data.MouseOuter;
+                    TaikoColorsHSV[0] = data.TaikoOuterL;
+                    TaikoColorsHSV[1] = data.TaikoOuterR;
+                    TaikoColorsHSV[2] = data.TaikoInnerL;
+                    TaikoColorsHSV[3] = data.TaikoInnerR;
+                    RPGColorsHSV[1] = data.rpgBack;
+                    RPGColorsHSV[2] = data.rpgEnter;
+                    RPGColorsHSV[4] = data.rpgMenu;
+                    RPGColorsHSV[7] = data.rpgAttacc;
+                    RPGColorsHSV[8] = data.rpgOuterUp;
+                    RPGColorsHSV[9] = data.rpgOuterDown;
+                    RPGColorsHSV[10] = data.rpgOuterLeft;
+                    RPGColorsHSV[11] = data.rpgOuterRight;
+                    Console.WriteLine("Loaded WaccaCircleConfig.json!");
+                    Console.WriteLine(data.animBreatheSpeedStepBetween0And1);
                 }
-                SDVXColorsHSV[12] = data.SDVXColorsHSV[12];
-                for (int i = 0; i < 4; i++)
+                catch (Exception e)
                 {
-                    OsuColorsHSV[i] = data.OsuColorsHSV[i];
-                    mouseHSV[i] = data.mouseHSV[i];
-                    TaikoColorsHSV[i] = data.TaikoColorsHSV[i];
+                    SaveAllColors();
                 }
-                OsuColorsHSV[4] = data.OsuColorsHSV[4];
-                OsuColorsHSV[5] = data.OsuColorsHSV[5];
-                OsuColorsHSV[6] = data.OsuColorsHSV[6];
-                OsuColorsHSV[7] = data.OsuColorsHSV[7];
-                mouseHSV[4] = data.mouseHSV[4];
             }
             else
             {
-                Console.WriteLine("WaccaCircleConfig.json not found!");
+                Console.WriteLine("WaccaCircleConfig.json not found!\nCreating config file...");
+                SaveAllColors();
             }
         }
 
@@ -239,10 +385,16 @@ namespace WaccaCircle
     public static class WaccaLightAnimation
     {
         private static double v = 1.0;
+        private static double sine = 0.0;
+        private static double h = 0.0;
         private static byte f2 = 0;
         private static bool dimmer = true;
-        private static readonly double step = 0.05;
+        private static double step = ColorStorage.animBreatheSpeedStepBetween0And1;
+        private static double colorStep = ColorStorage.animColorSpeedStepBetween0And360;
+        private static double jumpStep = ColorStorage.animColorJumpStepBetween0And360;
+        private static uint jumpDelay = ColorStorage.animColorJumpDelayCount;
         public static double V() { return v; }
+        public static double H() { return h; }
         public static double HSVbreathe()
         {
             if (v <= 0.0)
@@ -329,12 +481,105 @@ namespace WaccaCircle
             }
             return v;
         }
+        public static double HSVsine()
+        {
+            sine += step;
+            v = (Math.Sin(sine) + 1.0) / 2.0; // shift between 0 and 1
+            return v;
+        }
+        public static double HSVsineMid()
+        {
+            sine += step;
+            v = (Math.Sin(sine) + 2.0) / 4.0; // shift between 0.25 and 0.75
+            return v;
+        }
+        public static double HSVColorJump()
+        {
+            if (f2 > jumpDelay)
+            {
+                f2 = 0;
+                h += jumpStep;
+            }
+            f2++;
+            if (h <= 0)
+            {
+                h = 360.0;
+            }
+            else if (h >= 360.0)
+            {
+                h = 0.0;
+            }
+            return h;
+        }
+        public static double HSVColorJumpReverse()
+        {
+            if (f2 > jumpDelay)
+            {
+                f2 = 0;
+                h -= jumpStep;
+            }
+            f2++;
+            if (h <= 0)
+            {
+                h = 360.0;
+            }
+            else if (h >= 360.0)
+            {
+                h = 0.0;
+            }
+            return h;
+        }
+        public static double HSVColorCycle()
+        {
+            h += colorStep;
+            if (h <= 0)
+            {
+                h = 360.0;
+            }
+            else if (h >= 360.0)
+            {
+                h = 0.0;
+            }
+            return h;
+        }
+        public static double HSVColorCycleReverse()
+        {
+            h -= colorStep;
+            if (h <= 0.0)
+            {
+                h = 360.0;
+            }
+            else if (h >= 360.0)
+            {
+                h = 0.0;
+            }
+            return h;
+        }
     }
     public static class WaccaTable
     {
+        public static List<Func<double>> MyAnimList = new List<Func<double>>();
         public static Func<double> anim = WaccaLightAnimation.HSVmid;
-
         public static readonly long axis_max = 32767;
+        public static void Initialize()
+        {
+            MyAnimList.Add(WaccaLightAnimation.HSVbreathe);
+            MyAnimList.Add(WaccaLightAnimation.HSVmid);
+            MyAnimList.Add(WaccaLightAnimation.HSVsine);
+            MyAnimList.Add(WaccaLightAnimation.HSVsineMid);
+            MyAnimList.Add(WaccaLightAnimation.HSVColorJump);
+            MyAnimList.Add(WaccaLightAnimation.HSVColorJumpReverse);
+            MyAnimList.Add(WaccaLightAnimation.HSVColorCycle);
+            MyAnimList.Add(WaccaLightAnimation.HSVColorCycleReverse);
+        }
+        public static void UpdateMyAnimBasedOnList()
+        {
+            if (ColorStorage.animIndex < 0 || ColorStorage.animIndex >= MyAnimList.Count)
+            {
+                ColorStorage.animIndex = 0;
+            }
+            anim = MyAnimList[ColorStorage.animIndex];
+        }
         private static int A(double v)
         {
             // Use -Sin to calculate the X position and shift it to the range [-axis_max, axis_max]
@@ -610,69 +855,6 @@ namespace WaccaCircle
                 new int[] { X(58.5),  Y(58.5),  12,   4,    13,    21,    24,    32},    // 58
                 new int[] { X(59.5),  Y(59.5),  12,   4,    13,    21,    24,    32},    // 59  top circle
             };
-        /*public static readonly LightFrame whiteFrame060 = new LightFrame(new LightColor[]
-                {
-                    new LightColor(0, 0, 0),
-                    new LightColor(1, 1, 1),
-                    new LightColor(2, 2, 2),
-                    new LightColor(3, 3, 3),
-                    new LightColor(4, 4, 4),
-                    new LightColor(5, 5, 5),
-                    new LightColor(6, 6, 6),
-                    new LightColor(7, 7, 7),
-                    new LightColor(8, 8, 8),
-                    new LightColor(9, 9, 9),
-                    new LightColor(10, 10, 10),
-                    new LightColor(11, 11, 11),
-                    new LightColor(12, 12, 12),
-                    new LightColor(13, 13, 13),
-                    new LightColor(14, 14, 14),
-                    new LightColor(15, 15, 15),
-                    new LightColor(16, 16, 16),
-                    new LightColor(17, 17, 17),
-                    new LightColor(18, 18, 18),
-                    new LightColor(19, 19, 19),
-                    new LightColor(20, 20, 20),
-                    new LightColor(21, 21, 21),
-                    new LightColor(22, 22, 22),
-                    new LightColor(23, 23, 23),
-                    new LightColor(24, 24, 24),
-                    new LightColor(25, 25, 25),
-                    new LightColor(26, 26, 26),
-                    new LightColor(27, 27, 27),
-                    new LightColor(28, 28, 28),
-                    new LightColor(29, 29, 29),
-                    new LightColor(30, 30, 30),
-                    new LightColor(31, 31, 31),
-                    new LightColor(32, 32, 32),
-                    new LightColor(33, 33, 33),
-                    new LightColor(34, 34, 34),
-                    new LightColor(35, 35, 35),
-                    new LightColor(36, 36, 36),
-                    new LightColor(37, 37, 37),
-                    new LightColor(38, 38, 38),
-                    new LightColor(39, 39, 39),
-                    new LightColor(40, 40, 40),
-                    new LightColor(41, 41, 41),
-                    new LightColor(42, 42, 42),
-                    new LightColor(43, 43, 43),
-                    new LightColor(44, 44, 44),
-                    new LightColor(45, 45, 45),
-                    new LightColor(46, 46, 46),
-                    new LightColor(47, 47, 47),
-                    new LightColor(48, 48, 48),
-                    new LightColor(49, 49, 49),
-                    new LightColor(50, 50, 50),
-                    new LightColor(51, 51, 51),
-                    new LightColor(52, 52, 52),
-                    new LightColor(53, 53, 53),
-                    new LightColor(54, 54, 54),
-                    new LightColor(55, 55, 55),
-                    new LightColor(56, 56, 56),
-                    new LightColor(57, 57, 57),
-                    new LightColor(58, 58, 58),
-                    new LightColor(59, 59, 59),
-            });*/
         public static void SendWhiteLightFrame(LightController lights)
         {
             LightColor[] l0 = new LightColor[]
@@ -1005,21 +1187,7 @@ new LightColor(179, 179, 179),
         public static LightColor[] color_num = { color0, color1, color2, color3, color4, color5, color6, color7, color8, color9, color10, color11, innerL, innerR, outerL, outerR, r, mouseUp, mouseRight, mouseDown, mouseLeft };
 
 
-        public static readonly Color[] ColorsHSV12 =
-        {
-            new Color(0, 1, 1),       // Red
-            new Color(30, 1, 1),      // Orange
-            new Color(60, 1, 1),      // Yellow
-            new Color(90, 1, 1),      // Light Green
-            new Color(120, 1, 1),     // Green
-            new Color(150, 1, 1),     // Cyan-Green
-            new Color(180, 1, 1),     // Cyan
-            new Color(210, 1, 1),     // Blue-Cyan
-            new Color(240, 1, 1),     // Blue
-            new Color(270, 1, 1),     // Purple
-            new Color(300, 1, 1),     // Magenta
-            new Color(330, 1, 1),     // Pink
-        };
+
 
         // lights.SendLightFrame(new LightFrame(new LightColor(255, 0, 255)), controller.segments);
         //
@@ -1040,10 +1208,10 @@ new LightColor(179, 179, 179),
         public static void SendLight12(LightController lights)
         {
 
-            for (int i = 0; i < ColorsHSV12.Length; i++)
+            for (int i = 0; i < ColorStorage.ColorsHSV12.Length; i++)
             {
-                ColorsHSV12[i].V = WaccaLightAnimation.V();
-                byte[] rgbBytes = ColorsHSV12[i].ToRGB();
+                ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                byte[] rgbBytes = ColorStorage.ColorsHSV12[i].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
             anim();
@@ -1059,38 +1227,20 @@ new LightColor(179, 179, 179),
             LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
             lights.SendLightFrame(gradientFrame);
         }
-        public static readonly Color[] SDVXColorsHSV =
-        {
-            new Color(0, 1, 1),       // Red
-            new Color(30, 1, 1),      // Orange
-            new Color(60, 1, 1),      // Yellow
-            new Color(90, 1, 1),      // Light Green
-            new Color(120, 1, 1),     // Green
-            new Color(150, 1, 1),     // Cyan-Green
-            new Color(180, 1, 1),     // Cyan
-            new Color(210, 1, 1),     // Blue-Cyan
-            new Color(240, 1, 1),     // Blue
-            new Color(270, 1, 1),     // Purple
-            new Color(300, 1, 1),     // Magenta
-            new Color(330, 1, 1),     // Pink
-            new Color(105, 1, 1),     // Green
-        };
-        static Color Pink = new Color(330, 1, 1);     // Pink 
-        static Color Blue = new Color(240, 1, 1);     // Blue 
         public static LightColor[] sdvx = { sdvx0, sdvx1, sdvx2, sdvx3, sdvx4, sdvx5, sdvx6, sdvx7, sdvx8, sdvx9, sdvx10, sdvx11, sdvx12 };
         public static void SendLightSDVX(LightController lights, byte state)
         {
             byte[] rgbBytes;
-            for (int i = 0; i < SDVXColorsHSV.Length; i++)
+            for (int i = 0; i < ColorStorage.SDVXColorsHSV.Length; i++)
             {
-                SDVXColorsHSV[i].V = WaccaLightAnimation.V();
-                rgbBytes = SDVXColorsHSV[i].ToRGB();
+                ColorStorage.SDVXColorsHSV[i].V = WaccaLightAnimation.V();
+                rgbBytes = ColorStorage.SDVXColorsHSV[i].ToRGB();
                 sdvx[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
             anim();
-            rgbBytes = Pink.ToRGB();
+            rgbBytes = ColorStorage.SDVXouterR.ToRGB();
             sdvxPink = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
-            rgbBytes = Blue.ToRGB();
+            rgbBytes = ColorStorage.SDVXouterL.ToRGB();
             sdvxBlue = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             if (state == 0)
             {
@@ -1121,26 +1271,13 @@ new LightColor(179, 179, 179),
             LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
             lights.SendLightFrame(gradientFrame);
         }
-
-
-        public static readonly Color[] OsuColorsHSV =
-        {
-            new Color(30, 1, 1),      // Orange
-            new Color(90, 1, 1),      // Light Green
-            new Color(120, 1, 1),     // Green
-            new Color(180, 1, 1),     // Cyan
-            new Color(230, 1, 1),     // Blue
-            new Color(265, 1, 1),     // Purple
-            new Color(300, 1, 1),     // Magenta
-            new Color(330, 1, 1),     // Pink
-        };
         public static LightColor[] osu = { osu0, osu1, osu2, osu3, osu4, osu5, osu6, osu7 };
         public static void SendLightOsu(LightController lights)
         {
-            for (int i = 0; i < OsuColorsHSV.Length; i++)
+            for (int i = 0; i < ColorStorage.OsuColorsHSV.Length; i++)
             {
-                OsuColorsHSV[i].V = WaccaLightAnimation.V();
-                byte[] rgbBytes = OsuColorsHSV[i].ToRGB();
+                ColorStorage.OsuColorsHSV[i].V = WaccaLightAnimation.V();
+                byte[] rgbBytes = ColorStorage.OsuColorsHSV[i].ToRGB();
                 osu[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
             anim();
@@ -1155,25 +1292,17 @@ new LightColor(179, 179, 179),
             LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
             lights.SendLightFrame(gradientFrame);
         }
-        public static Color[] mouseHSV = {
-
-            new Color(0, 1, 1),       // Up
-            new Color(60, 1, 1),      // Right
-            new Color(120, 1, 1),     // Down
-            new Color(240, 1, 1),     // Left
-            new Color(300, 1, 1),     // Outer
-            };
         public static void SendLightMouse(LightController lights)
         {
             byte[] rgbBytes;
             for (int i = 17; i < color_num.Length; i++)
             {
 
-                mouseHSV[i - 17].V = WaccaLightAnimation.V();
-                rgbBytes = mouseHSV[i - 17].ToRGB();
+                ColorStorage.mouseHSV[i - 17].V = WaccaLightAnimation.V();
+                rgbBytes = ColorStorage.mouseHSV[i - 17].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            rgbBytes = mouseHSV[4].ToRGB();
+            rgbBytes = ColorStorage.mouseHSV[4].ToRGB();
             mouseOuter = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             anim();
             LightLayer layer0 = new LightLayer();
@@ -1189,27 +1318,12 @@ new LightColor(179, 179, 179),
             lights.SendLightFrame(gradientFrame);
         }
         public static LightColor[] rpg = { r, rpgBack, rpgEnter, r, rpgMenu, r, r, rpgAttacc, rpgUp, rpgDown, rpgLeft, rpgRight };
-        public static readonly Color[] RPGColorsHSV =
-        {
-            new Color(),       // Unused
-            new Color(30, 1, 1),      // back
-            new Color(60, 1, 1),      // enter
-            new Color(),      // Unused
-            new Color(120, 1, 1),     // Menu
-            new Color(),     // Unused
-            new Color(),     // Unused
-            new Color(210, 1, 1),     // Attacc
-            new Color(240, 1, 1),     // Up
-            new Color(270, 1, 1),     // Down
-            new Color(300, 1, 1),     // Left
-            new Color(330, 1, 1),     // Right
-        };
         public static void SendLightRPG(LightController lights)
         {
-            for (int i = 0; i < RPGColorsHSV.Length; i++)
+            for (int i = 0; i < ColorStorage.RPGColorsHSV.Length; i++)
             {
-                RPGColorsHSV[i].V = WaccaLightAnimation.V();
-                byte[] rgbBytes = RPGColorsHSV[i].ToRGB();
+                ColorStorage.RPGColorsHSV[i].V = WaccaLightAnimation.V();
+                byte[] rgbBytes = ColorStorage.RPGColorsHSV[i].ToRGB();
                 rpg[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
             anim();
@@ -1226,19 +1340,12 @@ new LightColor(179, 179, 179),
             LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
             lights.SendLightFrame(gradientFrame);
         }
-        public static readonly Color[] TaikoColorsHSV =
-        {
-            new Color(0, 1, 1),       // Red
-            new Color(30, 1, 1),      // Orange
-            new Color(60, 1, 1),      // Yellow
-            new Color(270, 1, 1),     // Purple
-        };
         public static void SendLightTaiko(LightController lights)
         {
             for (int i = 12; i < 16; i++)
             {
-                TaikoColorsHSV[i - 12].V = WaccaLightAnimation.V();
-                byte[] rgbBytes = TaikoColorsHSV[i - 12].ToRGB();
+                ColorStorage.TaikoColorsHSV[i - 12].V = WaccaLightAnimation.V();
+                byte[] rgbBytes = ColorStorage.TaikoColorsHSV[i - 12].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
             anim();
@@ -1255,19 +1362,17 @@ new LightColor(179, 179, 179),
             LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
             lights.SendLightFrame(gradientFrame);
         }
-
-        public static Color whiteHSV = new Color(0, 0, 1);
         public static LightColor white;
         public static void SendLight32(LightController lights)
         {
             byte[] rgbBytes;
-            for (int i = 0; i < ColorsHSV12.Length; i++)
+            for (int i = 0; i < ColorStorage.ColorsHSV12.Length; i++)
             {
-                ColorsHSV12[i].V = WaccaLightAnimation.V();
-                rgbBytes = ColorsHSV12[i].ToRGB();
+                ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                rgbBytes = ColorStorage.ColorsHSV12[i].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            rgbBytes = whiteHSV.ToRGB();
+            rgbBytes = ColorStorage.outer.ToRGB();
             white = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             anim();
 

@@ -41,7 +41,8 @@ namespace WaccaCircle
         [STAThread]
         public static void Main(string[] args)
         {
-
+            WaccaTable.Initialize();
+            ColorStorage.LoadAllColors();
             Console.WriteLine("Hello!");
             // Initialize DirectInput
             var directInput = new DirectInput();

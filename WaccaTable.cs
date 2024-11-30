@@ -616,16 +616,19 @@ namespace WaccaCircle
             else if (ColorStorage.animIndex < 9)
             {
                 color_anim = 2;  // freeze
+                WaccaCircle.lights_have_been_sent_once = false;
             }
             else if (ColorStorage.animIndex < 10)
             {
                 color_anim = 3;  // off
                 TurnOffTheLights();
+                WaccaCircle.lights_have_been_sent_once = false;
             }
             else if (ColorStorage.animIndex < 11)
             {
                 color_anim = 4;  // static
                 ColorStorage.LoadAllColors();
+                WaccaCircle.lights_have_been_sent_once = false;
             }
         }
         private static int A(double v)
@@ -1300,10 +1303,10 @@ new LightColor(179, 179, 179),
                 switch (color_anim)
                 {
                     case 0:
-                        ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                        ColorStorage.SDVXColorsHSV[i].V = WaccaLightAnimation.V();
                         break;
                     case 1:
-                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        ColorStorage.SDVXColorsHSV[i].H = WaccaLightAnimation.H();
                         break;
                     case 3:
                         return;
@@ -1352,10 +1355,10 @@ new LightColor(179, 179, 179),
                 switch (color_anim)
                 {
                     case 0:
-                        ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                        ColorStorage.OsuColorsHSV[i].V = WaccaLightAnimation.V();
                         break;
                     case 1:
-                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        ColorStorage.OsuColorsHSV[i].H = WaccaLightAnimation.H();
                         break;
                     case 3:
                         return;
@@ -1382,10 +1385,10 @@ new LightColor(179, 179, 179),
                 switch (color_anim)
                 {
                     case 0:
-                        ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                        ColorStorage.mouseHSV[i-17].V = WaccaLightAnimation.V();
                         break;
                     case 1:
-                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        ColorStorage.mouseHSV[i-17].H = WaccaLightAnimation.H();
                         break;
                     case 3:
                         return;
@@ -1414,10 +1417,10 @@ new LightColor(179, 179, 179),
                 switch (color_anim)
                 {
                     case 0:
-                        ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                        ColorStorage.RPGColorsHSV[i].V = WaccaLightAnimation.V();
                         break;
                     case 1:
-                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        ColorStorage.RPGColorsHSV[i].H = WaccaLightAnimation.H();
                         break;
                     case 3:
                         return;
@@ -1444,10 +1447,10 @@ new LightColor(179, 179, 179),
                 switch (color_anim)
                 {
                     case 0:
-                        ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                        ColorStorage.TaikoColorsHSV[i - 12].V = WaccaLightAnimation.V();
                         break;
                     case 1:
-                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        ColorStorage.TaikoColorsHSV[i -12].H = WaccaLightAnimation.H();
                         break;
                     case 3:
                         return;

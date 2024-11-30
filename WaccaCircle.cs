@@ -29,7 +29,7 @@ namespace WaccaCircle
         public static string exe_title = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "WaccaCircleTitle.exe");
         static TouchController controller;
         static LightController lights;
-        private static bool lights_have_been_sent_once = false;
+        public static bool lights_have_been_sent_once = false;
 
         private delegate bool ConsoleCtrlHandlerDelegate(int sig);
 
@@ -318,6 +318,111 @@ namespace WaccaCircle
             }
             return total;
         }
+        static int a;
+        static bool pressed_on_loop;
+        static bool rx_pressed_on_loop;
+        static bool sl_pressed_on_loop;
+        static int x_current;
+        static int y_current;
+        static int rx_current;
+        static int ry_current;
+        static int sl0_current;
+        static int sl1_current;
+        static byte inner_number_of_pressed_panels;
+        static byte outer_number_of_pressed_panels;
+        static bool do_not_change_app = false;
+        private static sbyte ResetJoystickAndPoll(int button_number, bool[] button_pressed, bool[] button_pressed_on_loop, bool use_joystick=true)
+        {
+            if (use_joystick)  // can be skipped if last param is false
+            {
+                if (pressed_on_loop)  // average all the axes towards the middle of all the pressed spots
+                {
+                    x_current = (sl0_current + rx_current) / (outer_number_of_pressed_panels + inner_number_of_pressed_panels);
+                    y_current = (sl1_current + ry_current) / (outer_number_of_pressed_panels + inner_number_of_pressed_panels);
+                    joystick.SetAxis(x_current, deviceId, HID_USAGES.HID_USAGE_X);
+                    joystick.SetAxis(y_current, deviceId, HID_USAGES.HID_USAGE_Y);
+
+                    if (inner_number_of_pressed_panels > 0)
+                    {
+                        sl0_current /= inner_number_of_pressed_panels;
+                        sl1_current /= inner_number_of_pressed_panels;
+                        joystick.SetAxis(sl0_current, deviceId, HID_USAGES.HID_USAGE_SL0);
+                        joystick.SetAxis(sl1_current, deviceId, HID_USAGES.HID_USAGE_SL1);
+                    }
+                    if (outer_number_of_pressed_panels > 0)
+                    {
+                        rx_current /= outer_number_of_pressed_panels;
+                        ry_current /= outer_number_of_pressed_panels;
+                        joystick.SetAxis(rx_current, deviceId, HID_USAGES.HID_USAGE_RX);
+                        joystick.SetAxis(ry_current, deviceId, HID_USAGES.HID_USAGE_RY);
+                    }
+                }
+                if (!pressed_on_loop)
+                {
+                    // Set joystick axis to midpoint
+                    joystick.SetAxis((int)x_mid, deviceId, HID_USAGES.HID_USAGE_X);
+                    joystick.SetAxis((int)y_mid, deviceId, HID_USAGES.HID_USAGE_Y);
+                }
+                if (!rx_pressed_on_loop)
+                {
+                    // Set joystick axis to midpoint
+                    joystick.SetAxis((int)rx_mid, deviceId, HID_USAGES.HID_USAGE_RX);
+                    joystick.SetAxis((int)ry_mid, deviceId, HID_USAGES.HID_USAGE_RY);
+                }
+                if (!sl_pressed_on_loop)
+                {
+                    // Set joystick axis to midpoint
+                    joystick.SetAxis((int)sl0_mid, deviceId, HID_USAGES.HID_USAGE_SL0);
+                    joystick.SetAxis((int)sl1_mid, deviceId, HID_USAGES.HID_USAGE_SL1);
+                }
+            }
+            for (uint i = 1; i < button_number; i++)  // can be skipped if first param is 1
+            {
+                if (button_pressed[i] && !button_pressed_on_loop[i])
+                {
+                    joystick.SetBtn(false, deviceId, i); // Release button i
+                    button_pressed[i] = false;
+                }
+                button_pressed_on_loop[i] = false;
+            }
+            if (WaccaTable.color_anim < 2)
+            {
+                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                lights.SendLightFrame(gradientFrame);
+            }
+            else if (!lights_have_been_sent_once)
+            {
+                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                lights.SendLightFrame(gradientFrame);
+                lights_have_been_sent_once = true;
+            }
+            a = IOBoardPoll();
+            if (a == 0x33)
+            {
+                do_not_change_app = true;
+            }
+            else if (previous_a == 0x11 && a == 0 && !do_not_change_app)
+            {
+                previous_a = a;
+                return -1;  // scroll down
+            }
+            else if (previous_a == 0x22 && a == 0 && !do_not_change_app)
+            {
+                previous_a = a;
+                return 1; // scroll up
+            }
+            else if (a == 3 || a == 0x13 || a == 0x23)
+            {
+                ColorStorage.animIndex++;  // inside WaccaTable
+                WaccaTable.UpdateMyAnimBasedOnList();
+            }
+            else if (a == 0)
+            {
+                do_not_change_app = false;
+            }
+            previous_a = a;
+            return 0;
+        }
 
         // yup. defining an array is faster than doing maths
         // efficiency.
@@ -432,15 +537,12 @@ namespace WaccaCircle
             sl1_mid = (sl1_max - sl1_min) / 2;
             return 0;
         }
+        
         private static int WaccaCircle12()
         {
-            int a;
-            /* bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false
-            bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false */
+            sbyte poll;
             bool[] button_pressed = Enumerable.Repeat(false, 13).ToArray();
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 13).ToArray();
-
-
             while (true)
             {
                 WaccaTable.PrepLight12(lights);
@@ -474,60 +576,18 @@ namespace WaccaCircle
                         }
                     }
                 }
-                for (uint i = 1; i < 13; i++)
+                poll = ResetJoystickAndPoll(13, button_pressed, button_pressed_on_loop, false);
+                if (poll != 0)
                 {
-                    if (button_pressed[i] && !button_pressed_on_loop[i])
-                    {
-                        joystick.SetBtn(false, deviceId, i); // Release button i
-                        button_pressed[i] = false;
-                    }
-                    button_pressed_on_loop[i] = false;
-                }
-                if (WaccaTable.color_anim < 2)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                }
-                else if (!lights_have_been_sent_once)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                    lights_have_been_sent_once = true;
-                }
-                a = IOBoardPoll();
-                if (previous_a == 0x11 && a == 0)
-                {
-                    return -1;  // scroll down
-                }
-                if (previous_a == 0x22 && a == 0)
-                {
-                    return 1; // scroll up
-                }
-                if (a == 3 || a == 13 || a == 23)
-                {
-                    ColorStorage.animIndex++;  // inside WaccaTable
-                    WaccaTable.UpdateMyAnimBasedOnList();
+                    return poll;
                 }
             }
         }
         private static int WaccaCircle24()
         {
-            int a;
-            bool pressed_on_loop;
-            bool rx_pressed_on_loop;
-            bool sl_pressed_on_loop;
-            int x_current;
-            int y_current;
-            int rx_current;
-            int ry_current;
-            int sl0_current;
-            int sl1_current;
-            byte inner_number_of_pressed_panels;
-            byte outer_number_of_pressed_panels;
+            sbyte poll;
             bool[] button_pressed = Enumerable.Repeat(false, 25).ToArray();
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 25).ToArray();
-
-
             while (true)
             {
                 WaccaTable.PrepLight32(lights);
@@ -583,96 +643,16 @@ namespace WaccaCircle
                         }
                     }
                 }
-                if (pressed_on_loop)  // average all the axes towards the middle of all the pressed spots
+                poll = ResetJoystickAndPoll(25, button_pressed, button_pressed_on_loop);
+                if (poll != 0)
                 {
-                    x_current = (sl0_current + rx_current) / (outer_number_of_pressed_panels + inner_number_of_pressed_panels);
-                    y_current = (sl1_current + ry_current) / (outer_number_of_pressed_panels + inner_number_of_pressed_panels);
-                    joystick.SetAxis(x_current, deviceId, HID_USAGES.HID_USAGE_X);
-                    joystick.SetAxis(y_current, deviceId, HID_USAGES.HID_USAGE_Y);
-
-                    if (inner_number_of_pressed_panels > 0)
-                    {
-                        sl0_current /= inner_number_of_pressed_panels;
-                        sl1_current /= inner_number_of_pressed_panels;
-                        joystick.SetAxis(sl0_current, deviceId, HID_USAGES.HID_USAGE_SL0);
-                        joystick.SetAxis(sl1_current, deviceId, HID_USAGES.HID_USAGE_SL1);
-                    }
-                    if (outer_number_of_pressed_panels > 0)
-                    {
-                        rx_current /= outer_number_of_pressed_panels;
-                        ry_current /= outer_number_of_pressed_panels;
-                        joystick.SetAxis(rx_current, deviceId, HID_USAGES.HID_USAGE_RX);
-                        joystick.SetAxis(ry_current, deviceId, HID_USAGES.HID_USAGE_RY);
-                    }
-                }
-                for (uint i = 1; i < 25; i++)
-                {
-                    if (button_pressed[i] && !button_pressed_on_loop[i])
-                    {
-                        joystick.SetBtn(false, deviceId, i); // Release button i
-                        button_pressed[i] = false;
-                    }
-                    button_pressed_on_loop[i] = false;
-                }
-                if (!pressed_on_loop)
-                {
-                    // Set joystick axis to midpoint
-                    joystick.SetAxis((int)x_mid, deviceId, HID_USAGES.HID_USAGE_X);
-                    joystick.SetAxis((int)y_mid, deviceId, HID_USAGES.HID_USAGE_Y);
-                }
-                if (!rx_pressed_on_loop)
-                {
-                    // Set joystick axis to midpoint
-                    joystick.SetAxis((int)rx_mid, deviceId, HID_USAGES.HID_USAGE_RX);
-                    joystick.SetAxis((int)ry_mid, deviceId, HID_USAGES.HID_USAGE_RY);
-                }
-                if (!sl_pressed_on_loop)
-                {
-                    // Set joystick axis to midpoint
-                    joystick.SetAxis((int)sl0_mid, deviceId, HID_USAGES.HID_USAGE_SL0);
-                    joystick.SetAxis((int)sl1_mid, deviceId, HID_USAGES.HID_USAGE_SL1);
-                }
-                if (WaccaTable.color_anim < 2)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                }
-                else if (!lights_have_been_sent_once)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                    lights_have_been_sent_once = true;
-                }
-                a = IOBoardPoll();
-                if (previous_a == 0x11 && a == 0)
-                {
-                    return -1;  // scroll down
-                }
-                if (previous_a == 0x22 && a == 0)
-                {
-                    return 1; // scroll up
-                }
-                if (a == 3 || a == 13 || a == 23)
-                {
-                    ColorStorage.animIndex++;  // inside WaccaTable
-                    WaccaTable.UpdateMyAnimBasedOnList();
+                    return poll;
                 }
             }
         }
         private static int WaccaCircle32()
         {
-            int a;
-            bool pressed_on_loop;
-            bool rx_pressed_on_loop;
-            bool sl_pressed_on_loop;
-            int x_current;
-            int y_current;
-            int rx_current;
-            int ry_current;
-            int sl0_current;
-            int sl1_current;
-            byte inner_number_of_pressed_panels;
-            byte outer_number_of_pressed_panels;
+            sbyte poll;
             bool[] button_pressed = Enumerable.Repeat(false, 33).ToArray();
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 33).ToArray();
 
@@ -741,98 +721,16 @@ namespace WaccaCircle
                         }
                     }
                 }
-                if (pressed_on_loop)  // average all the axes towards the middle of all the pressed spots
+                poll = ResetJoystickAndPoll(33, button_pressed, button_pressed_on_loop);
+                if (poll != 0)
                 {
-                    x_current = (sl0_current + rx_current) / (outer_number_of_pressed_panels + inner_number_of_pressed_panels);
-                    y_current = (sl1_current + ry_current) / (outer_number_of_pressed_panels + inner_number_of_pressed_panels);
-                    joystick.SetAxis(x_current, deviceId, HID_USAGES.HID_USAGE_X);
-                    joystick.SetAxis(y_current, deviceId, HID_USAGES.HID_USAGE_Y);
-
-                    if (inner_number_of_pressed_panels > 0)
-                    {
-                        sl0_current /= inner_number_of_pressed_panels;
-                        sl1_current /= inner_number_of_pressed_panels;
-                        joystick.SetAxis(sl0_current, deviceId, HID_USAGES.HID_USAGE_SL0);
-                        joystick.SetAxis(sl1_current, deviceId, HID_USAGES.HID_USAGE_SL1);
-                    }
-                    if (outer_number_of_pressed_panels > 0)
-                    {
-                        rx_current /= outer_number_of_pressed_panels;
-                        ry_current /= outer_number_of_pressed_panels;
-                        joystick.SetAxis(rx_current, deviceId, HID_USAGES.HID_USAGE_RX);
-                        joystick.SetAxis(ry_current, deviceId, HID_USAGES.HID_USAGE_RY);
-                    }
-                }
-                for (uint i = 1; i < 33; i++)
-                {
-                    if (button_pressed[i] && !button_pressed_on_loop[i])
-                    {
-                        joystick.SetBtn(false, deviceId, i); // Release button i
-                        button_pressed[i] = false;
-                    }
-                    button_pressed_on_loop[i] = false;
-                }
-                if (!pressed_on_loop)
-                {
-                    // Set joystick axis to midpoint
-                    joystick.SetAxis((int)x_mid, deviceId, HID_USAGES.HID_USAGE_X);
-                    joystick.SetAxis((int)y_mid, deviceId, HID_USAGES.HID_USAGE_Y);
-                }
-                if (!rx_pressed_on_loop)
-                {
-                    // Set joystick axis to midpoint
-                    joystick.SetAxis((int)rx_mid, deviceId, HID_USAGES.HID_USAGE_RX);
-                    joystick.SetAxis((int)ry_mid, deviceId, HID_USAGES.HID_USAGE_RY);
-                }
-                if (!sl_pressed_on_loop)
-                {
-                    // Set joystick axis to midpoint
-                    joystick.SetAxis((int)sl0_mid, deviceId, HID_USAGES.HID_USAGE_SL0);
-                    joystick.SetAxis((int)sl1_mid, deviceId, HID_USAGES.HID_USAGE_SL1);
-                }
-                if (WaccaTable.color_anim < 2)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                }
-                else if (!lights_have_been_sent_once)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                    lights_have_been_sent_once = true;
-                }
-                a = IOBoardPoll();
-                if (previous_a == 0x11 && a == 0)
-                {
-                    return -1;  // scroll down
-                }
-                if (previous_a == 0x22 && a == 0)
-                {
-                    return 1; // scroll up
-                }
-                if (a == 3 || a == 13 || a == 23)
-                {
-                    ColorStorage.animIndex++;  // inside WaccaTable
-                    WaccaTable.UpdateMyAnimBasedOnList();
+                    return poll;
                 }
             }
         }
         private static int WaccaCircle96()
         {
-            int a;
-            bool pressed_on_loop;
-            bool rx_pressed_on_loop;
-            bool sl_pressed_on_loop;
-            int x_current;
-            int y_current;
-            int rx_current;
-            int ry_current;
-            int sl0_current;
-            int sl1_current;
-            byte inner_number_of_pressed_panels;
-            byte outer_number_of_pressed_panels;
-            /* bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false
-            bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false */
+            sbyte poll;
             bool[] button_pressed = Enumerable.Repeat(false, 97).ToArray();
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 97).ToArray();
             byte n = 32;
@@ -915,85 +813,16 @@ namespace WaccaCircle
                         }
                     }
                 }
-                if (pressed_on_loop)  // average all the axes towards the middle of all the pressed spots
+                poll = ResetJoystickAndPoll(97, button_pressed, button_pressed_on_loop);
+                if (poll != 0)
                 {
-                    x_current = (sl0_current + rx_current) / (outer_number_of_pressed_panels + inner_number_of_pressed_panels);
-                    y_current = (sl1_current + ry_current) / (outer_number_of_pressed_panels + inner_number_of_pressed_panels);
-                    joystick.SetAxis(x_current, deviceId, HID_USAGES.HID_USAGE_X);
-                    joystick.SetAxis(y_current, deviceId, HID_USAGES.HID_USAGE_Y);
-
-                    if (inner_number_of_pressed_panels > 0)
-                    {
-                        sl0_current /= inner_number_of_pressed_panels;
-                        sl1_current /= inner_number_of_pressed_panels;
-                        joystick.SetAxis(sl0_current, deviceId, HID_USAGES.HID_USAGE_SL0);
-                        joystick.SetAxis(sl1_current, deviceId, HID_USAGES.HID_USAGE_SL1);
-                    }
-                    if (outer_number_of_pressed_panels > 0)
-                    {
-                        rx_current /= outer_number_of_pressed_panels;
-                        ry_current /= outer_number_of_pressed_panels;
-                        joystick.SetAxis(rx_current, deviceId, HID_USAGES.HID_USAGE_RX);
-                        joystick.SetAxis(ry_current, deviceId, HID_USAGES.HID_USAGE_RY);
-                    }
-                }
-                for (uint i = 1; i < 97; i++)
-                {
-                    if (button_pressed[i] && !button_pressed_on_loop[i])
-                    {
-                        joystick.SetBtn(false, deviceId, i); // Release button i
-                        button_pressed[i] = false;
-                    }
-                    button_pressed_on_loop[i] = false;
-                }
-                if (!pressed_on_loop)
-                {
-                    // Set joystick axis to midpoint
-                    joystick.SetAxis((int)x_mid, deviceId, HID_USAGES.HID_USAGE_X);
-                    joystick.SetAxis((int)y_mid, deviceId, HID_USAGES.HID_USAGE_Y);
-                }
-                if (!rx_pressed_on_loop)
-                {
-                    // Set joystick axis to midpoint
-                    joystick.SetAxis((int)rx_mid, deviceId, HID_USAGES.HID_USAGE_RX);
-                    joystick.SetAxis((int)ry_mid, deviceId, HID_USAGES.HID_USAGE_RY);
-                }
-                if (!sl_pressed_on_loop)
-                {
-                    // Set joystick axis to midpoint
-                    joystick.SetAxis((int)sl0_mid, deviceId, HID_USAGES.HID_USAGE_SL0);
-                    joystick.SetAxis((int)sl1_mid, deviceId, HID_USAGES.HID_USAGE_SL1);
-                }
-                if (WaccaTable.color_anim < 2)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                }
-                else if (!lights_have_been_sent_once)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                    lights_have_been_sent_once = true;
-                }
-                a = IOBoardPoll();
-                if (previous_a == 0x11 && a == 0)
-                {
-                    return -1;  // scroll down
-                }
-                if (previous_a == 0x22 && a == 0)
-                {
-                    return 1; // scroll up
-                }
-                if (a == 3 || a == 13 || a == 23)
-                {
-                    ColorStorage.animIndex++;  // inside WaccaTable
-                    WaccaTable.UpdateMyAnimBasedOnList();
+                    return poll;
                 }
             }
         }
         private static int WaccaCircleTaiko()
         {
-            int a;
+            sbyte poll;
             bool[] button_pressed = Enumerable.Repeat(false, 17).ToArray();
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 17).ToArray();
             sbyte u = -11;
@@ -1052,54 +881,23 @@ namespace WaccaCircle
                         }
                     }
                 }
-                for (uint i = 1; i < 17; i++)
+                poll = ResetJoystickAndPoll(17, button_pressed, button_pressed_on_loop, false);
+                if (poll != 0)
                 {
-                    if (button_pressed[i] && !button_pressed_on_loop[i])
-                    {
-                        joystick.SetBtn(false, deviceId, i); // Release button i
-                        button_pressed[i] = false;
-                    }
-                    button_pressed_on_loop[i] = false;
-                }
-                if (WaccaTable.color_anim < 2)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                }
-                else if (!lights_have_been_sent_once)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                    lights_have_been_sent_once = true;
-                }
-                a = IOBoardPoll();
-                if (previous_a == 0x11 && a == 0)
-                {
-                    return -1;  // scroll down
-                }
-                if (previous_a == 0x22 && a == 0)
-                {
-                    return 1; // scroll up
-                }
-                if (a == 3 || a == 13 || a == 23)
-                {
-                    ColorStorage.animIndex++;  // inside WaccaTable
-                    WaccaTable.UpdateMyAnimBasedOnList();
+                    return poll;
                 }
             }
         }
         private static int WaccaCircleSDVX()
         {
-            int a;
+            sbyte poll;
             // yup. defining an array is faster than doing maths
             // efficiency.
             int[][] axes = WaccaTable.SDVXaxes;
-            int rx_current;
-            int ry_current;
+            int rx_current;  // yup, I'll keep them in this func and say it has no joystick to the ResetJoy func
+            int ry_current;  // since the potentiometers must not change value when you release them, unlike a joystick
             byte outer_number_ry;
             byte outer_number_of_pressed_panels;
-            /* bool[] button_pressed = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false
-            bool[] button_pressed_on_loop = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, };  // 48 times false */
             bool[] button_pressed = Enumerable.Repeat(false, 33).ToArray();
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 33).ToArray();
             byte state = 0; // 0 = full left, 1 = half left half right, 2 = full right
@@ -1218,45 +1016,16 @@ namespace WaccaCircle
                     ry_current /= outer_number_ry;
                     joystick.SetAxis(ry_current, deviceId, HID_USAGES.HID_USAGE_RY);
                 }
-                for (uint i = 1; i < 33; i++)
+                poll = ResetJoystickAndPoll(33, button_pressed, button_pressed_on_loop, false);
+                if (poll != 0)
                 {
-                    if (button_pressed[i] && !button_pressed_on_loop[i])
-                    {
-                        joystick.SetBtn(false, deviceId, i); // Release button i
-                        button_pressed[i] = false;
-                    }
-                    button_pressed_on_loop[i] = false;
-                }
-                if (WaccaTable.color_anim < 2)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                }
-                else if (!lights_have_been_sent_once)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                    lights_have_been_sent_once = true;
-                }
-                a = IOBoardPoll();
-                if (previous_a == 0x11 && a == 0)
-                {
-                    return -1;  // scroll down
-                }
-                if (previous_a == 0x22 && a == 0)
-                {
-                    return 1; // scroll up
-                }
-                if (a == 3 || a == 13 || a == 23)
-                {
-                    ColorStorage.animIndex++;  // inside WaccaTable
-                    WaccaTable.UpdateMyAnimBasedOnList();
+                    return poll;
                 }
             }
         } // custom axes
         private static int WaccaCircleRPG()
         {
-            int a;
+            sbyte poll;
             int[][] axes = WaccaTable.RPGaxes;
             bool[] button_pressed = Enumerable.Repeat(false, 17).ToArray();
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 17).ToArray();
@@ -1317,45 +1086,16 @@ namespace WaccaCircle
                         }
                     }
                 }
-                for (uint i = 1; i < 17; i++)
+                poll = ResetJoystickAndPoll(17, button_pressed, button_pressed_on_loop, false);
+                if (poll != 0)
                 {
-                    if (button_pressed[i] && !button_pressed_on_loop[i])
-                    {
-                        joystick.SetBtn(false, deviceId, i); // Release button i
-                        button_pressed[i] = false;
-                    }
-                    button_pressed_on_loop[i] = false;
-                }
-                if (WaccaTable.color_anim < 2)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                }
-                else if (!lights_have_been_sent_once)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                    lights_have_been_sent_once = true;
-                }
-                a = IOBoardPoll();
-                if (previous_a == 0x11 && a == 0)
-                {
-                    return -1;  // scroll down
-                }
-                if (previous_a == 0x22 && a == 0)
-                {
-                    return 1; // scroll up
-                }
-                if (a == 3 || a == 13 || a == 23)
-                {
-                    ColorStorage.animIndex++;  // inside WaccaTable
-                    WaccaTable.UpdateMyAnimBasedOnList();
+                    return poll;
                 }
             }
         }  // custom axes
         private static int WaccaCircleOsu()
         {
-            int a;
+            sbyte poll;
             bool[] button_pressed = Enumerable.Repeat(false, 33).ToArray();
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 33).ToArray();
             bool[] keydown = Enumerable.Repeat(false, 33).ToArray();
@@ -1445,36 +1185,16 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                if (WaccaTable.color_anim < 2)
+                poll = ResetJoystickAndPoll(1, button_pressed, button_pressed_on_loop, false); // skip for loop, no axes
+                if (poll != 0)
                 {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                }
-                else if (!lights_have_been_sent_once)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                    lights_have_been_sent_once = true;
-                }
-                a = IOBoardPoll();
-                if (previous_a == 0x11 && a == 0)
-                {
-                    return -1;  // scroll down
-                }
-                if (previous_a == 0x22 && a == 0)
-                {
-                    return 1; // scroll up
-                }
-                if (a == 3 || a == 13 || a == 23)
-                {
-                    ColorStorage.animIndex++;  // inside WaccaTable
-                    WaccaTable.UpdateMyAnimBasedOnList();
+                    return poll;
                 }
             }
         }  // TODO: buttons to press enter and escape
         private static int WaccaCircleCemu()
         {
-            int a;
+            sbyte poll;
             bool rx_pressed_on_loop;
             int x_current;
             int y_current;
@@ -1636,36 +1356,16 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                if (WaccaTable.color_anim < 2)
+                poll = ResetJoystickAndPoll(1, button_pressed, button_pressed_on_loop, false);  // skip for loop, axes are already treated
+                if (poll != 0)
                 {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                }
-                else if (!lights_have_been_sent_once)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                    lights_have_been_sent_once = true;
-                }
-                a = IOBoardPoll();
-                if (previous_a == 0x11 && a == 0)
-                {
-                    return -1;  // scroll down
-                }
-                if (previous_a == 0x22 && a == 0)
-                {
-                    return 1; // scroll up
-                }
-                if (a == 3 || a == 13 || a == 23)
-                {
-                    ColorStorage.animIndex++;  // inside WaccaTable
-                    WaccaTable.UpdateMyAnimBasedOnList();
+                    return poll;
                 }
             }
         }
         private static int WaccaCircleKeyboard()
         {
-            int a;
+            sbyte poll;
             bool[] button_pressed = Enumerable.Repeat(false, 49).ToArray();  // 48 + 1 since I made my table start at 1
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 49).ToArray();
             bool[] keydown = Enumerable.Repeat(false, 49).ToArray();
@@ -1789,30 +1489,10 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                if (WaccaTable.color_anim < 2)
+                poll = ResetJoystickAndPoll(1, button_pressed, button_pressed_on_loop, false);  // skip for loop, no axes
+                if (poll != 0)
                 {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                }
-                else if (!lights_have_been_sent_once)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                    lights_have_been_sent_once = true;
-                }
-                a = IOBoardPoll();
-                if (previous_a == 0x11 && a == 0)
-                {
-                    return -1;  // scroll down
-                }
-                if (previous_a == 0x22 && a == 0)
-                {
-                    return 1; // scroll up
-                }
-                if (a == 3 || a == 13 || a == 23)
-                {
-                    ColorStorage.animIndex++;  // inside WaccaTable
-                    WaccaTable.UpdateMyAnimBasedOnList();
+                    return poll;
                 }
             }
         }
@@ -1850,7 +1530,7 @@ namespace WaccaCircle
         }
         private static int WaccaCircleMouse()
         {
-            int a;
+            sbyte poll;
             int[][] axes = WaccaTable.mouseAxes;
             Point startPos = Cursor.Position;
             Point endPos;
@@ -1978,30 +1658,11 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 } // end for buttons 17 to 20
-                if (WaccaTable.color_anim < 2)
+
+                poll = ResetJoystickAndPoll(1, button_pressed, button_pressed_on_loop, false);  // skip for loop, axes are already treated
+                if (poll != 0)
                 {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                }
-                else if (!lights_have_been_sent_once)
-                {
-                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                    lights.SendLightFrame(gradientFrame);
-                    lights_have_been_sent_once = true;
-                }
-                a = IOBoardPoll();
-                if (previous_a == 0x11 && a == 0)
-                {
-                    return -1;  // scroll down
-                }
-                if (previous_a == 0x22 && a == 0)
-                {
-                    return 1; // scroll up
-                }
-                if (a == 3 || a == 13 || a == 23)
-                {
-                    ColorStorage.animIndex++;  // inside WaccaTable
-                    WaccaTable.UpdateMyAnimBasedOnList();
+                    return poll;
                 }
             }  // end while(true)
         }  // end of Mouse()

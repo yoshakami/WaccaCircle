@@ -3,7 +3,6 @@ using LilyConsole;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 
 namespace WaccaCircle
@@ -177,10 +176,10 @@ namespace WaccaCircle
             new Color(60, 1, 1),      // Yellow
             new Color(120, 1, 1),     // Green
             new Color(30, 1, 1),      // Orange
-            new Color(0, 0, 1),      // White
-            new Color(0, 0, 0.7),      // Light Grey
+            new Color(0, 0, 0.8),      // White
+            new Color(0, 0, 0.6),      // Light Grey
             new Color(0, 0, 0.4),      // Dark Grey
-            new Color(0, 0, 1),      // White
+            new Color(0, 0, 0.8),      // White
             new Color(30, 1, 1),      // Orange
             new Color(120, 1, 1),     // Green
             new Color(60, 1, 1),      // Yellow
@@ -558,6 +557,7 @@ namespace WaccaCircle
     }
     public static class WaccaTable
     {
+        public static LightLayer layer0 = new LightLayer();
         public static List<Func<double>> MyAnimList = new List<Func<double>>();
         public static Func<double> anim = WaccaLightAnimation.HSVmid;
         public static readonly long axis_max = 32767;
@@ -1110,7 +1110,6 @@ new LightColor(179, 179, 179),
         new LightColor(238, 238, 238),
         new LightColor(239, 239, 239),
         };
-            LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(0, i, l0[i]);
@@ -1205,7 +1204,7 @@ new LightColor(179, 179, 179),
         /// Call this method repeatedly to produce a breathing animation effect.  
         /// To reset the animation, set <see cref="f"/> back to <c>1.0</c>.
         /// </remarks>
-        public static void SendLight12(LightController lights)
+        public static void PrepLight12(LightController lights)
         {
 
             for (int i = 0; i < ColorStorage.ColorsHSV12.Length; i++)
@@ -1215,7 +1214,6 @@ new LightColor(179, 179, 179),
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
             anim();
-            LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(0, i, color_num[axes[i][2] - 1]);
@@ -1223,12 +1221,9 @@ new LightColor(179, 179, 179),
                 layer0.SetSegmentColor(2, i, color_num[axes[i][2] - 1]);
                 layer0.SetSegmentColor(3, i, color_num[axes[i][2] - 1]);
             }
-
-            LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
-            lights.SendLightFrame(gradientFrame);
         }
         public static LightColor[] sdvx = { sdvx0, sdvx1, sdvx2, sdvx3, sdvx4, sdvx5, sdvx6, sdvx7, sdvx8, sdvx9, sdvx10, sdvx11, sdvx12 };
-        public static void SendLightSDVX(LightController lights, byte state)
+        public static void PrepLightSDVX(LightController lights, byte state)
         {
             byte[] rgbBytes;
             for (int i = 0; i < ColorStorage.SDVXColorsHSV.Length; i++)
@@ -1250,8 +1245,8 @@ new LightColor(179, 179, 179),
             {
                 sdvxBlue = sdvxPink; // full pink
             }
+            LightColor white = new LightColor(255, 255, 255);
 
-            LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(0, i, sdvx[SDVXaxes[i][2] - 1]);
@@ -1267,12 +1262,9 @@ new LightColor(179, 179, 179),
                     layer0.SetSegmentColor(3, i, sdvxPink);
                 }
             }
-
-            LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
-            lights.SendLightFrame(gradientFrame);
         }
         public static LightColor[] osu = { osu0, osu1, osu2, osu3, osu4, osu5, osu6, osu7 };
-        public static void SendLightOsu(LightController lights)
+        public static void PrepLightOsu(LightController lights)
         {
             for (int i = 0; i < ColorStorage.OsuColorsHSV.Length; i++)
             {
@@ -1281,7 +1273,6 @@ new LightColor(179, 179, 179),
                 osu[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
             anim();
-            LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(0, i, osu[axes[i][7] - 25]);
@@ -1289,10 +1280,8 @@ new LightColor(179, 179, 179),
                 layer0.SetSegmentColor(2, i, osu[axes[i][7] - 25]);
                 layer0.SetSegmentColor(3, i, osu[axes[i][7] - 25]);
             }
-            LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
-            lights.SendLightFrame(gradientFrame);
         }
-        public static void SendLightMouse(LightController lights)
+        public static void PrepLightMouse(LightController lights)
         {
             byte[] rgbBytes;
             for (int i = 17; i < color_num.Length; i++)
@@ -1305,7 +1294,6 @@ new LightColor(179, 179, 179),
             rgbBytes = ColorStorage.mouseHSV[4].ToRGB();
             mouseOuter = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             anim();
-            LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(0, i, color_num[mouseAxes[i][4]]);
@@ -1313,12 +1301,9 @@ new LightColor(179, 179, 179),
                 layer0.SetSegmentColor(2, i, mouseOuter);
                 layer0.SetSegmentColor(3, i, mouseOuter);
             }
-
-            LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
-            lights.SendLightFrame(gradientFrame);
         }
         public static LightColor[] rpg = { r, rpgBack, rpgEnter, r, rpgMenu, r, r, rpgAttacc, rpgUp, rpgDown, rpgLeft, rpgRight };
-        public static void SendLightRPG(LightController lights)
+        public static void PrepLightRPG(LightController lights)
         {
             for (int i = 0; i < ColorStorage.RPGColorsHSV.Length; i++)
             {
@@ -1328,7 +1313,6 @@ new LightColor(179, 179, 179),
             }
             anim();
 
-            LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(0, i, rpg[RPGaxes[i][3]]);
@@ -1336,11 +1320,8 @@ new LightColor(179, 179, 179),
                 layer0.SetSegmentColor(2, i, rpg[RPGaxes[i][4] - 13 + 8]);
                 layer0.SetSegmentColor(3, i, rpg[RPGaxes[i][4] - 13 + 8]);
             }
-
-            LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
-            lights.SendLightFrame(gradientFrame);
         }
-        public static void SendLightTaiko(LightController lights)
+        public static void PrepLightTaiko(LightController lights)
         {
             for (int i = 12; i < 16; i++)
             {
@@ -1350,7 +1331,6 @@ new LightColor(179, 179, 179),
             }
             anim();
 
-            LightLayer layer0 = new LightLayer();
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(0, i, color_num[axes[i][6] - 23 + 12]);
@@ -1358,12 +1338,9 @@ new LightColor(179, 179, 179),
                 layer0.SetSegmentColor(2, i, color_num[axes[i][6] - 23 + 14]);
                 layer0.SetSegmentColor(3, i, color_num[axes[i][6] - 23 + 14]);
             }
-
-            LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
-            lights.SendLightFrame(gradientFrame);
         }
         public static LightColor white;
-        public static void SendLight32(LightController lights)
+        public static void PrepLight24(LightController lights)
         {
             byte[] rgbBytes;
             for (int i = 0; i < ColorStorage.ColorsHSV12.Length; i++)
@@ -1376,7 +1353,27 @@ new LightColor(179, 179, 179),
             white = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             anim();
 
-            LightLayer layer0 = new LightLayer();
+            for (byte i = 0; i < 60; i++)
+            {
+                layer0.SetSegmentColor(0, i, color_num[axes[i][3] - 14]);
+                layer0.SetSegmentColor(1, i, color_num[axes[i][3] - 14]);
+                layer0.SetSegmentColor(2, i, white);
+                layer0.SetSegmentColor(3, i, white);
+            }
+        }
+        public static void PrepLight32(LightController lights)
+        {
+            byte[] rgbBytes;
+            for (int i = 0; i < ColorStorage.ColorsHSV12.Length; i++)
+            {
+                ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                rgbBytes = ColorStorage.ColorsHSV12[i].ToRGB();
+                color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+            }
+            rgbBytes = ColorStorage.outer.ToRGB();
+            white = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+            anim();
+
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(0, i, color_num[axes[i][2] - 1]);
@@ -1384,9 +1381,6 @@ new LightColor(179, 179, 179),
                 layer0.SetSegmentColor(2, i, white);
                 layer0.SetSegmentColor(3, i, white);
             }
-
-            LightFrame gradientFrame = new LightFrame { layers = { [0] = layer0, } };
-            lights.SendLightFrame(gradientFrame);
         }
     }
 }

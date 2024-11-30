@@ -440,17 +440,28 @@ namespace WaccaCircle
 
             while (true)
             {
+                WaccaTable.PrepLight12(lights);
                 Thread.Sleep(LAG_DELAY); // change this setting to 0ms, 100ms, 200ms, or 500ms.
                 controller.GetTouchData();
-                for (int i = 0; i < 4; i++)
+                for (byte i = 0; i < 4; i++)
                 {
-                    for (int j = 0; j < 60; j++)
+                    for (byte j = 0; j < 60; j++)
                     {
                         if (controller.touchData[i, j])  // if the circle if touched
                         {
                             for (int k = 2; k < 3; k++)  // buttons from 1 to 12
                             {
                                 button_pressed_on_loop[axes[j][k]] = true;
+                                for (byte m = 0; m < axes.Length; m++)
+                                {
+                                    if (axes[m][2] == axes[j][k])
+                                    {
+                                        WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);
+                                        WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);
+                                        WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);
+                                        WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);
+                                    }
+                                }
                                 if (!button_pressed[axes[j][k]])
                                 {
                                     joystick.SetBtn(true, deviceId, (uint)axes[j][k]); // Press button axes[j][k]
@@ -469,7 +480,8 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                WaccaTable.SendLight12(lights);
+                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                lights.SendLightFrame(gradientFrame);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -501,6 +513,7 @@ namespace WaccaCircle
 
             while (true)
             {
+                WaccaTable.PrepLight32(lights);
                 Thread.Sleep(LAG_DELAY); // tweak this setting between 0ms and 100ms.
                 controller.GetTouchData();
                 pressed_on_loop = false;
@@ -531,6 +544,14 @@ namespace WaccaCircle
                                 inner_number_of_pressed_panels++;
                                 sl0_current += axes[j][0];
                                 sl1_current += axes[j][1];
+                                for (byte m = 0; m < axes.Length; m++)
+                                {
+                                    if (axes[m][3] == axes[j][3])
+                                    {
+                                        WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);  // inner layer
+                                        WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);  // inner layer
+                                    }
+                                }
                                 for (int k = 2; k < 7; k++)  // inner buttons from 1 to 24
                                 {
                                     button_pressed_on_loop[axes[j][k]] = true;
@@ -594,8 +615,8 @@ namespace WaccaCircle
                     joystick.SetAxis((int)sl0_mid, deviceId, HID_USAGES.HID_USAGE_SL0);
                     joystick.SetAxis((int)sl1_mid, deviceId, HID_USAGES.HID_USAGE_SL1);
                 }
-
-                WaccaTable.SendLight32(lights);
+                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                lights.SendLightFrame(gradientFrame);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -626,6 +647,7 @@ namespace WaccaCircle
 
             while (true)
             {
+                WaccaTable.PrepLight32(lights);
                 Thread.Sleep(LAG_DELAY); // change this setting to 0ms, 100ms, 200ms, or 500ms.
                 controller.GetTouchData();
                 pressed_on_loop = false;
@@ -665,6 +687,15 @@ namespace WaccaCircle
                                 inner_number_of_pressed_panels++;
                                 sl0_current += axes[j][0];
                                 sl1_current += axes[j][1];
+
+                                for (byte m = 0; m < axes.Length; m++)
+                                {
+                                    if (axes[m][2] == axes[j][2])
+                                    {
+                                        WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);  // inner layer
+                                        WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);  // inner layer
+                                    }
+                                }
                                 for (int k = 2; k < 7; k++)  // inner buttons from 1 to 24
                                 {
                                     button_pressed_on_loop[axes[j][k]] = true;
@@ -728,8 +759,8 @@ namespace WaccaCircle
                     joystick.SetAxis((int)sl0_mid, deviceId, HID_USAGES.HID_USAGE_SL0);
                     joystick.SetAxis((int)sl1_mid, deviceId, HID_USAGES.HID_USAGE_SL1);
                 }
-
-                WaccaTable.SendLight32(lights);
+                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                lights.SendLightFrame(gradientFrame);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -761,19 +792,9 @@ namespace WaccaCircle
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 97).ToArray();
             byte n = 32;
             int n2 = 64;
-
-            LightFrame gradientFrame = new LightFrame
-            {
-                layers =
-                {
-                    [0] = LightPatternGenerator.Gradient(LightColor.Blue, LightColor.Red),
-                }
-            };
-
-            lights.SendLightFrame(gradientFrame);
-
             while (true)
             {
+                WaccaTable.PrepLight32(lights);
                 Thread.Sleep(LAG_DELAY); // change this setting to 0ms, 100ms, 200ms, or 500ms.
                 controller.GetTouchData();
                 pressed_on_loop = false;
@@ -820,6 +841,14 @@ namespace WaccaCircle
                                 inner_number_of_pressed_panels++;
                                 sl0_current += axes[j][0];
                                 sl1_current += axes[j][1];
+                                for (byte m = 0; m < axes.Length; m++)
+                                {
+                                    if (axes[m][2] == axes[j][2])
+                                    {
+                                        WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);  // inner layer
+                                        WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);  // inner layer
+                                    }
+                                }
                                 for (int k = 2; k < 8; k++)
                                 {
                                     button_pressed_on_loop[axes[j][k]] = true;
@@ -890,7 +919,8 @@ namespace WaccaCircle
                     joystick.SetAxis((int)sl0_mid, deviceId, HID_USAGES.HID_USAGE_SL0);
                     joystick.SetAxis((int)sl1_mid, deviceId, HID_USAGES.HID_USAGE_SL1);
                 }
-                WaccaTable.SendLight32(lights);
+                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                lights.SendLightFrame(gradientFrame);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -911,6 +941,7 @@ namespace WaccaCircle
             sbyte s = -9;
             while (true)
             {
+                WaccaTable.PrepLightTaiko(lights);
                 Thread.Sleep(LAG_DELAY); // tweak this setting between 0ms and 100ms.
                 controller.GetTouchData();
                 for (int i = 0; i < 4; i++)
@@ -921,6 +952,14 @@ namespace WaccaCircle
                         {
                             if (i > 1)  // RXY is only on the two outer layers, i==2 and i==3
                             {
+                                for (byte m = 0; m < axes.Length; m++)
+                                {
+                                    if (axes[m][6] == axes[j][6])
+                                    {
+                                        WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);  // outer layer
+                                        WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);  // outer layer
+                                    }
+                                }
                                 for (int k = 6; k < 7; k++)  // outer buttons from 1 to 24
                                 {
                                     button_pressed_on_loop[axes[j][k] + u] = true;  // 23 - 11 = 12
@@ -933,6 +972,14 @@ namespace WaccaCircle
                             }
                             else
                             {
+                                for (byte m = 0; m < axes.Length; m++)
+                                {
+                                    if (axes[m][6] == axes[j][6])
+                                    {
+                                        WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);  // inner layer
+                                        WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);  // inner layer
+                                    }
+                                }
                                 for (int k = 6; k < 7; k++)  // inner buttons from 1 to 24
                                 {
                                     button_pressed_on_loop[axes[j][k] + s] = true;  // 23 - 9 = 14
@@ -955,7 +1002,6 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                WaccaTable.SendLightTaiko(lights);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -984,6 +1030,7 @@ namespace WaccaCircle
             byte state = 0; // 0 = full left, 1 = half left half right, 2 = full right
             while (true)
             {
+                WaccaTable.PrepLightSDVX(lights, state);
                 Thread.Sleep(LAG_DELAY); // change this setting to 0ms, 100ms, 200ms, or 500ms.
                 controller.GetTouchData();
                 outer_number_of_pressed_panels = 0;  // rx-axis only
@@ -1011,25 +1058,60 @@ namespace WaccaCircle
                                 {
                                     outer_number_of_pressed_panels++;
                                     rx_current += axes[j][0];
+                                    for (byte m = 0; m < axes.Length; m++)
+                                    {
+                                        WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);  // outer layer
+                                        WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);  // outer layer
+                                    }
                                 }
                                 else if (state == 2)
                                 {
+                                    for (byte m = 0; m < axes.Length; m++)
+                                    {
+                                        WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);  // outer layer
+                                        WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);  // outer layer
+                                    }
                                     outer_number_ry++;
                                     ry_current += axes[j][1];
                                 }
                                 if (state == 1 && j < 30)
                                 {
+                                    for (byte m = 0; m < axes.Length; m++)
+                                    {
+                                        if (axes[m][3] == axes[j][3])
+                                        {
+                                            WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);  // outer layer
+                                            WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);  // outer layer
+                                        }
+                                    }
                                     ry_current += axes[j][1];
                                     outer_number_ry++;
                                 }
                                 else  // state == 1 && j > 29
                                 {
+                                    for (byte m = 0; m < axes.Length; m++)
+                                    {
+                                        if (axes[m][3] == axes[j][3])
+                                        {
+                                            WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);  // outer layer
+                                            WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);  // outer layer
+                                        }
+                                    }
                                     outer_number_of_pressed_panels++;
                                     rx_current += axes[j][1];  // yup, I put a 1 there
                                 }
                             }
                             else
                             {
+
+                                for (byte m = 0; m < axes.Length; m++)
+                                {
+                                    if (WaccaTable.SDVXaxes[m][2] == WaccaTable.SDVXaxes[j][2])
+                                    {
+                                        WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);  // inner layer
+                                        WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);  // inner layer
+                                    }
+                                }
                                 for (int k = 2; k < 3; k++)  // inner buttons from 1 to 13
                                 {
                                     button_pressed_on_loop[axes[j][k]] = true;
@@ -1070,7 +1152,8 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                WaccaTable.SendLightSDVX(lights, state);
+                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                lights.SendLightFrame(gradientFrame);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -1091,6 +1174,7 @@ namespace WaccaCircle
 
             while (true)
             {
+                WaccaTable.PrepLightRPG(lights);
                 Thread.Sleep(LAG_DELAY); // tweak this setting between 0ms and 100ms.
                 controller.GetTouchData();
                 for (int i = 0; i < 4; i++)
@@ -1101,6 +1185,15 @@ namespace WaccaCircle
                         {
                             if (i > 1)  // RXY is only on the two outer layers, i==2 and i==3
                             {
+
+                                for (byte m = 0; m < axes.Length; m++)
+                                {
+                                    if (WaccaTable.RPGaxes[m][3] == WaccaTable.RPGaxes[j][3])
+                                    {
+                                        WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);  // outer layer
+                                        WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);  // outer layer
+                                    }
+                                }
                                 for (int k = 4; k < 5; k++)  // inner buttons from 1 to 24
                                 {
                                     button_pressed_on_loop[axes[j][k]] = true;
@@ -1113,6 +1206,15 @@ namespace WaccaCircle
                             }
                             else
                             {
+
+                                for (byte m = 0; m < axes.Length; m++)
+                                {
+                                    if (WaccaTable.RPGaxes[i][4] == WaccaTable.RPGaxes[i][4])
+                                    {
+                                        WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);  // outer layer
+                                        WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);  // outer layer
+                                    }
+                                }
                                 for (int k = 3; k < 4; k++)  // inner buttons from 1 to 24
                                 {
                                     button_pressed_on_loop[axes[j][k]] = true;
@@ -1135,7 +1237,8 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                WaccaTable.SendLightRPG(lights);
+                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                lights.SendLightFrame(gradientFrame);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -1158,6 +1261,7 @@ namespace WaccaCircle
             sbyte u = -16;
             while (true)
             {
+                WaccaTable.PrepLightOsu(lights);
                 Thread.Sleep(LAG_DELAY); // change this setting to 0ms, 100ms, 200ms, or 500ms.
                 controller.GetTouchData();
                 for (int i = 0; i < 4; i++)
@@ -1185,6 +1289,16 @@ namespace WaccaCircle
                                         }
                                     }
                                     button_pressed_on_loop[axes[j][k] + u] = true;
+                                }
+                            }
+                            for (byte m = 0; m < axes.Length; m++)
+                            {
+                                if (axes[m][7] == axes[j][7])
+                                {
+                                    WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);  // inner layer
+                                    WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);  // inner layer
+                                    WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);  // outer layer
+                                    WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);  // outer layer
                                 }
                             }
                             for (int k = 7; k < 8; k++)  // buttons from 1 to 8, but mapped internally from 5 to 12
@@ -1228,7 +1342,8 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                WaccaTable.SendLightOsu(lights);
+                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                lights.SendLightFrame(gradientFrame);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -1394,7 +1509,7 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                WaccaTable.SendLight32(lights);
+                WaccaTable.PrepLight32(lights);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -1513,7 +1628,7 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                WaccaTable.SendLight12(lights);
+                WaccaTable.PrepLight12(lights);
                 a = IOBoardPoll();
                 if (a == 1)
                 {
@@ -1677,7 +1792,7 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 } // end for buttons 17 to 20
-                WaccaTable.SendLightMouse(lights);
+                WaccaTable.PrepLightMouse(lights);
                 a = IOBoardPoll();
                 if (a == 1)
                 {

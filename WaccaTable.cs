@@ -3,13 +3,14 @@ using LilyConsole;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 
 namespace WaccaCircle
 {
     public struct Color
     {
-        public double H { get; } // Hue: 0-360 degrees
+        public double H { get; set; } // Hue: 0-360 degrees
         public double S { get; set; } // Saturation: 0-1
         public double V { get; set; } // Value: 0-1
 
@@ -310,7 +311,7 @@ namespace WaccaCircle
                     animColorSpeedStepBetween0And360 = data.animColorSpeedStepBetween0And360;
                     animColorJumpStepBetween0And360 = data.animColorJumpStepBetween0And360;
                     animColorJumpDelayCount = data.animColorJumpDelayCount;
-                    WaccaTable.UpdateMyAnimBasedOnList();
+                    WaccaTable.UpdateMyAnimBasedOnList(false);
                     ColorStorage.ColorsHSV12[0] = data.Color1;
                     ColorStorage.ColorsHSV12[1] = data.Color2;
                     ColorStorage.ColorsHSV12[2] = data.Color3;
@@ -554,13 +555,27 @@ namespace WaccaCircle
             }
             return h;
         }
+        public static double Static()
+        {
+            return h;
+        }
+        public static double Freeze()
+        {
+            return h;
+        }
+        public static double Off()
+        {
+            v = 0;
+            return 0;
+        }
     }
     public static class WaccaTable
     {
         public static LightLayer layer0 = new LightLayer();
-        public static List<Func<double>> MyAnimList = new List<Func<double>>();
-        public static Func<double> anim = WaccaLightAnimation.HSVmid;
-        public static readonly long axis_max = 32767;
+        private static List<Func<double>> MyAnimList = new List<Func<double>>();
+        private static Func<double> anim = WaccaLightAnimation.HSVmid;
+        private static readonly long axis_max = 32767;
+        public static byte color_anim = 0; // 0 = change V      1 = change H     2 = freeze H and V     3 = off    4 = static
         public static void Initialize()
         {
             MyAnimList.Add(WaccaLightAnimation.HSVbreathe);
@@ -571,14 +586,47 @@ namespace WaccaCircle
             MyAnimList.Add(WaccaLightAnimation.HSVColorJumpReverse);
             MyAnimList.Add(WaccaLightAnimation.HSVColorCycle);
             MyAnimList.Add(WaccaLightAnimation.HSVColorCycleReverse);
+            MyAnimList.Add(WaccaLightAnimation.Freeze);
+            MyAnimList.Add(WaccaLightAnimation.Off);
+            MyAnimList.Add(WaccaLightAnimation.Static);
         }
-        public static void UpdateMyAnimBasedOnList()
+        static string[] waccaCircleText = { "Breathe", "Mid-Breathe", "Sine Breathe", "Sine Mid-Breathe", "Jump",
+                                        "Reverse Jump", "Color Cycle", "Reverse Color Cycle", "Freeze", "Off", "Static"};
+        public static void UpdateMyAnimBasedOnList(bool display_name=true)
         {
             if (ColorStorage.animIndex < 0 || ColorStorage.animIndex >= MyAnimList.Count)
             {
                 ColorStorage.animIndex = 0;
             }
             anim = MyAnimList[ColorStorage.animIndex];
+            // Launch the overlay window
+            if (File.Exists(WaccaCircle.exe_title) && display_name)
+            {
+                WaccaCircle.RunExternalCommand(WaccaCircle.exe_title, waccaCircleText[ColorStorage.animIndex]);
+            }
+            Console.WriteLine("Changing animation");
+            if (ColorStorage.animIndex < 4)
+            {
+                color_anim = 0;  // brightness anim Value
+            }
+            else if (ColorStorage.animIndex < 8)
+            {
+                color_anim = 1;  // hue anim
+            }
+            else if (ColorStorage.animIndex < 9)
+            {
+                color_anim = 2;  // freeze
+            }
+            else if (ColorStorage.animIndex < 10)
+            {
+                color_anim = 3;  // off
+                TurnOffTheLights();
+            }
+            else if (ColorStorage.animIndex < 11)
+            {
+                color_anim = 4;  // static
+                ColorStorage.LoadAllColors();
+            }
         }
         private static int A(double v)
         {
@@ -1186,8 +1234,17 @@ new LightColor(179, 179, 179),
         public static LightColor[] color_num = { color0, color1, color2, color3, color4, color5, color6, color7, color8, color9, color10, color11, innerL, innerR, outerL, outerR, r, mouseUp, mouseRight, mouseDown, mouseLeft };
 
 
-
-
+        public static LightColor off = new LightColor(0, 0, 0);
+        private static void TurnOffTheLights()
+        {
+            for (byte i = 0; i < 60; i++)
+            {
+                layer0.SetSegmentColor(0, i, off);
+                layer0.SetSegmentColor(1, i, off);
+                layer0.SetSegmentColor(2, i, off);
+                layer0.SetSegmentColor(3, i, off);
+            }
+        }
         // lights.SendLightFrame(new LightFrame(new LightColor(255, 0, 255)), controller.segments);
         //
         //var testFrame = new LightFrame(LightColor.Green);
@@ -1209,7 +1266,19 @@ new LightColor(179, 179, 179),
 
             for (int i = 0; i < ColorStorage.ColorsHSV12.Length; i++)
             {
-                ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                switch (color_anim)
+                {
+                    case 0:
+                        ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                        break;
+                    case 1:
+                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 3:
+                        return;
+                    default:
+                        break; // 2 is freeze,  3 is off, and 4 is reset
+                }
                 byte[] rgbBytes = ColorStorage.ColorsHSV12[i].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
@@ -1228,7 +1297,19 @@ new LightColor(179, 179, 179),
             byte[] rgbBytes;
             for (int i = 0; i < ColorStorage.SDVXColorsHSV.Length; i++)
             {
-                ColorStorage.SDVXColorsHSV[i].V = WaccaLightAnimation.V();
+                switch (color_anim)
+                {
+                    case 0:
+                        ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                        break;
+                    case 1:
+                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 3:
+                        return;
+                    default:
+                        break; // 2 is freeze,  3 is off, and 4 is reset
+                }
                 rgbBytes = ColorStorage.SDVXColorsHSV[i].ToRGB();
                 sdvx[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
@@ -1268,7 +1349,19 @@ new LightColor(179, 179, 179),
         {
             for (int i = 0; i < ColorStorage.OsuColorsHSV.Length; i++)
             {
-                ColorStorage.OsuColorsHSV[i].V = WaccaLightAnimation.V();
+                switch (color_anim)
+                {
+                    case 0:
+                        ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                        break;
+                    case 1:
+                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 3:
+                        return;
+                    default:
+                        break; // 2 is freeze,  3 is off, and 4 is reset
+                }
                 byte[] rgbBytes = ColorStorage.OsuColorsHSV[i].ToRGB();
                 osu[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
@@ -1286,8 +1379,19 @@ new LightColor(179, 179, 179),
             byte[] rgbBytes;
             for (int i = 17; i < color_num.Length; i++)
             {
-
-                ColorStorage.mouseHSV[i - 17].V = WaccaLightAnimation.V();
+                switch (color_anim)
+                {
+                    case 0:
+                        ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                        break;
+                    case 1:
+                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 3:
+                        return;
+                    default:
+                        break; // 2 is freeze,  3 is off, and 4 is reset
+                }
                 rgbBytes = ColorStorage.mouseHSV[i - 17].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
@@ -1307,7 +1411,19 @@ new LightColor(179, 179, 179),
         {
             for (int i = 0; i < ColorStorage.RPGColorsHSV.Length; i++)
             {
-                ColorStorage.RPGColorsHSV[i].V = WaccaLightAnimation.V();
+                switch (color_anim)
+                {
+                    case 0:
+                        ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                        break;
+                    case 1:
+                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 3:
+                        return;
+                    default:
+                        break; // 2 is freeze,  3 is off, and 4 is reset
+                }
                 byte[] rgbBytes = ColorStorage.RPGColorsHSV[i].ToRGB();
                 rpg[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
@@ -1325,7 +1441,19 @@ new LightColor(179, 179, 179),
         {
             for (int i = 12; i < 16; i++)
             {
-                ColorStorage.TaikoColorsHSV[i - 12].V = WaccaLightAnimation.V();
+                switch (color_anim)
+                {
+                    case 0:
+                        ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                        break;
+                    case 1:
+                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 3:
+                        return;
+                    default:
+                        break; // 2 is freeze,  3 is off, and 4 is reset
+                }
                 byte[] rgbBytes = ColorStorage.TaikoColorsHSV[i - 12].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
@@ -1345,7 +1473,19 @@ new LightColor(179, 179, 179),
             byte[] rgbBytes;
             for (int i = 0; i < ColorStorage.ColorsHSV12.Length; i++)
             {
-                ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                switch (color_anim)
+                {
+                    case 0:
+                        ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                        break;
+                    case 1:
+                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 3:
+                        return;
+                    default:
+                        break; // 2 is freeze,  3 is off, and 4 is reset
+                }
                 rgbBytes = ColorStorage.ColorsHSV12[i].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
@@ -1366,7 +1506,19 @@ new LightColor(179, 179, 179),
             byte[] rgbBytes;
             for (int i = 0; i < ColorStorage.ColorsHSV12.Length; i++)
             {
-                ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                switch (color_anim)
+                {
+                    case 0:
+                        ColorStorage.ColorsHSV12[i].V = WaccaLightAnimation.V();
+                        break;
+                    case 1:
+                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 3:
+                        return;
+                    default:
+                        break; // 2 is freeze,  3 is off, and 4 is reset
+                }
                 rgbBytes = ColorStorage.ColorsHSV12[i].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }

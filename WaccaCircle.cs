@@ -9,12 +9,11 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Drawing;
-using LilyConsole.Helpers;
 //using WaccaCircle;  // needed to use WaccaTable.cs
 
 namespace WaccaCircle
 {
-    internal class Class
+    internal class WaccaCircle
     {
         static vJoy joystick = new vJoy();
         // Device ID (must be 1-16, based on vJoy configuration)
@@ -27,9 +26,10 @@ namespace WaccaCircle
                                                WaccaCircleSDVX, WaccaCircleRPG, WaccaCircleOsu, WaccaCircleCemu, WaccaCircleMouse, WaccaCircleKeyboard };
         static string[] waccaCircleText = { "WaccaCircle12", "WaccaCircle24", "WaccaCircle32", "WaccaCircle96", "WaccaCircleTaiko",
                                         "WaccaCircleSDVX", "WaccaCircleRPG", "WaccaCircleOsu", "WaccaCircleCemu", "WaccaCircleMouse", "WaccaCircleKeyboard" };
-        static string exe_title = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "WaccaCircleTitle.exe");
+        public static string exe_title = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "WaccaCircleTitle.exe");
         static TouchController controller;
         static LightController lights;
+        private static bool lights_have_been_sent_once = false;
 
         private delegate bool ConsoleCtrlHandlerDelegate(int sig);
 
@@ -147,6 +147,7 @@ namespace WaccaCircle
                     {
                         RunExternalCommand(exe_title, waccaCircleText[current]);
                     }
+                    lights_have_been_sent_once = false;
                     Console.WriteLine("Launching app");
                     return_val = waccaCircleApps[current]();
                     if (return_val == -2)
@@ -206,6 +207,8 @@ namespace WaccaCircle
         }
 
         static bool[] ioboard_buttons = Enumerable.Repeat(false, 10).ToArray();
+
+        static int previous_a = 0;
 
         /// <summary>
         /// Retrieves the value of the IO board once per press
@@ -480,16 +483,30 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                lights.SendLightFrame(gradientFrame);
+                if (WaccaTable.color_anim < 2)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                }
+                else if (!lights_have_been_sent_once)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                    lights_have_been_sent_once = true;
+                }
                 a = IOBoardPoll();
-                if (a == 1)
+                if (previous_a == 0x11 && a == 0)
                 {
                     return -1;  // scroll down
                 }
-                if (a == 2)
+                if (previous_a == 0x22 && a == 0)
                 {
                     return 1; // scroll up
+                }
+                if (a == 3 || a == 13 || a == 23)
+                {
+                    ColorStorage.animIndex++;  // inside WaccaTable
+                    WaccaTable.UpdateMyAnimBasedOnList();
                 }
             }
         }
@@ -615,16 +632,30 @@ namespace WaccaCircle
                     joystick.SetAxis((int)sl0_mid, deviceId, HID_USAGES.HID_USAGE_SL0);
                     joystick.SetAxis((int)sl1_mid, deviceId, HID_USAGES.HID_USAGE_SL1);
                 }
-                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                lights.SendLightFrame(gradientFrame);
+                if (WaccaTable.color_anim < 2)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                }
+                else if (!lights_have_been_sent_once)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                    lights_have_been_sent_once = true;
+                }
                 a = IOBoardPoll();
-                if (a == 1)
+                if (previous_a == 0x11 && a == 0)
                 {
                     return -1;  // scroll down
                 }
-                if (a == 2)
+                if (previous_a == 0x22 && a == 0)
                 {
                     return 1; // scroll up
+                }
+                if (a == 3 || a == 13 || a == 23)
+                {
+                    ColorStorage.animIndex++;  // inside WaccaTable
+                    WaccaTable.UpdateMyAnimBasedOnList();
                 }
             }
         }
@@ -759,16 +790,30 @@ namespace WaccaCircle
                     joystick.SetAxis((int)sl0_mid, deviceId, HID_USAGES.HID_USAGE_SL0);
                     joystick.SetAxis((int)sl1_mid, deviceId, HID_USAGES.HID_USAGE_SL1);
                 }
-                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                lights.SendLightFrame(gradientFrame);
+                if (WaccaTable.color_anim < 2)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                }
+                else if (!lights_have_been_sent_once)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                    lights_have_been_sent_once = true;
+                }
                 a = IOBoardPoll();
-                if (a == 1)
+                if (previous_a == 0x11 && a == 0)
                 {
                     return -1;  // scroll down
                 }
-                if (a == 2)
+                if (previous_a == 0x22 && a == 0)
                 {
                     return 1; // scroll up
+                }
+                if (a == 3 || a == 13 || a == 23)
+                {
+                    ColorStorage.animIndex++;  // inside WaccaTable
+                    WaccaTable.UpdateMyAnimBasedOnList();
                 }
             }
         }
@@ -919,16 +964,30 @@ namespace WaccaCircle
                     joystick.SetAxis((int)sl0_mid, deviceId, HID_USAGES.HID_USAGE_SL0);
                     joystick.SetAxis((int)sl1_mid, deviceId, HID_USAGES.HID_USAGE_SL1);
                 }
-                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                lights.SendLightFrame(gradientFrame);
+                if (WaccaTable.color_anim < 2)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                }
+                else if (!lights_have_been_sent_once)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                    lights_have_been_sent_once = true;
+                }
                 a = IOBoardPoll();
-                if (a == 1)
+                if (previous_a == 0x11 && a == 0)
                 {
                     return -1;  // scroll down
                 }
-                if (a == 2)
+                if (previous_a == 0x22 && a == 0)
                 {
                     return 1; // scroll up
+                }
+                if (a == 3 || a == 13 || a == 23)
+                {
+                    ColorStorage.animIndex++;  // inside WaccaTable
+                    WaccaTable.UpdateMyAnimBasedOnList();
                 }
             }
         }
@@ -1002,16 +1061,30 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                lights.SendLightFrame(gradientFrame);
+                if (WaccaTable.color_anim < 2)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                }
+                else if (!lights_have_been_sent_once)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                    lights_have_been_sent_once = true;
+                }
                 a = IOBoardPoll();
-                if (a == 1)
+                if (previous_a == 0x11 && a == 0)
                 {
                     return -1;  // scroll down
                 }
-                if (a == 2)
+                if (previous_a == 0x22 && a == 0)
                 {
                     return 1; // scroll up
+                }
+                if (a == 3 || a == 13 || a == 23)
+                {
+                    ColorStorage.animIndex++;  // inside WaccaTable
+                    WaccaTable.UpdateMyAnimBasedOnList();
                 }
             }
         }
@@ -1154,16 +1227,30 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                lights.SendLightFrame(gradientFrame);
+                if (WaccaTable.color_anim < 2)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                }
+                else if (!lights_have_been_sent_once)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                    lights_have_been_sent_once = true;
+                }
                 a = IOBoardPoll();
-                if (a == 1)
+                if (previous_a == 0x11 && a == 0)
                 {
                     return -1;  // scroll down
                 }
-                if (a == 2)
+                if (previous_a == 0x22 && a == 0)
                 {
                     return 1; // scroll up
+                }
+                if (a == 3 || a == 13 || a == 23)
+                {
+                    ColorStorage.animIndex++;  // inside WaccaTable
+                    WaccaTable.UpdateMyAnimBasedOnList();
                 }
             }
         } // custom axes
@@ -1211,7 +1298,7 @@ namespace WaccaCircle
 
                                 for (byte m = 0; m < axes.Length; m++)
                                 {
-                                    if (WaccaTable.RPGaxes[i][3] == WaccaTable.RPGaxes[i][3])
+                                    if (WaccaTable.RPGaxes[m][3] == WaccaTable.RPGaxes[j][3])
                                     {
                                         WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);  // inner layer
                                         WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);  // inner layer
@@ -1239,16 +1326,30 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                lights.SendLightFrame(gradientFrame);
+                if (WaccaTable.color_anim < 2)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                }
+                else if (!lights_have_been_sent_once)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                    lights_have_been_sent_once = true;
+                }
                 a = IOBoardPoll();
-                if (a == 1)
+                if (previous_a == 0x11 && a == 0)
                 {
                     return -1;  // scroll down
                 }
-                if (a == 2)
+                if (previous_a == 0x22 && a == 0)
                 {
                     return 1; // scroll up
+                }
+                if (a == 3 || a == 13 || a == 23)
+                {
+                    ColorStorage.animIndex++;  // inside WaccaTable
+                    WaccaTable.UpdateMyAnimBasedOnList();
                 }
             }
         }  // custom axes
@@ -1344,16 +1445,30 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                lights.SendLightFrame(gradientFrame);
+                if (WaccaTable.color_anim < 2)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                }
+                else if (!lights_have_been_sent_once)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                    lights_have_been_sent_once = true;
+                }
                 a = IOBoardPoll();
-                if (a == 1)
+                if (previous_a == 0x11 && a == 0)
                 {
                     return -1;  // scroll down
                 }
-                if (a == 2)
+                if (previous_a == 0x22 && a == 0)
                 {
                     return 1; // scroll up
+                }
+                if (a == 3 || a == 13 || a == 23)
+                {
+                    ColorStorage.animIndex++;  // inside WaccaTable
+                    WaccaTable.UpdateMyAnimBasedOnList();
                 }
             }
         }  // TODO: buttons to press enter and escape
@@ -1521,16 +1636,30 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                lights.SendLightFrame(gradientFrame);
+                if (WaccaTable.color_anim < 2)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                }
+                else if (!lights_have_been_sent_once)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                    lights_have_been_sent_once = true;
+                }
                 a = IOBoardPoll();
-                if (a == 1)
+                if (previous_a == 0x11 && a == 0)
                 {
                     return -1;  // scroll down
                 }
-                if (a == 2)
+                if (previous_a == 0x22 && a == 0)
                 {
                     return 1; // scroll up
+                }
+                if (a == 3 || a == 13 || a == 23)
+                {
+                    ColorStorage.animIndex++;  // inside WaccaTable
+                    WaccaTable.UpdateMyAnimBasedOnList();
                 }
             }
         }
@@ -1660,16 +1789,30 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 }
-                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                lights.SendLightFrame(gradientFrame);
+                if (WaccaTable.color_anim < 2)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                }
+                else if (!lights_have_been_sent_once)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                    lights_have_been_sent_once = true;
+                }
                 a = IOBoardPoll();
-                if (a == 1)
+                if (previous_a == 0x11 && a == 0)
                 {
                     return -1;  // scroll down
                 }
-                if (a == 2)
+                if (previous_a == 0x22 && a == 0)
                 {
                     return 1; // scroll up
+                }
+                if (a == 3 || a == 13 || a == 23)
+                {
+                    ColorStorage.animIndex++;  // inside WaccaTable
+                    WaccaTable.UpdateMyAnimBasedOnList();
                 }
             }
         }
@@ -1835,16 +1978,30 @@ namespace WaccaCircle
                     }
                     button_pressed_on_loop[i] = false;
                 } // end for buttons 17 to 20
-                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                lights.SendLightFrame(gradientFrame);
+                if (WaccaTable.color_anim < 2)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                }
+                else if (!lights_have_been_sent_once)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                    lights_have_been_sent_once = true;
+                }
                 a = IOBoardPoll();
-                if (a == 1)
+                if (previous_a == 0x11 && a == 0)
                 {
                     return -1;  // scroll down
                 }
-                if (a == 2)
+                if (previous_a == 0x22 && a == 0)
                 {
                     return 1; // scroll up
+                }
+                if (a == 3 || a == 13 || a == 23)
+                {
+                    ColorStorage.animIndex++;  // inside WaccaTable
+                    WaccaTable.UpdateMyAnimBasedOnList();
                 }
             }  // end while(true)
         }  // end of Mouse()

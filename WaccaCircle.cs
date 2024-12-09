@@ -22,10 +22,14 @@ namespace WaccaCircle
         static long axis_max = 32767;
         static int canceled_value = 0;
         static Joystick ioboard;
+        /* Tutorial: how to add a new app:
+         * put the function name inside waccaCircleApps
+         * write the displayed app name inside waccaCircleText
+         * feel free to add a new axes ref inside WaccaTable, or a custom animation */
         static Func<int>[] waccaCircleApps = { WaccaCircle12, WaccaCircle24, WaccaCircle32, WaccaCircle96, WaccaCircleTaiko,
-                                               WaccaCircleSDVX, WaccaCircleRPG, WaccaCircleOsu, WaccaCircleCemu, WaccaCircleMouse, WaccaCircleKeyboard };
+                                               WaccaCircleSDVX, WaccaCircleRPG, WaccaCircleOsu, WaccaCircleLoveLive, WaccaCircleCemu, WaccaCircleMouse, WaccaCircleKeyboard };
         static string[] waccaCircleText = { "WaccaCircle12", "WaccaCircle24", "WaccaCircle32", "WaccaCircle96", "WaccaCircleTaiko",
-                                        "WaccaCircleSDVX", "WaccaCircleRPG", "WaccaCircleOsu", "WaccaCircleCemu", "WaccaCircleMouse", "WaccaCircleKeyboard" };
+                                        "WaccaCircleSDVX", "WaccaCircleRPG", "WaccaCircleOsu", "WaccaCircleLoveLive", "WaccaCircleCemu", "WaccaCircleMouse", "WaccaCircleKeyboard" };
         public static string exe_title = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "WaccaCircleTitle.exe");
         static TouchController controller;
         static LightController lights;
@@ -37,6 +41,20 @@ namespace WaccaCircle
         private static extern bool SetConsoleCtrlHandler(ConsoleCtrlHandlerDelegate handler, bool add);
 
         static ConsoleCtrlHandlerDelegate _consoleCtrlHandler;
+        // ResetJoystickAndPoll static var
+        static int a;
+        static bool pressed_on_loop;
+        static bool rx_pressed_on_loop;
+        static bool sl_pressed_on_loop;
+        static int x_current;
+        static int y_current;
+        static int rx_current;
+        static int ry_current;
+        static int sl0_current;
+        static int sl1_current;
+        static byte inner_number_of_pressed_panels;
+        static byte outer_number_of_pressed_panels;
+        static bool do_not_change_app = false;
 
         [STAThread]
         public static void Main(string[] args)
@@ -318,19 +336,6 @@ namespace WaccaCircle
             }
             return total;
         }
-        static int a;
-        static bool pressed_on_loop;
-        static bool rx_pressed_on_loop;
-        static bool sl_pressed_on_loop;
-        static int x_current;
-        static int y_current;
-        static int rx_current;
-        static int ry_current;
-        static int sl0_current;
-        static int sl1_current;
-        static byte inner_number_of_pressed_panels;
-        static byte outer_number_of_pressed_panels;
-        static bool do_not_change_app = false;
         private static sbyte ResetJoystickAndPoll(int button_number, bool[] button_pressed, bool[] button_pressed_on_loop, bool use_joystick=true)
         {
             if (use_joystick)  // can be skipped if last param is false
@@ -362,12 +367,14 @@ namespace WaccaCircle
                     // Set joystick axis to midpoint
                     joystick.SetAxis((int)x_mid, deviceId, HID_USAGES.HID_USAGE_X);
                     joystick.SetAxis((int)y_mid, deviceId, HID_USAGES.HID_USAGE_Y);
+                    joystick.SetAxis((int)y_mid, deviceId, HID_USAGES.HID_USAGE_Z);
                 }
                 if (!rx_pressed_on_loop)
                 {
                     // Set joystick axis to midpoint
                     joystick.SetAxis((int)rx_mid, deviceId, HID_USAGES.HID_USAGE_RX);
                     joystick.SetAxis((int)ry_mid, deviceId, HID_USAGES.HID_USAGE_RY);
+                    joystick.SetAxis((int)ry_mid, deviceId, HID_USAGES.HID_USAGE_RZ);
                 }
                 if (!sl_pressed_on_loop)
                 {
@@ -898,8 +905,8 @@ namespace WaccaCircle
             int ry_current;  // since the potentiometers must not change value when you release them, unlike a joystick
             byte outer_number_ry;
             byte outer_number_of_pressed_panels;
-            bool[] button_pressed = Enumerable.Repeat(false, 33).ToArray();
-            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 33).ToArray();
+            bool[] button_pressed = Enumerable.Repeat(false, 14).ToArray();
+            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 14).ToArray();
             byte state = 0; // 0 = full left, 1 = half left half right, 2 = full right
             while (true)
             {
@@ -918,15 +925,6 @@ namespace WaccaCircle
                         {
                             if (i > 1)  // RXY is only on the two outer layers, i==2 and i==3
                             {
-                                for (int k = 4; k < 8; k++)  // outer buttons from 17 to 32
-                                {
-                                    button_pressed_on_loop[axes[j][k]] = true;
-                                    if (!button_pressed[axes[j][k]])
-                                    {
-                                        joystick.SetBtn(true, deviceId, (uint)(axes[j][k])); // Press button axes[j][k]
-                                        button_pressed[axes[j][k]] = true;
-                                    }
-                                }
                                 if (state == 0)
                                 {
                                     outer_number_of_pressed_panels++;
@@ -951,7 +949,7 @@ namespace WaccaCircle
                                 {
                                     for (byte m = 0; m < axes.Length; m++)
                                     {
-                                        if (axes[m][3] == axes[j][3])
+                                        if (axes[m][5] == axes[j][5])
                                         {
                                             WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);  // outer layer
                                             WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);  // outer layer
@@ -964,7 +962,7 @@ namespace WaccaCircle
                                 {
                                     for (byte m = 0; m < axes.Length; m++)
                                     {
-                                        if (axes[m][3] == axes[j][3])
+                                        if (axes[m][5] == axes[j][5])
                                         {
                                             WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);  // outer layer
                                             WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);  // outer layer
@@ -1016,7 +1014,7 @@ namespace WaccaCircle
                     ry_current /= outer_number_ry;
                     joystick.SetAxis(ry_current, deviceId, HID_USAGES.HID_USAGE_RY);
                 }
-                poll = ResetJoystickAndPoll(33, button_pressed, button_pressed_on_loop, false);
+                poll = ResetJoystickAndPoll(14, button_pressed, button_pressed_on_loop, false);
                 if (poll != 0)
                 {
                     return poll;
@@ -1192,6 +1190,53 @@ namespace WaccaCircle
                 }
             }
         }  // TODO: buttons to press enter and escape
+
+        private static int WaccaCircleLoveLive()
+        {
+            sbyte poll;
+            bool[] button_pressed = Enumerable.Repeat(false, 13).ToArray();
+            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 13).ToArray();
+            axes = WaccaTable.axesLoveLive;
+            while (true)
+            {
+                WaccaTable.PrepLight12(lights);
+                Thread.Sleep(LAG_DELAY); // change this setting to 0ms, 100ms, 200ms, or 500ms.
+                controller.GetTouchData();
+                for (byte i = 0; i < 4; i++)
+                {
+                    for (byte j = 0; j < 60; j++)
+                    {
+                        if (controller.touchData[i, j])  // if the circle if touched
+                        {
+                            for (int k = 2; k < 3; k++)  // buttons from 1 to 12
+                            {
+                                button_pressed_on_loop[axes[j][k]] = true;
+                                for (byte m = 0; m < axes.Length; m++)
+                                {
+                                    if (axes[m][2] == axes[j][k])
+                                    {
+                                        WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);
+                                        WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);
+                                        WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);
+                                        WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);
+                                    }
+                                }
+                                if (!button_pressed[axes[j][k]])
+                                {
+                                    joystick.SetBtn(true, deviceId, (uint)axes[j][k]); // Press button axes[j][k]
+                                    button_pressed[axes[j][k]] = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                poll = ResetJoystickAndPoll(13, button_pressed, button_pressed_on_loop, false);
+                if (poll != 0)
+                {
+                    return poll;
+                }
+            }
+        }
         private static int WaccaCircleCemu()
         {
             sbyte poll;

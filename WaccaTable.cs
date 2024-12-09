@@ -780,7 +780,7 @@ namespace WaccaCircle
                 new int[] { A(58.5),  B(58.5),  12,   13,    17,    21,    24,    32},    // 58
                 new int[] { A(59.5),  B(59.5),  12,   13,    17,    21,    24,    32},    // 59  top circle
             };
-        public static readonly int[][] SDVXaxes =
+        public static readonly int[][] SDVXaxesxy0125LoveLive017 = // this means column 0, 1, 2, and 5 (21-22) is used by sdvx
             {      // SDVX  x axis    y-axis   1-13  13-16  17-20  21-22  23-24  25-32
                 new int[] { X(0.5),   Y(30.5),  13,   16,    17,    21,    23,    25},    // 0  top circle
                 new int[] { X(1.5),   Y(31.5),  13,   16,    17,    21,    23,    25},    // 1

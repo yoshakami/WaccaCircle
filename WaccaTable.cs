@@ -1074,7 +1074,7 @@ namespace WaccaCircle
         public static LightColor mouseLeft;
         public static LightColor mouseOuter;
         public static LightColor r;
-        public static LightColor[] color_num = { color0, color1, color2, color3, color4, color5, color6, color7, color8, color9, color10, color11, innerL, innerR, outerL, outerR, r, mouseUp, mouseRight, mouseDown, mouseLeft };
+        public static LightColor[] color_num = { color0, color1, color2, color3, color4, color5, color6, color7, color8, color9, color10, color11, innerL, innerR, outerL, outerR, r, mouseUp, mouseRight, mouseDown, mouseLeft, sdvx0, sdvx1, sdvx2, sdvx3, sdvx4, sdvx5, sdvx6 };
 
 
         public static LightColor off = new LightColor(0, 0, 0);
@@ -1446,16 +1446,39 @@ namespace WaccaCircle
                 rgbBytes = ColorStorage.ColorsHSV12[i].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            rgbBytes = ColorStorage.outer.ToRGB();
-            white = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+            for (int i = 0; i < ColorStorage.SDVXColorsHSV.Length; i++)
+            {
+                switch (color_anim)
+                {
+                    case 0:
+                        ColorStorage.SDVXColorsHSV[i].V = WaccaLightAnimation.V();
+                        break;
+                    case 1:
+                        ColorStorage.SDVXColorsHSV[i].H = WaccaLightAnimation.H();
+                        anim();
+                        break;
+                    case 3:
+                        ColorStorage.SDVXColorsHSV[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 4:
+                        SetAwesomeColors();
+                        return;
+                    case 5:
+                        return;
+                    default:
+                        break;
+                } // 0 is full circle, 1 is localized for each button, 2 is freeze, 3 is full circle, 4 is wacca title, 5 is off, and 6 is reset
+                rgbBytes = ColorStorage.SDVXColorsHSV[i].ToRGB();
+                color_num[i + 12] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+            }
             anim();
 
             for (byte i = 0; i < 60; i++)
             {
-                layer0.SetSegmentColor(0, i, color_num[axes[i][3] - 14]);
-                layer0.SetSegmentColor(1, i, color_num[axes[i][3] - 14]);
-                layer0.SetSegmentColor(2, i, white);
-                layer0.SetSegmentColor(3, i, white);
+                layer0.SetSegmentColor(0, i, color_num[axes[i][3] - 1]);
+                layer0.SetSegmentColor(1, i, color_num[axes[i][3] - 1]);
+                layer0.SetSegmentColor(2, i, color_num[axes[i][3] + 11]);
+                layer0.SetSegmentColor(3, i, color_num[axes[i][3] + 11]);
             }
         }
         public static void PrepLight32(LightController lights)

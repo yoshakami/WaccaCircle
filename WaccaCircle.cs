@@ -148,7 +148,7 @@ namespace WaccaCircle
                 return false;
             };
             SetConsoleCtrlHandler(_consoleCtrlHandler, true);
-            int current = 0;
+            int current = 2;
             int return_val;
             while (true)
             {
@@ -602,37 +602,37 @@ namespace WaccaCircle
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 25).ToArray();
             while (true)
             {
-                WaccaTable.PrepLight32(lights);
+                WaccaTable.PrepLight24(lights);
                 Thread.Sleep(LAG_DELAY); // tweak this setting between 0ms and 100ms.
                 controller.GetTouchData();
-                pressed_on_loop = false;
-                rx_pressed_on_loop = false;
-                sl_pressed_on_loop = false;
-                inner_number_of_pressed_panels = 0;
-                outer_number_of_pressed_panels = 0;
-                rx_current = 0;
-                ry_current = 0;
-                sl0_current = 0;
-                sl1_current = 0;
                 for (int i = 0; i < 4; i++)
                 {
                     for (int j = 0; j < 60; j++)
                     {
                         if (controller.touchData[i, j])  // if the circle if touched
                         {
-                            pressed_on_loop = true;
-                            if (i > 1)  // RXY is only on the two outer layers, i==2 and i==3
+                            if (i > 1)  // the two outer layers, i==2 and i==3
                             {
-                                outer_number_of_pressed_panels++;
-                                rx_current += axes[j][0];
-                                ry_current += axes[j][1];
-                                rx_pressed_on_loop = true;
+                                for (byte m = 0; m < axes.Length; m++)
+                                {
+                                    if (axes[m][3] == axes[j][3])
+                                    {
+                                        WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);  // outer layer
+                                        WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);  // outer layer
+                                    }
+                                }
+                                for (int k = 2; k < 3; k++)  // outer buttons from 1+12 to 12+12
+                                {
+                                    button_pressed_on_loop[axes[j][k]+12] = true;
+                                    if (!button_pressed[axes[j][k]+12])
+                                    {
+                                        joystick.SetBtn(true, deviceId, (uint)axes[j][k]+12); // Press button axes[j][k]+12
+                                        button_pressed[axes[j][k]+12] = true;
+                                    }
+                                }
                             }
                             else
                             {
-                                inner_number_of_pressed_panels++;
-                                sl0_current += axes[j][0];
-                                sl1_current += axes[j][1];
                                 for (byte m = 0; m < axes.Length; m++)
                                 {
                                     if (axes[m][3] == axes[j][3])
@@ -641,7 +641,7 @@ namespace WaccaCircle
                                         WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);  // inner layer
                                     }
                                 }
-                                for (int k = 2; k < 7; k++)  // inner buttons from 1 to 24
+                                for (int k = 2; k < 3; k++)  // inner buttons from 1 to 12
                                 {
                                     button_pressed_on_loop[axes[j][k]] = true;
                                     if (!button_pressed[axes[j][k]])
@@ -650,12 +650,11 @@ namespace WaccaCircle
                                         button_pressed[axes[j][k]] = true;
                                     }
                                 }
-                                sl_pressed_on_loop = true;
                             }
                         }
                     }
                 }
-                poll = ResetJoystickAndPoll(25, button_pressed, button_pressed_on_loop);
+                poll = ResetJoystickAndPoll(25, button_pressed, button_pressed_on_loop, false);
                 if (poll != 0)
                 {
                     return poll;

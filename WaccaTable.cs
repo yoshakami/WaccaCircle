@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Net.NetworkInformation;
 
 namespace WaccaCircle
 {
@@ -89,6 +90,7 @@ namespace WaccaCircle
         public double animColorSpeedStepBetween0And360 { get; set; }
         public double animColorJumpStepBetween0And360 { get; set; }
         public uint animColorJumpDelayCount { get; set; }
+        public byte animColorWaccaSpeedBetween0And60 { get; set; }
         public Color Color1 { get; set; }
         public Color Color2 { get; set; }
         public Color Color3 { get; set; }
@@ -101,6 +103,20 @@ namespace WaccaCircle
         public Color Color10 { get; set; }
         public Color Color11 { get; set; }
         public Color Color12 { get; set; }
+        public Color LoveLiveBack12 { get; set; }
+        public Color LoveLiveCoin0 { get; set; }
+        public Color LoveLive1Left { get; set; }
+        public Color LoveLive2 { get; set; }
+        public Color LoveLive3 { get; set; }
+        public Color LoveLive4 { get; set; }
+        public Color LoveLive5Bottom { get; set; }
+        public Color LoveLive6 { get; set; }
+        public Color LoveLive7 { get; set; }
+        public Color LoveLive8 { get; set; }
+        public Color LoveLive9Right { get; set; }
+        public Color LoveLiveStart10 { get; set; }
+        public Color LoveLiveP11 { get; set; }
+
         public Color OuterCircleColor { get; set; }
         public Color SDVXouterL { get; set; }
         public Color SDVXouterR { get; set; }
@@ -150,6 +166,7 @@ namespace WaccaCircle
         public static double animColorSpeedStepBetween0And360 = 2.0;
         public static double animColorJumpStepBetween0And360 = 15.0;
         public static uint animColorJumpDelayCount = 10;
+        public static byte animColorWaccaSpeedBetween0And60 = 1;
         public static readonly Color[] ColorsHSV12 =
         {
             new Color(0, 1, 1),       // Red
@@ -164,6 +181,23 @@ namespace WaccaCircle
             new Color(270, 0.8, 1),     // Purple
             new Color(300, 1, 1),     // Magenta
             new Color(330, 0.8, 1),     // Pink
+        };
+
+        public static readonly Color[] LoveLiveColorsHSV =
+        {
+            new Color(60, 1, 1),       // Yellow coin
+            new Color(30, 1, 1),      // Orange
+            new Color(330, 1, 1),     // Pink
+            new Color(30, 1, 1),      // Orange
+            new Color(330, 1, 1),     // Pink
+            new Color(30, 1, 1),      // Orange
+            new Color(330, 1, 1),     // Pink
+            new Color(30, 1, 1),      // Orange
+            new Color(330, 1, 1),     // Pink
+            new Color(30, 1, 1),      // Orange
+            new Color(190, 1, 1),     // Cyan start
+            new Color(270, 0.8, 1),     // Purple P
+            new Color(350, 0.8, 1),     // Red Back
         };
 
         public static Color outer = new Color(0, 0, 1);
@@ -240,6 +274,7 @@ namespace WaccaCircle
                 animColorJumpDelayCount = animColorJumpDelayCount,
                 animColorJumpStepBetween0And360 = animColorJumpStepBetween0And360,
                 animColorSpeedStepBetween0And360 = animColorSpeedStepBetween0And360,
+                animColorWaccaSpeedBetween0And60 = animColorWaccaSpeedBetween0And60,
                 animIndex = ColorStorage.animIndex,
                 Color1 = ColorStorage.ColorsHSV12[0],
                 Color2 = ColorStorage.ColorsHSV12[1],
@@ -253,6 +288,19 @@ namespace WaccaCircle
                 Color10 = ColorStorage.ColorsHSV12[9],
                 Color11 = ColorStorage.ColorsHSV12[10],
                 Color12 = ColorStorage.ColorsHSV12[11],
+                LoveLiveBack12 = LoveLiveColorsHSV[12],
+                LoveLiveCoin0 = LoveLiveColorsHSV[0],
+                LoveLive1Left = LoveLiveColorsHSV[1],
+                LoveLive2 = LoveLiveColorsHSV[2],
+                LoveLive3 = LoveLiveColorsHSV[3],
+                LoveLive4 = LoveLiveColorsHSV[4],
+                LoveLive5Bottom = LoveLiveColorsHSV[5],
+                LoveLive6 = LoveLiveColorsHSV[6],
+                LoveLive7 = LoveLiveColorsHSV[7],
+                LoveLive8 = LoveLiveColorsHSV[8],
+                LoveLive9Right = LoveLiveColorsHSV[9],
+                LoveLiveStart10 = LoveLiveColorsHSV[10],
+                LoveLiveP11 = LoveLiveColorsHSV[11],
                 OuterCircleColor = outer,
                 SDVXouterL = SDVXouterL,
                 SDVXouterR = SDVXouterR,
@@ -310,8 +358,13 @@ namespace WaccaCircle
                     animBreatheSpeedStepBetween0And1 = data.animBreatheSpeedStepBetween0And1;
                     animColorSpeedStepBetween0And360 = data.animColorSpeedStepBetween0And360;
                     animColorJumpStepBetween0And360 = data.animColorJumpStepBetween0And360;
+                    animColorWaccaSpeedBetween0And60 = data.animColorWaccaSpeedBetween0And60;
                     animColorJumpDelayCount = data.animColorJumpDelayCount;
                     WaccaTable.UpdateMyAnimBasedOnList(false);
+                    // regex find
+                    // ([^ ]*) = ([^,]*),
+                    // replace with
+                    // $2 = data.$1;
                     ColorStorage.ColorsHSV12[0] = data.Color1;
                     ColorStorage.ColorsHSV12[1] = data.Color2;
                     ColorStorage.ColorsHSV12[2] = data.Color3;
@@ -324,6 +377,19 @@ namespace WaccaCircle
                     ColorStorage.ColorsHSV12[9] = data.Color10;
                     ColorStorage.ColorsHSV12[10] = data.Color11;
                     ColorStorage.ColorsHSV12[11] = data.Color12;
+                    LoveLiveColorsHSV[12] = data.LoveLiveBack12;
+                    LoveLiveColorsHSV[0] = data.LoveLiveCoin0;
+                    LoveLiveColorsHSV[1] = data.LoveLive1Left;
+                    LoveLiveColorsHSV[2] = data.LoveLive2;
+                    LoveLiveColorsHSV[3] = data.LoveLive3;
+                    LoveLiveColorsHSV[4] = data.LoveLive4;
+                    LoveLiveColorsHSV[5] = data.LoveLive5Bottom;
+                    LoveLiveColorsHSV[6] = data.LoveLive6;
+                    LoveLiveColorsHSV[7] = data.LoveLive7;
+                    LoveLiveColorsHSV[8] = data.LoveLive8;
+                    LoveLiveColorsHSV[9] = data.LoveLive9Right;
+                    LoveLiveColorsHSV[10] = data.LoveLiveStart10;
+                    LoveLiveColorsHSV[11] = data.LoveLiveP11;
                     outer = data.OuterCircleColor;
                     SDVXouterL = data.SDVXouterL;
                     SDVXouterR = data.SDVXouterR;
@@ -555,6 +621,32 @@ namespace WaccaCircle
             }
             return h;
         }
+        public static double HSVColorAdd6()
+        {
+            h += 6.0;
+            if (h <= 0)
+            {
+                h = 360.0;
+            }
+            else if (h >= 360.0)
+            {
+                h = 0.0;
+            }
+            return h;
+        }
+        public static double HSVColorSub6()
+        {
+            h -= 6.0;
+            if (h <= 0)
+            {
+                h = 360.0;
+            }
+            else if (h >= 360.0)
+            {
+                h = 0.0;
+            }
+            return h;
+        }
         public static double Static()
         {
             return h;
@@ -575,7 +667,8 @@ namespace WaccaCircle
         private static List<Func<double>> MyAnimList = new List<Func<double>>();
         private static Func<double> anim = WaccaLightAnimation.HSVmid;
         private static readonly long axis_max = 32767;
-        public static byte color_anim = 0; // 0 = change V      1 = change H     2 = freeze H and V     3 = off    4 = static
+        // if you wanna add a new color anim, just att a text entry to waccaCircleText, then add your func to MyAnimList below.
+        public static byte color_anim = 0;
         public static void Initialize()
         {
             MyAnimList.Add(WaccaLightAnimation.HSVbreathe);
@@ -587,18 +680,27 @@ namespace WaccaCircle
             MyAnimList.Add(WaccaLightAnimation.HSVColorCycle);
             MyAnimList.Add(WaccaLightAnimation.HSVColorCycleReverse);
             MyAnimList.Add(WaccaLightAnimation.Freeze);
+            // ========== FULL CIRCLE COLOR START ===========
+            MyAnimList.Add(WaccaLightAnimation.HSVColorJump);
+            MyAnimList.Add(WaccaLightAnimation.HSVColorJumpReverse);
+            MyAnimList.Add(WaccaLightAnimation.HSVColorCycle);
+            MyAnimList.Add(WaccaLightAnimation.HSVColorCycleReverse);
+            MyAnimList.Add(WaccaLightAnimation.HSVColorAdd6);
+            MyAnimList.Add(WaccaLightAnimation.HSVColorSub6);
+            // ========== FULL CIRCLE COLOR END ===========
             MyAnimList.Add(WaccaLightAnimation.Off);
             MyAnimList.Add(WaccaLightAnimation.Static);
         }
         static string[] waccaCircleText = { "Breathe", "Mid-Breathe", "Sine Breathe", "Sine Mid-Breathe", "Jump",
-                                        "Reverse Jump", "Color Cycle", "Reverse Color Cycle", "Freeze", "Off", "Static"};
-        public static void UpdateMyAnimBasedOnList(bool display_name=true)
+                                        "Reverse Jump", "Color Cycle", "Reverse Color Cycle", "Freeze", "Jump",
+                                        "Reverse Jump", "Color Cycle", "Reverse Color Cycle", "Wacca", "Reverse Wacca", "Off", "Custom"};
+        public static void UpdateMyAnimBasedOnList(bool display_name = true)
         {
             if (ColorStorage.animIndex < 0 || ColorStorage.animIndex >= MyAnimList.Count)
             {
                 ColorStorage.animIndex = 0;
             }
-            anim = MyAnimList[ColorStorage.animIndex];
+            anim = MyAnimList[ColorStorage.animIndex];  // changes the default function
             // Launch the overlay window
             if (File.Exists(WaccaCircle.exe_title) && display_name)
             {
@@ -618,15 +720,25 @@ namespace WaccaCircle
                 color_anim = 2;  // freeze
                 WaccaCircle.lights_have_been_sent_once = false;
             }
-            else if (ColorStorage.animIndex < 10)
+            else if (ColorStorage.animIndex < 13)
             {
-                color_anim = 3;  // off
+                color_anim = 3;  // Complete circle anim
+                WaccaCircle.lights_have_been_sent_once = false;
+            }
+            else if (ColorStorage.animIndex < 15)
+            {
+                color_anim = 4;  // Wacca
+                WaccaCircle.lights_have_been_sent_once = false;
+            }
+            else if (ColorStorage.animIndex < 16)
+            {
+                color_anim = 5;  // off
                 TurnOffTheLights();
                 WaccaCircle.lights_have_been_sent_once = false;
             }
-            else if (ColorStorage.animIndex < 11)
+            else if (ColorStorage.animIndex < 17)
             {
-                color_anim = 4;  // static
+                color_anim = 6;  // reset
                 ColorStorage.LoadAllColors();
                 WaccaCircle.lights_have_been_sent_once = false;
             }
@@ -780,68 +892,70 @@ namespace WaccaCircle
                 new int[] { A(58.5),  B(58.5),  12,   13,    17,    21,    24,    32},    // 58
                 new int[] { A(59.5),  B(59.5),  12,   13,    17,    21,    24,    32},    // 59  top circle
             };
-        public static readonly int[][] SDVXaxesxy0125LoveLive017 = // this means column 0, 1, 2, and 5 (21-22) is used by sdvx
-            {      // SDVX  x axis    y-axis   1-13  13-16  17-20  21-22  23-24  25-32
-                new int[] { X(0.5),   Y(30.5),  13,   16,    17,    21,    23,    25},    // 0  top circle
-                new int[] { X(1.5),   Y(31.5),  13,   16,    17,    21,    23,    25},    // 1
-                new int[] { X(2.5),   Y(32.5),  13,   16,    17,    21,    23,    25},    // 2
-                new int[] { X(3.5),   Y(33.5),  12,   16,    17,    21,    23,    25},    // 3
-                new int[] { X(4.5),   Y(34.5),  12,   16,    17,    21,    23,    25},    // 4
-                new int[] { X(5.5),   Y(35.5),  12,   16,    17,    21,    23,    25},    // 5
-                new int[] { X(6.5),   Y(36.5),  12,   16,    17,    21,    23,    25},    // 6
-                new int[] { X(7.5),   Y(37.5),  12,   16,    17,    21,    23,    25},    // 7
-                new int[] { X(8.5),   Y(38.5),  11,   16,    20,    21,    23,    26},    // 8
-                new int[] { X(9.5),   Y(39.5),  11,   16,    20,    21,    23,    26},    // 9
-                new int[] { X(10.5),  Y(40.5),  11,   16,    20,    21,    23,    26},    // 10
-                new int[] { X(11.5),  Y(41.5),  11,   16,    20,    21,    23,    26},    // 11
-                new int[] { X(12.5),  Y(42.5),  11,   16,    20,    21,    23,    26},    // 12
-                new int[] { X(13.5),  Y(43.5),  10,   16,    20,    21,    23,    26},    // 13
-                new int[] { X(14.5),  Y(44.5),  10,   16,    20,    21,    23,    26},    // 14  left
-                new int[] { X(45.5),  Y(45.5),  10,   15,    20,    22,    23,    26},    // 15  left 
-                new int[] { X(46.5),  Y(46.5),  10,   15,    20,    22,    23,    27},    // 16
-                new int[] { X(47.5),  Y(47.5),  10,   15,    20,    22,    23,    27},    // 17
-                new int[] { X(48.5),  Y(48.5),   9,   15,    20,    22,    23,    27},    // 18
-                new int[] { X(49.5),  Y(49.5),   9,   15,    20,    22,    23,    27},    // 19
-                new int[] { X(50.5),  Y(50.5),   9,   15,    20,    22,    23,    27},    // 20
-                new int[] { X(51.5),  Y(51.5),   9,   15,    20,    22,    23,    27},    // 21
-                new int[] { X(52.5),  Y(52.5),   9,   15,    20,    22,    23,    27},    // 22
-                new int[] { X(53.5),  Y(53.5),   8,   15,    19,    22,    23,    28},    // 23
-                new int[] { X(54.5),  Y(54.5),   8,   15,    19,    22,    23,    28},    // 24
-                new int[] { X(55.5),  Y(55.5),   8,   15,    19,    22,    23,    28},    // 25
-                new int[] { X(56.5),  Y(56.5),   8,   15,    19,    22,    23,    28},    // 26
-                new int[] { X(57.5),  Y(57.5),   7,   15,    19,    22,    23,    28},    // 27
-                new int[] { X(58.5),  Y(58.5),   7,   15,    19,    22,    23,    28},    // 28
-                new int[] { X(59.5),  Y(59.5),   7,   15,    19,    22,    23,    28},    // 29  bottom
-                new int[] { X(00.5),  Y(30.5),   6,   14,    19,    22,    24,    29},    // 30  bottom
-                new int[] { X(01.5),  Y(31.5),   6,   14,    19,    22,    24,    29},    // 31
-                new int[] { X(02.5),  Y(32.5),   6,   14,    19,    22,    24,    29},    // 32
-                new int[] { X(03.5),  Y(33.5),   5,   14,    19,    22,    24,    29},    // 33
-                new int[] { X(04.5),  Y(34.5),   5,   14,    19,    22,    24,    29},    // 34
-                new int[] { X(05.5),  Y(35.5),   5,   14,    19,    22,    24,    29},    // 35
-                new int[] { X(06.5),  Y(36.5),   5,   14,    19,    22,    24,    29},    // 36
-                new int[] { X(07.5),  Y(37.5),   4,   14,    19,    22,    24,    30},    // 37
-                new int[] { X(08.5),  Y(38.5),   4,   14,    18,    22,    24,    30},    // 38
-                new int[] { X(09.5),  Y(39.5),   4,   14,    18,    22,    24,    30},    // 39
-                new int[] { X(10.5),  Y(40.5),   4,   14,    18,    22,    24,    30},    // 40
-                new int[] { X(11.5),  Y(41.5),   4,   14,    18,    22,    24,    30},    // 41
-                new int[] { X(12.5),  Y(42.5),   4,   14,    18,    22,    24,    30},    // 42
-                new int[] { X(13.5),  Y(43.5),   3,   14,    18,    22,    24,    30},    // 43
-                new int[] { X(14.5),  Y(44.5),   3,   14,    18,    22,    24,    31},    // 44  right
-                new int[] { X(45.5),  Y(45.5),   3,   13,    18,    21,    24,    31},    // 45  right
-                new int[] { X(46.5),  Y(46.5),   3,   13,    18,    21,    24,    31},    // 46
-                new int[] { X(47.5),  Y(47.5),   3,   13,    18,    21,    24,    31},    // 47
-                new int[] { X(48.5),  Y(48.5),   2,   13,    18,    21,    24,    31},    // 48
-                new int[] { X(49.5),  Y(49.5),   2,   13,    18,    21,    24,    31},    // 49
-                new int[] { X(50.5),  Y(50.5),   2,   13,    18,    21,    24,    31},    // 50
-                new int[] { X(51.5),  Y(51.5),   2,   13,    18,    21,    24,    31},    // 51
-                new int[] { X(52.5),  Y(52.5),   2,   13,    18,    21,    24,    32},    // 52
-                new int[] { X(53.5),  Y(53.5),   1,   13,    17,    21,    24,    32},    // 53
-                new int[] { X(54.5),  Y(54.5),   1,   13,    17,    21,    24,    32},    // 54
-                new int[] { X(55.5),  Y(55.5),   1,   13,    17,    21,    24,    32},    // 55
-                new int[] { X(56.5),  Y(56.5),   1,   13,    17,    21,    24,    32},    // 56
-                new int[] { X(57.5),  Y(57.5),   1,   13,    17,    21,    24,    32},    // 57
-                new int[] { X(58.5),  Y(58.5),  13,   13,    17,    21,    24,    32},    // 58
-                new int[] { X(59.5),  Y(59.5),  13,   13,    17,    21,    24,    32},    // 59  top circle
+        // this means column 0 (x axis), 1 (y-axis), 2 (1-13), and 5 (21-22) are used by sdvx
+        // also column 7 is used by Love Live
+        public static readonly int[][] SDVXaxesxy0125LoveLive017 =
+            {      // SDVX  x axis    y-axis   1-13  13-16  17-20  21-22  23-24  1-13
+                new int[] { X(0.5),   Y(30.5),  13,   16,    17,    21,    23,    1},    // 0  top circle
+                new int[] { X(1.5),   Y(31.5),  13,   16,    17,    21,    23,    1},    // 1
+                new int[] { X(2.5),   Y(32.5),  13,   16,    17,    21,    23,    1},    // 2
+                new int[] { X(3.5),   Y(33.5),  12,   16,    17,    21,    23,    1},    // 3
+                new int[] { X(4.5),   Y(34.5),  12,   16,    17,    21,    23,    1},    // 4
+                new int[] { X(5.5),   Y(35.5),  12,   16,    17,    21,    23,    13},    // 5
+                new int[] { X(6.5),   Y(36.5),  12,   16,    17,    21,    23,    13},    // 6
+                new int[] { X(7.5),   Y(37.5),  12,   16,    17,    21,    23,    13},    // 7
+                new int[] { X(8.5),   Y(38.5),  11,   16,    20,    21,    23,    13},    // 8
+                new int[] { X(9.5),   Y(39.5),  11,   16,    20,    21,    23,    13},    // 9
+                new int[] { X(10.5),  Y(40.5),  11,   16,    20,    21,    23,    2},    // 10
+                new int[] { X(11.5),  Y(41.5),  11,   16,    20,    21,    23,    2},    // 11
+                new int[] { X(12.5),  Y(42.5),  11,   16,    20,    21,    23,    2},    // 12
+                new int[] { X(13.5),  Y(43.5),  10,   16,    20,    21,    23,    2},    // 13
+                new int[] { X(14.5),  Y(44.5),  10,   16,    20,    21,    23,    2},    // 14  left
+                new int[] { X(45.5),  Y(45.5),  10,   15,    20,    22,    23,    2},    // 15  left 
+                new int[] { X(46.5),  Y(46.5),  10,   15,    20,    22,    23,    2},    // 16
+                new int[] { X(47.5),  Y(47.5),  10,   15,    20,    22,    23,    3},    // 17
+                new int[] { X(48.5),  Y(48.5),   9,   15,    20,    22,    23,    3},    // 18
+                new int[] { X(49.5),  Y(49.5),   9,   15,    20,    22,    23,    3},    // 19
+                new int[] { X(50.5),  Y(50.5),   9,   15,    20,    22,    23,    3},    // 20
+                new int[] { X(51.5),  Y(51.5),   9,   15,    20,    22,    23,    4},    // 21
+                new int[] { X(52.5),  Y(52.5),   9,   15,    20,    22,    23,    4},    // 22
+                new int[] { X(53.5),  Y(53.5),   8,   15,    19,    22,    23,    4},    // 23
+                new int[] { X(54.5),  Y(54.5),   8,   15,    19,    22,    23,    4},    // 24
+                new int[] { X(55.5),  Y(55.5),   8,   15,    19,    22,    23,    5},    // 25
+                new int[] { X(56.5),  Y(56.5),   8,   15,    19,    22,    23,    5},    // 26
+                new int[] { X(57.5),  Y(57.5),   7,   15,    19,    22,    23,    5},    // 27
+                new int[] { X(58.5),  Y(58.5),   7,   15,    19,    22,    23,    6},    // 28
+                new int[] { X(59.5),  Y(59.5),   7,   15,    19,    22,    23,    6},    // 29  bottom
+                new int[] { X(00.5),  Y(30.5),   6,   14,    19,    22,    24,    6},    // 30  bottom
+                new int[] { X(01.5),  Y(31.5),   6,   14,    19,    22,    24,    6},    // 31
+                new int[] { X(02.5),  Y(32.5),   6,   14,    19,    22,    24,    7},    // 32
+                new int[] { X(03.5),  Y(33.5),   5,   14,    19,    22,    24,    7},    // 33
+                new int[] { X(04.5),  Y(34.5),   5,   14,    19,    22,    24,    7},    // 34
+                new int[] { X(05.5),  Y(35.5),   5,   14,    19,    22,    24,    8},    // 35
+                new int[] { X(06.5),  Y(36.5),   5,   14,    19,    22,    24,    8},    // 36
+                new int[] { X(07.5),  Y(37.5),   4,   14,    19,    22,    24,    8},    // 37
+                new int[] { X(08.5),  Y(38.5),   4,   14,    18,    22,    24,    8},    // 38
+                new int[] { X(09.5),  Y(39.5),   4,   14,    18,    22,    24,    9},    // 39
+                new int[] { X(10.5),  Y(40.5),   4,   14,    18,    22,    24,    9},    // 40
+                new int[] { X(11.5),  Y(41.5),   4,   14,    18,    22,    24,    9},    // 41
+                new int[] { X(12.5),  Y(42.5),   4,   14,    18,    22,    24,    9},    // 42
+                new int[] { X(13.5),  Y(43.5),   3,   14,    18,    22,    24,    10},    // 43
+                new int[] { X(14.5),  Y(44.5),   3,   14,    18,    22,    24,    10},    // 44  right
+                new int[] { X(45.5),  Y(45.5),   3,   13,    18,    21,    24,    10},    // 45  right
+                new int[] { X(46.5),  Y(46.5),   3,   13,    18,    21,    24,    10},    // 46
+                new int[] { X(47.5),  Y(47.5),   3,   13,    18,    21,    24,    10},    // 47
+                new int[] { X(48.5),  Y(48.5),   2,   13,    18,    21,    24,    10},    // 48
+                new int[] { X(49.5),  Y(49.5),   2,   13,    18,    21,    24,    10},    // 49
+                new int[] { X(50.5),  Y(50.5),   2,   13,    18,    21,    24,    11},    // 50
+                new int[] { X(51.5),  Y(51.5),   2,   13,    18,    21,    24,    11},    // 51
+                new int[] { X(52.5),  Y(52.5),   2,   13,    18,    21,    24,    11},    // 52
+                new int[] { X(53.5),  Y(53.5),   1,   13,    17,    21,    24,    11},    // 53
+                new int[] { X(54.5),  Y(54.5),   1,   13,    17,    21,    24,    11},    // 54
+                new int[] { X(55.5),  Y(55.5),   1,   13,    17,    21,    24,    12},    // 55
+                new int[] { X(56.5),  Y(56.5),   1,   13,    17,    21,    24,    12},    // 56
+                new int[] { X(57.5),  Y(57.5),   1,   13,    17,    21,    24,    12},    // 57
+                new int[] { X(58.5),  Y(58.5),  13,   13,    17,    21,    24,    12},    // 58
+                new int[] { X(59.5),  Y(59.5),  13,   13,    17,    21,    24,    12},    // 59  top circle
             };
         public static readonly int[][] RPGaxes =
             {     //  RPG   x axis    y-axis   1-12  1-7   13-16  21-22  23-24  25-32
@@ -906,280 +1020,6 @@ namespace WaccaCircle
                 new int[] { X(58.5),  Y(58.5),  12,   4,    13,    21,    24,    32},    // 58
                 new int[] { X(59.5),  Y(59.5),  12,   4,    13,    21,    24,    32},    // 59  top circle
             };
-        public static void SendWhiteLightFrame(LightController lights)
-        {
-            LightColor[] l0 = new LightColor[]
-            {
-                new LightColor(0, 0, 0),
-new LightColor(1, 1, 1),
-new LightColor(2, 2, 2),
-new LightColor(3, 3, 3),
-new LightColor(4, 4, 4),
-new LightColor(5, 5, 5),
-new LightColor(6, 6, 6),
-new LightColor(7, 7, 7),
-new LightColor(8, 8, 8),
-new LightColor(9, 9, 9),
-new LightColor(10, 10, 10),
-new LightColor(11, 11, 11),
-new LightColor(12, 12, 12),
-new LightColor(13, 13, 13),
-new LightColor(14, 14, 14),
-new LightColor(15, 15, 15),
-new LightColor(16, 16, 16),
-new LightColor(17, 17, 17),
-new LightColor(18, 18, 18),
-new LightColor(19, 19, 19),
-new LightColor(20, 20, 20),
-new LightColor(21, 21, 21),
-new LightColor(22, 22, 22),
-new LightColor(23, 23, 23),
-new LightColor(24, 24, 24),
-new LightColor(25, 25, 25),
-new LightColor(26, 26, 26),
-new LightColor(27, 27, 27),
-new LightColor(28, 28, 28),
-new LightColor(29, 29, 29),
-new LightColor(30, 30, 30),
-new LightColor(31, 31, 31),
-new LightColor(32, 32, 32),
-new LightColor(33, 33, 33),
-new LightColor(34, 34, 34),
-new LightColor(35, 35, 35),
-new LightColor(36, 36, 36),
-new LightColor(37, 37, 37),
-new LightColor(38, 38, 38),
-new LightColor(39, 39, 39),
-new LightColor(40, 40, 40),
-new LightColor(41, 41, 41),
-new LightColor(42, 42, 42),
-new LightColor(43, 43, 43),
-new LightColor(44, 44, 44),
-new LightColor(45, 45, 45),
-new LightColor(46, 46, 46),
-new LightColor(47, 47, 47),
-new LightColor(48, 48, 48),
-new LightColor(49, 49, 49),
-new LightColor(50, 50, 50),
-new LightColor(51, 51, 51),
-new LightColor(52, 52, 52),
-new LightColor(53, 53, 53),
-new LightColor(54, 54, 54),
-new LightColor(55, 55, 55),
-new LightColor(56, 56, 56),
-new LightColor(57, 57, 57),
-new LightColor(58, 58, 58),
-new LightColor(59, 59, 59),}
-            ;
-            LightColor[] l1 = new LightColor[] {
-new LightColor(60, 60, 60),
-new LightColor(61, 61, 61),
-new LightColor(62, 62, 62),
-new LightColor(63, 63, 63),
-new LightColor(64, 64, 64),
-new LightColor(65, 65, 65),
-new LightColor(66, 66, 66),
-new LightColor(67, 67, 67),
-new LightColor(68, 68, 68),
-new LightColor(69, 69, 69),
-new LightColor(70, 70, 70),
-new LightColor(71, 71, 71),
-new LightColor(72, 72, 72),
-new LightColor(73, 73, 73),
-new LightColor(74, 74, 74),
-new LightColor(75, 75, 75),
-new LightColor(76, 76, 76),
-new LightColor(77, 77, 77),
-new LightColor(78, 78, 78),
-new LightColor(79, 79, 79),
-new LightColor(80, 80, 80),
-new LightColor(81, 81, 81),
-new LightColor(82, 82, 82),
-new LightColor(83, 83, 83),
-new LightColor(84, 84, 84),
-new LightColor(85, 85, 85),
-new LightColor(86, 86, 86),
-new LightColor(87, 87, 87),
-new LightColor(88, 88, 88),
-new LightColor(89, 89, 89),
-new LightColor(90, 90, 90),
-new LightColor(91, 91, 91),
-new LightColor(92, 92, 92),
-new LightColor(93, 93, 93),
-new LightColor(94, 94, 94),
-new LightColor(95, 95, 95),
-new LightColor(96, 96, 96),
-new LightColor(97, 97, 97),
-new LightColor(98, 98, 98),
-new LightColor(99, 99, 99),
-new LightColor(100, 100, 100),
-new LightColor(101, 101, 101),
-new LightColor(102, 102, 102),
-new LightColor(103, 103, 103),
-new LightColor(104, 104, 104),
-new LightColor(105, 105, 105),
-new LightColor(106, 106, 106),
-new LightColor(107, 107, 107),
-new LightColor(108, 108, 108),
-new LightColor(109, 109, 109),
-new LightColor(110, 110, 110),
-new LightColor(111, 111, 111),
-new LightColor(112, 112, 112),
-new LightColor(113, 113, 113),
-new LightColor(114, 114, 114),
-new LightColor(115, 115, 115),
-new LightColor(116, 116, 116),
-new LightColor(117, 117, 117),
-new LightColor(118, 118, 118),
-new LightColor(119, 119, 119), };
-
-            LightColor[] l2 = new LightColor[]
-            {
-
-new LightColor(120, 120, 120),
-new LightColor(121, 121, 121),
-new LightColor(122, 122, 122),
-new LightColor(123, 123, 123),
-new LightColor(124, 124, 124),
-new LightColor(125, 125, 125),
-new LightColor(126, 126, 126),
-new LightColor(127, 127, 127),
-new LightColor(128, 128, 128),
-new LightColor(129, 129, 129),
-new LightColor(130, 130, 130),
-new LightColor(131, 131, 131),
-new LightColor(132, 132, 132),
-new LightColor(133, 133, 133),
-new LightColor(134, 134, 134),
-new LightColor(135, 135, 135),
-new LightColor(136, 136, 136),
-new LightColor(137, 137, 137),
-new LightColor(138, 138, 138),
-new LightColor(139, 139, 139),
-new LightColor(140, 140, 140),
-new LightColor(141, 141, 141),
-new LightColor(142, 142, 142),
-new LightColor(143, 143, 143),
-new LightColor(144, 144, 144),
-new LightColor(145, 145, 145),
-new LightColor(146, 146, 146),
-new LightColor(147, 147, 147),
-new LightColor(148, 148, 148),
-new LightColor(149, 149, 149),
-new LightColor(150, 150, 150),
-new LightColor(151, 151, 151),
-new LightColor(152, 152, 152),
-new LightColor(153, 153, 153),
-new LightColor(154, 154, 154),
-new LightColor(155, 155, 155),
-new LightColor(156, 156, 156),
-new LightColor(157, 157, 157),
-new LightColor(158, 158, 158),
-new LightColor(159, 159, 159),
-new LightColor(160, 160, 160),
-new LightColor(161, 161, 161),
-new LightColor(162, 162, 162),
-new LightColor(163, 163, 163),
-new LightColor(164, 164, 164),
-new LightColor(165, 165, 165),
-new LightColor(166, 166, 166),
-new LightColor(167, 167, 167),
-new LightColor(168, 168, 168),
-new LightColor(169, 169, 169),
-new LightColor(170, 170, 170),
-new LightColor(171, 171, 171),
-new LightColor(172, 172, 172),
-new LightColor(173, 173, 173),
-new LightColor(174, 174, 174),
-new LightColor(175, 175, 175),
-new LightColor(176, 176, 176),
-new LightColor(177, 177, 177),
-new LightColor(178, 178, 178),
-new LightColor(179, 179, 179),
-            };
-            LightColor[] l3 = new LightColor[]
-        {
-
-        new LightColor(180, 180, 180),
-        new LightColor(181, 181, 181),
-        new LightColor(182, 182, 182),
-        new LightColor(183, 183, 183),
-        new LightColor(184, 184, 184),
-        new LightColor(185, 185, 185),
-        new LightColor(186, 186, 186),
-        new LightColor(187, 187, 187),
-        new LightColor(188, 188, 188),
-        new LightColor(189, 189, 189),
-        new LightColor(190, 190, 190),
-        new LightColor(191, 191, 191),
-        new LightColor(192, 192, 192),
-        new LightColor(193, 193, 193),
-        new LightColor(194, 194, 194),
-        new LightColor(195, 195, 195),
-        new LightColor(196, 196, 196),
-        new LightColor(197, 197, 197),
-        new LightColor(198, 198, 198),
-        new LightColor(199, 199, 199),
-        new LightColor(200, 200, 200),
-        new LightColor(201, 201, 201),
-        new LightColor(202, 202, 202),
-        new LightColor(203, 203, 203),
-        new LightColor(204, 204, 204),
-        new LightColor(205, 205, 205),
-        new LightColor(206, 206, 206),
-        new LightColor(207, 207, 207),
-        new LightColor(208, 208, 208),
-        new LightColor(209, 209, 209),
-        new LightColor(210, 210, 210),
-        new LightColor(211, 211, 211),
-        new LightColor(212, 212, 212),
-        new LightColor(213, 213, 213),
-        new LightColor(214, 214, 214),
-        new LightColor(215, 215, 215),
-        new LightColor(216, 216, 216),
-        new LightColor(217, 217, 217),
-        new LightColor(218, 218, 218),
-        new LightColor(219, 219, 219),
-        new LightColor(220, 220, 220),
-        new LightColor(221, 221, 221),
-        new LightColor(222, 222, 222),
-        new LightColor(223, 223, 223),
-        new LightColor(224, 224, 224),
-        new LightColor(225, 225, 225),
-        new LightColor(226, 226, 226),
-        new LightColor(227, 227, 227),
-        new LightColor(228, 228, 228),
-        new LightColor(229, 229, 229),
-        new LightColor(230, 230, 230),
-        new LightColor(231, 231, 231),
-        new LightColor(232, 232, 232),
-        new LightColor(233, 233, 233),
-        new LightColor(234, 234, 234),
-        new LightColor(235, 235, 235),
-        new LightColor(236, 236, 236),
-        new LightColor(237, 237, 237),
-        new LightColor(238, 238, 238),
-        new LightColor(239, 239, 239),
-        };
-            for (byte i = 0; i < 60; i++)
-            {
-                layer0.SetSegmentColor(0, i, l0[i]);
-                layer0.SetSegmentColor(1, i, l1[i]);
-                layer0.SetSegmentColor(2, i, l2[i]);
-                layer0.SetSegmentColor(3, i, l3[i]);
-            }
-
-            LightFrame gradientFrame = new LightFrame
-            {
-                layers =
-                {
-                    [0] = layer0,
-                }
-            };
-
-
-            lights.SendLightFrame(gradientFrame);
-        }
 
         public static LightColor color0;
         public static LightColor color1;
@@ -1248,6 +1088,23 @@ new LightColor(179, 179, 179),
                 layer0.SetSegmentColor(3, i, off);
             }
         }
+        private static void SetAwesomeColors()
+        {
+            for (byte i = 0; i < 60; i++)
+            {
+                ColorStorage.ColorsHSV12[0].H = anim();
+                byte[] rgbBytes = ColorStorage.ColorsHSV12[0].ToRGB();
+                LightColor c = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+                layer0.SetSegmentColor(0, i, c);
+                layer0.SetSegmentColor(1, i, c);
+                layer0.SetSegmentColor(2, i, c);
+                layer0.SetSegmentColor(3, i, c);
+            }
+            for (byte i = 0; i < ColorStorage.animColorWaccaSpeedBetween0And60; i++)
+            {
+                anim();
+            }
+        }
         // lights.SendLightFrame(new LightFrame(new LightColor(255, 0, 255)), controller.segments);
         //
         //var testFrame = new LightFrame(LightColor.Green);
@@ -1276,12 +1133,19 @@ new LightColor(179, 179, 179),
                         break;
                     case 1:
                         ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        anim();
                         break;
                     case 3:
+                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 4:
+                        SetAwesomeColors();
+                        return;
+                    case 5:
                         return;
                     default:
-                        break; // 2 is freeze,  3 is off, and 4 is reset
-                }
+                        break;
+                } // 0 is full circle, 1 is localized for each button, 2 is freeze, 3 is full circle, 4 is wacca title, 5 is off, and 6 is reset
                 byte[] rgbBytes = ColorStorage.ColorsHSV12[i].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
@@ -1294,12 +1158,60 @@ new LightColor(179, 179, 179),
                 layer0.SetSegmentColor(3, i, color_num[axes[i][2] - 1]);
             }
         }
+        /// <summary>
+        /// Sends a light configuration to the specified light controller to simulate a breathing animation.
+        /// </summary>
+        /// <param name="lights">
+        /// The <see cref="LightController"/> instance that will receive the light animation settings.
+        /// </param>
+        /// <remarks>
+        /// Call this method repeatedly to produce a breathing animation effect.  
+        /// To reset the animation, set <see cref="f"/> back to <c>1.0</c>.
+        /// </remarks>
+        public static void PrepLightLoveLive(LightController lights)
+        {
+
+            for (int i = 0; i < ColorStorage.LoveLiveColorsHSV.Length; i++)
+            {
+                switch (color_anim)
+                {
+                    case 0:
+                        ColorStorage.LoveLiveColorsHSV[i].V = WaccaLightAnimation.V();
+                        break;
+                    case 1:
+                        ColorStorage.LoveLiveColorsHSV[i].H = WaccaLightAnimation.H();
+                        anim();
+                        break;
+                    case 3:
+                        ColorStorage.LoveLiveColorsHSV[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 4:
+                        SetAwesomeColors();
+                        return;
+                    case 5:
+                        return;
+                    default:
+                        break;
+                } // 0 is full circle, 1 is localized for each button, 2 is freeze, 3 is full circle, 4 is wacca title, 5 is off, and 6 is reset
+                byte[] rgbBytes = ColorStorage.LoveLiveColorsHSV[i].ToRGB();
+                color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+            }
+            anim();
+            for (byte i = 0; i < 60; i++)
+            {
+                layer0.SetSegmentColor(0, i, color_num[SDVXaxesxy0125LoveLive017[i][7] - 1]);
+                layer0.SetSegmentColor(1, i, color_num[SDVXaxesxy0125LoveLive017[i][7] - 1]);
+                layer0.SetSegmentColor(2, i, color_num[SDVXaxesxy0125LoveLive017[i][7] - 1]);
+                layer0.SetSegmentColor(3, i, color_num[SDVXaxesxy0125LoveLive017[i][7] - 1]);
+            }
+        }
         public static LightColor[] sdvx = { sdvx0, sdvx1, sdvx2, sdvx3, sdvx4, sdvx5, sdvx6, sdvx7, sdvx8, sdvx9, sdvx10, sdvx11, sdvx12 };
         public static void PrepLightSDVX(LightController lights, byte state)
         {
             byte[] rgbBytes;
             for (int i = 0; i < ColorStorage.SDVXColorsHSV.Length; i++)
             {
+
                 switch (color_anim)
                 {
                     case 0:
@@ -1307,12 +1219,19 @@ new LightColor(179, 179, 179),
                         break;
                     case 1:
                         ColorStorage.SDVXColorsHSV[i].H = WaccaLightAnimation.H();
+                        anim();
                         break;
                     case 3:
+                        ColorStorage.SDVXColorsHSV[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 4:
+                        SetAwesomeColors();
+                        return;
+                    case 5:
                         return;
                     default:
-                        break; // 2 is freeze,  3 is off, and 4 is reset
-                }
+                        break;
+                } // 0 is full circle, 1 is localized for each button, 2 is freeze, 3 is full circle, 4 is wacca title, 5 is off, and 6 is reset
                 rgbBytes = ColorStorage.SDVXColorsHSV[i].ToRGB();
                 sdvx[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
@@ -1333,8 +1252,8 @@ new LightColor(179, 179, 179),
 
             for (byte i = 0; i < 60; i++)
             {
-                layer0.SetSegmentColor(0, i, sdvx[SDVXaxes[i][2] - 1]);
-                layer0.SetSegmentColor(1, i, sdvx[SDVXaxes[i][2] - 1]);
+                layer0.SetSegmentColor(0, i, sdvx[SDVXaxesxy0125LoveLive017[i][2] - 1]);
+                layer0.SetSegmentColor(1, i, sdvx[SDVXaxesxy0125LoveLive017[i][2] - 1]);
                 if (i < 30)
                 {
                     layer0.SetSegmentColor(2, i, sdvxBlue);
@@ -1359,12 +1278,19 @@ new LightColor(179, 179, 179),
                         break;
                     case 1:
                         ColorStorage.OsuColorsHSV[i].H = WaccaLightAnimation.H();
+                        anim();
                         break;
                     case 3:
+                        ColorStorage.OsuColorsHSV[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 4:
+                        SetAwesomeColors();
+                        return;
+                    case 5:
                         return;
                     default:
-                        break; // 2 is freeze,  3 is off, and 4 is reset
-                }
+                        break;
+                } // 0 is full circle, 1 is localized for each button, 2 is freeze, 3 is full circle, 4 is wacca title, 5 is off, and 6 is reset
                 byte[] rgbBytes = ColorStorage.OsuColorsHSV[i].ToRGB();
                 osu[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
@@ -1385,16 +1311,23 @@ new LightColor(179, 179, 179),
                 switch (color_anim)
                 {
                     case 0:
-                        ColorStorage.mouseHSV[i-17].V = WaccaLightAnimation.V();
+                        ColorStorage.mouseHSV[i - 17].V = WaccaLightAnimation.V();
                         break;
                     case 1:
-                        ColorStorage.mouseHSV[i-17].H = WaccaLightAnimation.H();
+                        ColorStorage.mouseHSV[i - 17].H = WaccaLightAnimation.H();
+                        anim();
                         break;
                     case 3:
+                        ColorStorage.mouseHSV[i - 17].H = WaccaLightAnimation.H();
+                        break;
+                    case 4:
+                        SetAwesomeColors();
+                        return;
+                    case 5:
                         return;
                     default:
-                        break; // 2 is freeze,  3 is off, and 4 is reset
-                }
+                        break;
+                } // 0 is full circle, 1 is localized for each button, 2 is freeze, 3 is full circle, 4 is wacca title, 5 is off, and 6 is reset
                 rgbBytes = ColorStorage.mouseHSV[i - 17].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
@@ -1421,12 +1354,19 @@ new LightColor(179, 179, 179),
                         break;
                     case 1:
                         ColorStorage.RPGColorsHSV[i].H = WaccaLightAnimation.H();
+                        anim();
                         break;
                     case 3:
+                        ColorStorage.RPGColorsHSV[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 4:
+                        SetAwesomeColors();
+                        return;
+                    case 5:
                         return;
                     default:
-                        break; // 2 is freeze,  3 is off, and 4 is reset
-                }
+                        break;
+                } // 0 is full circle, 1 is localized for each button, 2 is freeze, 3 is full circle, 4 is wacca title, 5 is off, and 6 is reset
                 byte[] rgbBytes = ColorStorage.RPGColorsHSV[i].ToRGB();
                 rpg[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
@@ -1450,13 +1390,20 @@ new LightColor(179, 179, 179),
                         ColorStorage.TaikoColorsHSV[i - 12].V = WaccaLightAnimation.V();
                         break;
                     case 1:
-                        ColorStorage.TaikoColorsHSV[i -12].H = WaccaLightAnimation.H();
+                        ColorStorage.TaikoColorsHSV[i - 12].H = WaccaLightAnimation.H();
+                        anim();
                         break;
                     case 3:
+                        ColorStorage.TaikoColorsHSV[i - 12].H = WaccaLightAnimation.H();
+                        break;
+                    case 4:
+                        SetAwesomeColors();
+                        return;
+                    case 5:
                         return;
                     default:
-                        break; // 2 is freeze,  3 is off, and 4 is reset
-                }
+                        break;
+                } // 0 is full circle, 1 is localized for each button, 2 is freeze, 3 is full circle, 4 is wacca title, 5 is off, and 6 is reset
                 byte[] rgbBytes = ColorStorage.TaikoColorsHSV[i - 12].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
@@ -1483,12 +1430,19 @@ new LightColor(179, 179, 179),
                         break;
                     case 1:
                         ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        anim();
                         break;
                     case 3:
+                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 4:
+                        SetAwesomeColors();
+                        return;
+                    case 5:
                         return;
                     default:
-                        break; // 2 is freeze,  3 is off, and 4 is reset
-                }
+                        break;
+                } // 0 is full circle, 1 is localized for each button, 2 is freeze, 3 is full circle, 4 is wacca title, 5 is off, and 6 is reset
                 rgbBytes = ColorStorage.ColorsHSV12[i].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
@@ -1516,12 +1470,19 @@ new LightColor(179, 179, 179),
                         break;
                     case 1:
                         ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        anim();
                         break;
                     case 3:
+                        ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 4:
+                        SetAwesomeColors();
+                        return;
+                    case 5:
                         return;
                     default:
-                        break; // 2 is freeze,  3 is off, and 4 is reset
-                }
+                        break;
+                } // 0 is full circle, 1 is localized for each button, 2 is freeze, 3 is full circle, 4 is wacca title, 5 is off, and 6 is reset
                 rgbBytes = ColorStorage.ColorsHSV12[i].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }

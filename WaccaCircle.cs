@@ -21,7 +21,7 @@ namespace WaccaCircle
         static int LAG_DELAY = 50; // tweak between 0ms and 100ms to reduce CPU usage or increase responsiveness
         static long axis_max = 32767;
         static int canceled_value = 0;
-        static Joystick ioboard;
+        static Joystick ioboard = null;
         /* Tutorial: how to add a new app:
          * put the function name inside waccaCircleApps
          * write the displayed app name inside waccaCircleText
@@ -61,7 +61,6 @@ namespace WaccaCircle
         {
             WaccaTable.Initialize();
             ColorStorage.LoadAllColors();
-            Console.WriteLine("Hello!");
             // Initialize DirectInput
             var directInput = new DirectInput();
 
@@ -85,38 +84,33 @@ namespace WaccaCircle
             // If still no device is found
             if (joystickGuid == Guid.Empty)
             {
-                Console.WriteLine("DInput IOBoard not connected. Please plug in USB1");
-                return;
+                Console.WriteLine("DInput IOBoard not connected. Please plug in USB1 if you want to use the volume and test buttons");
             }
-
-            Console.WriteLine("Hello!2");
-            // Instantiate the joystick
-            ioboard = new Joystick(directInput, joystickGuid);
-            Console.WriteLine("Hello!3");
-
-            Console.WriteLine($"Found Joystick/Gamepad: {ioboard.Information.ProductName}");
-
-            Console.WriteLine("Hello!4");
-            // Acquire the joystick
-            ioboard.Acquire();
-            Console.WriteLine("Hello!5");
-
-            // Poll joystick state
-            var state = new JoystickState();
-            Console.WriteLine("Hello!6");
-
-            Console.WriteLine("Press buttons to see their states. Press Ctrl+C to exit.");
-            // Poll the joystick for input
-            ioboard.Poll();
-            state = ioboard.GetCurrentState();
-            Console.WriteLine("Hello!7");
-
-            // Get button states
-            var buttons = state.Buttons;
-            if (buttons.Length < 10)
+            else
             {
-                Console.WriteLine("DInput IOBoard should have more than 10 buttons. Please plug in USB1");
-                return;
+                // Instantiate the joystick
+                ioboard = new Joystick(directInput, joystickGuid);
+
+                Console.WriteLine($"Found Joystick/Gamepad: {ioboard.Information.ProductName}");
+
+                // Acquire the joystick
+                ioboard.Acquire();
+
+                // Poll joystick state
+                var state = new JoystickState();
+
+                Console.WriteLine("Press buttons to see their states. Press Ctrl+C to exit.");
+                // Poll the joystick for input
+                ioboard.Poll();
+                state = ioboard.GetCurrentState();
+
+                // Get button states
+                var buttons = state.Buttons;
+                if (buttons.Length < 10)
+                {
+                    Console.WriteLine("DInput IOBoard should have more than 10 buttons. Please plug in USB1");
+                    return;
+                }
             }
             if (SetupJoystick() == -1)
             {
@@ -403,31 +397,42 @@ namespace WaccaCircle
                 lights.SendLightFrame(gradientFrame);
                 lights_have_been_sent_once = true;
             }
-            a = IOBoardPoll();
-            if (a == 0x33)
+            try
             {
-                do_not_change_app = true;
-            }
-            else if (previous_a == 0x11 && a == 0 && !do_not_change_app)
-            {
+                a = IOBoardPoll();
+                if (a == -2)
+                {
+                    return 0;
+                }
+                else if (a == 0x33)
+                {
+                    do_not_change_app = true;
+                }
+                else if (previous_a == 0x11 && a == 0 && !do_not_change_app)
+                {
+                    previous_a = a;
+                    return -1;  // scroll down
+                }
+                else if (previous_a == 0x22 && a == 0 && !do_not_change_app)
+                {
+                    previous_a = a;
+                    return 1; // scroll up
+                }
+                else if (a == 3 || a == 0x13 || a == 0x23)
+                {
+                    ColorStorage.animIndex++;  // inside WaccaTable
+                    WaccaTable.UpdateMyAnimBasedOnList();
+                }
+                else if (a == 0)
+                {
+                    do_not_change_app = false;
+                }
                 previous_a = a;
-                return -1;  // scroll down
             }
-            else if (previous_a == 0x22 && a == 0 && !do_not_change_app)
+            catch (Exception e)
             {
-                previous_a = a;
-                return 1; // scroll up
+                ioboard = null;
             }
-            else if (a == 3 || a == 0x13 || a == 0x23)
-            {
-                ColorStorage.animIndex++;  // inside WaccaTable
-                WaccaTable.UpdateMyAnimBasedOnList();
-            }
-            else if (a == 0)
-            {
-                do_not_change_app = false;
-            }
-            previous_a = a;
             return 0;
         }
 
@@ -900,7 +905,7 @@ namespace WaccaCircle
             sbyte poll;
             // yup. defining an array is faster than doing maths
             // efficiency.
-            int[][] axes = WaccaTable.SDVXaxes;
+            int[][] axes = WaccaTable.SDVXaxesxy0125LoveLive017;
             int rx_current;  // yup, I'll keep them in this func and say it has no joystick to the ResetJoy func
             int ry_current;  // since the potentiometers must not change value when you release them, unlike a joystick
             byte outer_number_ry;
@@ -977,7 +982,7 @@ namespace WaccaCircle
 
                                 for (byte m = 0; m < axes.Length; m++)
                                 {
-                                    if (WaccaTable.SDVXaxes[m][2] == WaccaTable.SDVXaxes[j][2])
+                                    if (axes[m][2] == axes[j][2])
                                     {
                                         WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);  // inner layer
                                         WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);  // inner layer
@@ -1194,12 +1199,12 @@ namespace WaccaCircle
         private static int WaccaCircleLoveLive()
         {
             sbyte poll;
-            bool[] button_pressed = Enumerable.Repeat(false, 13).ToArray();
-            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 13).ToArray();
-            axes = WaccaTable.axesLoveLive;
+            bool[] button_pressed = Enumerable.Repeat(false, 14).ToArray();
+            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 14).ToArray();
+            axes = WaccaTable.SDVXaxesxy0125LoveLive017;
             while (true)
             {
-                WaccaTable.PrepLight12(lights);
+                WaccaTable.PrepLightLoveLive(lights);
                 Thread.Sleep(LAG_DELAY); // change this setting to 0ms, 100ms, 200ms, or 500ms.
                 controller.GetTouchData();
                 for (byte i = 0; i < 4; i++)
@@ -1208,12 +1213,12 @@ namespace WaccaCircle
                     {
                         if (controller.touchData[i, j])  // if the circle if touched
                         {
-                            for (int k = 2; k < 3; k++)  // buttons from 1 to 12
+                            for (int k = 7; k < 8; k++)  // buttons from 1 to 13
                             {
                                 button_pressed_on_loop[axes[j][k]] = true;
                                 for (byte m = 0; m < axes.Length; m++)
                                 {
-                                    if (axes[m][2] == axes[j][k])
+                                    if (axes[m][7] == axes[j][k])
                                     {
                                         WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);
                                         WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);
@@ -1223,6 +1228,17 @@ namespace WaccaCircle
                                 }
                                 if (!button_pressed[axes[j][k]])
                                 {
+                                    if (i == 12)
+                                    {
+                                        if (File.Exists(Path.Combine(ahk, $"Ppressd.ahk")))
+                                        {
+                                            Process.Start(Path.Combine(ahk, $"Ppressd.ahk"));
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine($"failed to find " + Path.Combine(ahk, $"Ppressd.ahk"));
+                                        }
+                                    }
                                     joystick.SetBtn(true, deviceId, (uint)axes[j][k]); // Press button axes[j][k]
                                     button_pressed[axes[j][k]] = true;
                                 }
@@ -1230,7 +1246,31 @@ namespace WaccaCircle
                         }
                     }
                 }
-                poll = ResetJoystickAndPoll(13, button_pressed, button_pressed_on_loop, false);
+                for (uint i = 1; i < 14; i++)
+                {
+                    if (button_pressed[i] && !button_pressed_on_loop[i])
+                    {
+                        if (i == 12)
+                        {
+                                if (File.Exists(Path.Combine(ahk, $"Ppressu.ahk")))
+                                {
+
+                                    Process.Start(Path.Combine(ahk, $"Ppressu.ahk"));
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"failed to find " + Path.Combine(ahk, $"Ppressu.ahk"));
+                            }
+                            }
+                        
+                        button_pressed[i] = false;
+                        joystick.SetBtn(false, deviceId, i); // Release button i
+                        button_pressed[i] = false;
+                    }
+
+                    button_pressed_on_loop[i] = false;
+                }
+                poll = ResetJoystickAndPoll(1, button_pressed, button_pressed_on_loop, false);
                 if (poll != 0)
                 {
                     return poll;

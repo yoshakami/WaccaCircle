@@ -330,7 +330,7 @@ namespace WaccaCircle
             }
             return total;
         }
-        private static sbyte ResetJoystickAndPoll(int button_number, bool[] button_pressed, bool[] button_pressed_on_loop, bool use_joystick=true)
+        private static sbyte ResetJoystickAndPoll(int button_number, bool[] button_pressed, bool[] button_pressed_on_loop, bool use_joystick = true)
         {
             if (use_joystick)  // can be skipped if last param is false
             {
@@ -439,7 +439,7 @@ namespace WaccaCircle
         // yup. defining an array is faster than doing maths
         // efficiency.
         static int[][] axes = WaccaTable.axes;
-        
+
         static double x_mid;
         static double y_mid;
         static double rx_mid;
@@ -549,7 +549,7 @@ namespace WaccaCircle
             sl1_mid = (sl1_max - sl1_min) / 2;
             return 0;
         }
-        
+
         private static int WaccaCircle12()
         {
             sbyte poll;
@@ -623,11 +623,11 @@ namespace WaccaCircle
                                 }
                                 for (int k = 2; k < 3; k++)  // outer buttons from 1+12 to 12+12
                                 {
-                                    button_pressed_on_loop[axes[j][k]+12] = true;
-                                    if (!button_pressed[axes[j][k]+12])
+                                    button_pressed_on_loop[axes[j][k] + 12] = true;
+                                    if (!button_pressed[axes[j][k] + 12])
                                     {
-                                        joystick.SetBtn(true, deviceId, (uint)axes[j][k]+12); // Press button axes[j][k]+12
-                                        button_pressed[axes[j][k]+12] = true;
+                                        joystick.SetBtn(true, deviceId, (uint)axes[j][k] + 12); // Press button axes[j][k]+12
+                                        button_pressed[axes[j][k] + 12] = true;
                                     }
                                 }
                             }
@@ -1227,7 +1227,7 @@ namespace WaccaCircle
                                 }
                                 if (!button_pressed[axes[j][k]])
                                 {
-                                    if (i == 12)
+                                    if (axes[j][k] == 12)
                                     {
                                         if (File.Exists(Path.Combine(ahk, $"Ppressd.ahk")))
                                         {
@@ -1238,7 +1238,10 @@ namespace WaccaCircle
                                             Console.WriteLine($"failed to find " + Path.Combine(ahk, $"Ppressd.ahk"));
                                         }
                                     }
-                                    joystick.SetBtn(true, deviceId, (uint)axes[j][k]); // Press button axes[j][k]
+                                    else
+                                    {
+                                        joystick.SetBtn(true, deviceId, (uint)axes[j][k]); // Press button axes[j][k]
+                                    }
                                     button_pressed[axes[j][k]] = true;
                                 }
                             }
@@ -1251,19 +1254,20 @@ namespace WaccaCircle
                     {
                         if (i == 12)
                         {
-                                if (File.Exists(Path.Combine(ahk, $"Ppressu.ahk")))
-                                {
+                            if (File.Exists(Path.Combine(ahk, $"Ppressu.ahk")))
+                            {
 
-                                    Process.Start(Path.Combine(ahk, $"Ppressu.ahk"));
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"failed to find " + Path.Combine(ahk, $"Ppressu.ahk"));
+                                Process.Start(Path.Combine(ahk, $"Ppressu.ahk"));
                             }
+                            else
+                            {
+                                Console.WriteLine($"failed to find " + Path.Combine(ahk, $"Ppressu.ahk"));
                             }
-                        
-                        button_pressed[i] = false;
-                        joystick.SetBtn(false, deviceId, i); // Release button i
+                        }
+                        else
+                        {
+                            joystick.SetBtn(false, deviceId, i); // Release button i
+                        }
                         button_pressed[i] = false;
                     }
 

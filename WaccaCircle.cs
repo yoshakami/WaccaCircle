@@ -21,6 +21,9 @@ namespace WaccaCircle
         static int LAG_DELAY = 50; // tweak between 0ms and 100ms to reduce CPU usage or increase responsiveness
         static long axis_max = 32767;
         static int canceled_value = 0;
+        static byte intervalSet = 5;
+        static double brightness = 100.0;
+        static byte volume = 100;
         static Joystick ioboard = null;
         /* Tutorial: how to add a new app:
          * put the function name inside waccaCircleApps
@@ -34,6 +37,8 @@ namespace WaccaCircle
         static TouchController controller;
         static LightController lights;
         public static bool lights_have_been_sent_once = false;
+        static byte arrowMode = 0; // 0 = app   1 = animation   2 = volume   3 = delay set   4 = brightness set  5 = anim speed
+                                   // 6 = osu enter/esc   7 = buttons 14 and 15 Dinput    8 = interval set for 2, 3, 4, and 5
 
         private delegate bool ConsoleCtrlHandlerDelegate(int sig);
 
@@ -139,7 +144,7 @@ namespace WaccaCircle
             lights = new LightController();
             if (!lights.Initialize())
             {
-                Console.WriteLine("Failed to load lights!");
+                Console.WriteLine("Failed to load lights! Make sure USB2 is plugged correctly");
             };
 
             _consoleCtrlHandler += s =>
@@ -330,6 +335,89 @@ namespace WaccaCircle
             }
             return total;
         }
+        private static byte ScrollUpOrDownOnArrowMode(byte value)
+        {
+            // 0 = app   1 = animation   2 = volume   3 = delay set   4 = brightness set  5 = anim speed
+            // 6 = osu enter/esc   7 = buttons 14 and 15 Dinput    8 = interval set for 2, 3, 4, and 5
+            string Vol = null;
+            string text = null;
+            switch (arrowMode)
+            {
+                case 0:
+                    return value;
+                case 1:
+                    ColorStorage.animIndex++;  // inside WaccaTable
+                    WaccaTable.UpdateMyAnimBasedOnList();
+                    break;
+                case 2:
+                    Vol = "VolDown.ahk";
+                    volume += (byte)(value * intervalSet);
+                    if (value == 1)  // volume up
+                    {
+                        Vol = "VolUp.ahk";
+                    }
+                    if (volume > 100)
+                    { volume = 100; }
+                    else if (volume < 0)
+                    { volume = 0; }
+                    text = $"volume = {volume}";
+                    break;
+                case 3:
+                    LAG_DELAY += (value * intervalSet);
+                    text = $"delay = {LAG_DELAY}";
+                    break;
+                case 4:
+                    brightness += (value * intervalSet);
+                    if (brightness > 100.0)
+                    {
+                        brightness = 100.0;
+                    }
+                    else if (brightness < 0)
+                    {
+                        brightness = 0;
+                    }
+                    text = $"brightness = {brightness}";
+                    break;
+                case 5:  // anim speed
+                         //TODO
+                    /*
+                     * TODO: fix mouse crash in preplight func
+                    fix single animation doing the thing on the whole circle
+                    fix whole circle animations being frozen*/
+                    break;
+                case 6:
+                    Vol = "Enter.ahk";
+                    if (value == 1)  // volume up
+                    {
+                        Vol = "Escape.ahk";
+                    }
+                    break;
+                case 7:
+                    break;
+                case 8:
+                    intervalSet += value;
+                    text = $"interval set = {intervalSet}";
+                    break;
+
+
+
+
+            }
+            // Launch the overlay window
+            if (File.Exists(exe_title) && text != null)
+            {
+                RunExternalCommand(exe_title, text);
+            }
+            if (File.Exists(Path.Combine(ahk, Vol)) && Vol != null)
+            {
+                Process.Start(Path.Combine(ahk, Vol));
+            }
+            else if (Vol != null)
+            {
+                Console.WriteLine($"failed to find " + Path.Combine(ahk, Vol));
+            }
+            return 0;
+        }
         private static sbyte ResetJoystickAndPoll(int button_number, bool[] button_pressed, bool[] button_pressed_on_loop, bool use_joystick = true)
         {
             if (use_joystick)  // can be skipped if last param is false
@@ -400,6 +488,25 @@ namespace WaccaCircle
             try
             {
                 a = IOBoardPoll();
+                if (arrowMode == 7) // Dinput
+                {
+                    if ((a & 1) == 1)
+                    {
+                        joystick.SetBtn(true, deviceId, 14); // Press button 14
+                    }
+                    else
+                    {
+                        joystick.SetBtn(false, deviceId, 14); // Press button 14
+                    }
+                    if ((a & 2) == 2)
+                    {
+                        joystick.SetBtn(true, deviceId, 15); // Press button 15
+                    }
+                    else
+                    {
+                        joystick.SetBtn(false, deviceId, 15); // Press button 15
+                    }
+                }
                 if (a == -2)
                 {
                     return 0;
@@ -420,8 +527,48 @@ namespace WaccaCircle
                 }
                 else if (a == 3 || a == 0x13 || a == 0x23)
                 {
-                    ColorStorage.animIndex++;  // inside WaccaTable
-                    WaccaTable.UpdateMyAnimBasedOnList();
+
+                    // 0 = app   1 = animation   2 = volume   3 = delay set   4 = brightness set  5 = anim speed
+                    // 6 = osu enter/esc   7 = buttons 14 and 15 Dinput    8 = interval set for 2, 3, 4, and 5
+                    string text = null;
+                    arrowMode++;
+                    if (arrowMode > 8)
+                    { arrowMode = 0; }
+                    switch (arrowMode)
+                    {
+                        case 0:
+                            text = "App";
+                            break;
+                        case 1:
+                            text = "Anim";
+                            break;
+                        case 2:
+                            text = "Volume";
+                            break;
+                        case 3:
+                            text = "Delay";
+                            break;
+                        case 4:
+                            text = $"Brightness";
+                            break;
+                        case 5:  // anim speed
+                            text = "Anim Speed";
+                            break;
+                        case 6:
+                            text = "Esc / Enter";
+                            break;
+                        case 7:
+                            text = "DInput 14 / 15";
+                            break;
+                        case 8:
+                            text = $"Interval Set";
+                            break;
+                    }
+                    // Launch the overlay window
+                    if (File.Exists(exe_title) && text != null)
+                    {
+                        RunExternalCommand(exe_title, text);
+                    }
                 }
                 else if (a == 0)
                 {

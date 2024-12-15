@@ -8,22 +8,22 @@ if GetKeyState("Alt", "P")
         {
             if GetKeyState("LWin", "P")
             {
-                Send "{Alt down}{Ctrl down}{Shift down}{LWin down}{Enter up}"
+                Send "{Alt down}{Ctrl down}{Shift down}{LWin down}{Right up}"
             }
             else
             {
-                Send "{Alt down}{Ctrl down}{Shift down}{Enter up}"
+                Send "{Alt down}{Ctrl down}{Shift down}{Right up}"
             }
         }
         else
         {
             if GetKeyState("LWin", "P")
             {
-                Send "{Alt down}{Ctrl down}{LWin down}{Enter up}"
+                Send "{Alt down}{Ctrl down}{LWin down}{Right up}"
             }
             else
             {
-                Send "{Alt down}{Ctrl down}{Enter up}"
+                Send "{Alt down}{Ctrl down}{Right up}"
             }
         }
     }
@@ -33,22 +33,22 @@ if GetKeyState("Alt", "P")
         {
             if GetKeyState("LWin", "P")
             {
-                Send "{Alt down}{Shift down}{LWin down}{Enter up}"
+                Send "{Alt down}{Shift down}{LWin down}{Right up}"
             }
             else
             {
-                Send "{Alt down}{Shift down}{Enter up}"
+                Send "{Alt down}{Shift down}{Right up}"
             }
         }
         else
         {
             if GetKeyState("LWin", "P")
             {
-                Send "{Alt down}{LWin down}{Enter up}"
+                Send "{Alt down}{LWin down}{Right up}"
             }
             else
             {
-                Send "{Alt down}{Enter up}"
+                Send "{Alt down}{Right up}"
             }
         }
 	}
@@ -61,22 +61,22 @@ else
         {
             if GetKeyState("LWin", "P")
             {
-                Send "{Ctrl down}{Shift down}{LWin down}{Enter up}"
+                Send "{Ctrl down}{Shift down}{LWin down}{Right up}"
             }
             else
             {
-                Send "{Ctrl down}{Shift down}{Enter up}"
+                Send "{Ctrl down}{Shift down}{Right up}"
             }
         }
         else
         {
             if GetKeyState("LWin", "P")
             {
-                Send "{Ctrl down}{LWin down}{Enter up}"
+                Send "{Ctrl down}{LWin down}{Right up}"
             }
             else
             {
-                Send "{Ctrl down}{Enter up}"
+                Send "{Ctrl down}{Right up}"
             }
         }
     }
@@ -86,22 +86,22 @@ else
         {
             if GetKeyState("LWin", "P")
             {
-                Send "{Shift down}{LWin down}{Enter up}"
+                Send "{Shift down}{LWin down}{Right up}"
             }
             else
             {
-                Send "{Shift down}{Enter up}"
+                Send "{Shift down}{Right up}"
             }
         }
         else
         {
             if GetKeyState("LWin", "P")
             {
-                Send "{LWin down}{Enter up}"
+                Send "{LWin down}{Right up}"
             }
             else
             {
-                Send "{Enter up}"
+                Send "{Right up}"
             }
         }
 	}

@@ -8,7 +8,6 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Linq;
-using System.Reflection;
 
 namespace SpinWheelApp
 {
@@ -29,8 +28,6 @@ namespace SpinWheelApp
         private List<string> exe_list = new List<string>();
         private double currentAngle = 0; // Current rotation angle in radians
         private static MediaElement videoPlayer;
-        private static MediaElement videoRight;
-        private static MediaElement videoLeft;
         private Canvas myCanvas;
         static int current = 4;
         private const double AnimationDuration = 0.5; // Seconds
@@ -63,7 +60,7 @@ namespace SpinWheelApp
         static int screenHeight = 1600; // Full screen height
         static int centerX = 540;  // Center point for rotation in the canvas
         static int centerY = 3960;  // Center point for rotation in the canvas
-        static Image overlay;
+        public static Image overlay;
 
         private void PlayVideo()
         {
@@ -99,41 +96,6 @@ namespace SpinWheelApp
                 videoPlayer.Play();
             };
             mainGrid.Children.Add(videoPlayer);
-
-            videoLeft = new MediaElement
-            {
-                Width = screenWidth,
-                Height = screenHeight,
-                LoadedBehavior = MediaState.Manual, // Control playback manually
-                UnloadedBehavior = MediaState.Close, // Release resources when not in use
-                Stretch = Stretch.Uniform, // Scale to fill the screen
-                Source = new Uri(Path.Combine(execPath, "left.mp4")), // Update with your video path
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                IsHitTestVisible = false, // Allow clicks to pass through
-            };
-            mainGrid.Children.Add(videoLeft);
-            videoLeft.MediaEnded += (s, f) =>
-            {
-                videoLeft.Visibility = Visibility.Hidden;
-            };
-            videoRight = new MediaElement
-            {
-                Width = screenWidth,
-                Height = screenHeight,
-                LoadedBehavior = MediaState.Manual, // Control playback manually
-                UnloadedBehavior = MediaState.Close, // Release resources when not in use
-                Stretch = Stretch.Uniform, // Scale to fill the screen
-                Source = new Uri(Path.Combine(execPath, "right.mp4")), // Update with your video path
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                IsHitTestVisible = false, // Allow clicks to pass through
-            };
-            videoRight.MediaEnded += (s, f) =>
-            {
-                videoRight.Visibility = Visibility.Hidden;
-            };
-            mainGrid.Children.Add(videoRight);
 
             // Add Canvas for images
             myCanvas = new Canvas
@@ -242,7 +204,7 @@ namespace SpinWheelApp
                     }
                 }
             }
-            if (j < wheelImages.Count && j > 0)
+            if (j <= wheelImages.Count && j > 0)
             {
                 change_wheel_images = false; // fill the wheel
                 while (j < wheelImages.Count)
@@ -275,15 +237,9 @@ namespace SpinWheelApp
             // Rotate images right (-1) or left (+1)
             if (direction == -1)
             {
-                //Panel.SetZIndex(overlay, 1);
-                videoRight.Position = TimeSpan.FromTicks(-10000000);    // reset position with a weird number because it's microsoft
-                videoRight.Visibility = Visibility.Visible;
-                videoRight.Play();
             }
             else if (direction == 1)
             {
-                videoLeft.Visibility = Visibility.Visible;
-                videoLeft.Play();
             }
             else
             {
@@ -337,7 +293,12 @@ namespace SpinWheelApp
 
             // Update the positions list
             positions = newPositions;
-            Task.Delay(500).ContinueWith(t => endthis());
+            Task.Delay(100).ContinueWith(t =>
+            {
+                // Make sure to update UI elements on the UI thread
+                Dispatcher.Invoke(() => endthis());
+            });
+
         }
         public void endthis()
         {
@@ -350,7 +311,7 @@ namespace SpinWheelApp
             {
                 From = oldPos.X,
                 To = newPos.X,
-                Duration = TimeSpan.FromSeconds(0.5),
+                Duration = TimeSpan.FromSeconds(0.1),
                 EasingFunction = new SineEase() // Smooth easing
             };
 
@@ -358,7 +319,7 @@ namespace SpinWheelApp
             {
                 From = oldPos.Y,
                 To = newPos.Y,
-                Duration = TimeSpan.FromSeconds(0.5),
+                Duration = TimeSpan.FromSeconds(0.1),
                 EasingFunction = new SineEase() // Smooth easing
             };
 
@@ -377,7 +338,7 @@ namespace SpinWheelApp
             {
                 From = image.Width,
                 To = targetSize,
-                Duration = TimeSpan.FromSeconds(0.5),
+                Duration = TimeSpan.FromSeconds(0.1),
                 EasingFunction = new SineEase() // Smooth easing
             };
 
@@ -386,7 +347,7 @@ namespace SpinWheelApp
             {
                 From = image.Height,
                 To = targetSize,
-                Duration = TimeSpan.FromSeconds(0.5),
+                Duration = TimeSpan.FromSeconds(0.1),
                 EasingFunction = new SineEase() // Smooth easing
             };
 

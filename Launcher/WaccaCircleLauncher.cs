@@ -589,29 +589,13 @@ namespace SpinWheelApp
                 App_Table[0][0]++;
                 App_Table[1][0]++;  // outer right
             }
-            else if (current - 2 < 0)
-            {
-                App_Table[8][0]++;  // outer left
-                App_Table[0][0]++;
-                App_Table[1][0]++;  // current
-                App_Table[2][0]++;
-                App_Table[3][0]++;  // outer right
-            }
-            else if (current + 2 > 8)
-            {
-                App_Table[5][0]++;  // outer left
-                App_Table[6][0]++;
-                App_Table[7][0]++;  // current
-                App_Table[8][0]++;
-                App_Table[0][0]++;  // outer right
-            }
             else
             {
-                App_Table[current - 2][0]++;  // outer left
+                App_Table[current == 1 ? 8 : current - 2][0]++;  // outer left
                 App_Table[current - 1][0]++;
                 App_Table[current + 0][0]++;  // current
                 App_Table[current + 1][0]++;
-                App_Table[current + 2][0]++;  // outer right
+                App_Table[current == 7 ? 0 : current + 2][0]++;  // outer right
             }
             App_Table.Sort(new IntArrayComparer());  // sorts the table by the most used colour first
             AnimateImageSize(last_1, 192, 50);

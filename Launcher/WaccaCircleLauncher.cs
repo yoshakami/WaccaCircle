@@ -11,6 +11,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Media;
+using System.Collections;
 
 namespace SpinWheelApp
 {
@@ -186,8 +187,6 @@ namespace SpinWheelApp
         }
 
         private const double Radius = 3000; // Larger radius for better positioning
-        private List<string> image_list = new List<string>();
-        private List<string> exe_list = new List<string>();
         private double currentAngle = 0; // Current rotation angle in radians
         private static MediaElement videoPlayer;
         private Canvas myCanvas;
@@ -328,6 +327,7 @@ namespace SpinWheelApp
         TextBlock centerDesc;
         TextBlock LeftTitle;
         TextBlock LeftDesc;
+        static List<int[]> App_Table = new List<int[]>();  // {occurence, id, wheel_id}  note that id and wheel_id are not the same!!!!! the wheel is always 9 elements while id is unrestricted
         private void InitializeWheel()
         {
             int imgRadius = 192;
@@ -416,7 +416,7 @@ namespace SpinWheelApp
                         //LaunchFile(executableFile);
                         imageList.Add(f);
                         exeList.Add(executableFile);
-                        int[] app = { 0, j };
+                        int[] app = { 0, j, j > 8 ? 100000 : j };
                         App_Table.Add(app.ToArray());  // adds a copy of the current array, so it won't be linked after changes on next loop
 
                         if (ParamStoredInRam.Titles.Count <= j) // since j starts at zero then increases here, it means it'll take entries from the json if they exist, or add them here
@@ -504,7 +504,7 @@ namespace SpinWheelApp
 
         static bool prevent_execution = false;
         List<int> displayed = new List<int>();
-        List<int[]> App_Table = new List<int[]>();  // {occurence, every possible salues of a short} used to find the most used colours, and then build a _plt0.colour_palette from 
+        static int previous_id = -1;
         private void RotateWheel(int direction)
         {
             if (prevent_execution)
@@ -573,31 +573,71 @@ namespace SpinWheelApp
             {
                 last_1 = wheelImages[8];
                 left_id = 8;
-                App_Table[7][0]++;  // outer left
-                App_Table[8][0]++;
-                App_Table[0][0]++;  // current
-                App_Table[1][0]++;
-                App_Table[2][0]++;  // outer right
+                displayed.Add(7);
+                displayed.Add(8);
+                displayed.Add(0);
+                displayed.Add(1);
+                displayed.Add(2);
             }
             else if (last_2 == null)
             {
                 last_2 = wheelImages[0];
                 right_id = 0;
-                App_Table[6][0]++;  // outer left
-                App_Table[7][0]++;
-                App_Table[8][0]++;  // current
-                App_Table[0][0]++;
-                App_Table[1][0]++;  // outer right
+                displayed.Add(6);
+                displayed.Add(7);
+                displayed.Add(8);
+                displayed.Add(0);
+                displayed.Add(1);
             }
             else
             {
-                App_Table[current == 1 ? 8 : current - 2][0]++;  // outer left
-                App_Table[current - 1][0]++;
-                App_Table[current + 0][0]++;  // current
-                App_Table[current + 1][0]++;
-                App_Table[current == 7 ? 0 : current + 2][0]++;  // outer right
+                displayed.Add(current == 1 ? 8 : current - 2); // outer left
+                displayed.Add(current - 1);
+                displayed.Add(current + 0); // current
+                displayed.Add(current + 1);
+                displayed.Add(current == 7 ? 0 : current + 2); // outer right
+            }
+            for (int i = 0; i < App_Table.Count; i++)
+            {
+                if (App_Table[i][2] == 9)
+                {
+                    App_Table[i][2] = 0;
+                }
+                else if (App_Table[i][2] < 0)
+                {
+                    App_Table[i][2] = 8;
+                }
+                if (displayed.Any(x => x == App_Table[i][2]))  // if it's displayed, add occurence!
+                {
+                    App_Table[i][0]++;
+                }
+                App_Table[i][2] += direction;
             }
             App_Table.Sort(new IntArrayComparer());  // sorts the table by the most used colour first
+            int wheel_id = current < 3 ? current + 6 : current - 3;
+            for (int i = 0; i < App_Table.Count; i++)
+            {
+                if (App_Table[i][2] == wheel_id)  // remove this one from the wheel
+                {
+                    App_Table[i][2] = 100000;
+                    break;
+                }
+            }
+            int new_id = App_Table[App_Table.Count - 1][1];
+            if (new_id == previous_id)
+            {
+                new_id = App_Table[App_Table.Count - 2][1];
+                App_Table[App_Table.Count - 2][2] = wheel_id;
+            }
+            else
+            {
+                App_Table[App_Table.Count - 1][2] = wheel_id;
+            }
+            previous_id = new_id;
+            wheelExe[wheel_id] = exeList[new_id];
+            wheelImages[wheel_id].Source = new BitmapImage(new Uri(imageList[new_id]));
+            wheelTitles[wheel_id] = ParamStoredInRam.Titles[new_id];
+            wheelDescriptions[wheel_id] = ParamStoredInRam.Descriptions[new_id];
             AnimateImageSize(last_1, 192, 50);
             AnimateImageSize(last_2, 192, 51);
 
@@ -605,12 +645,12 @@ namespace SpinWheelApp
             byte[] rgbDesc = ParamStoredInRam.DescriptionColor.ToRGB();
             SolidColorBrush brushTitle = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbTitle[0], rgbTitle[1], rgbTitle[2]));
             SolidColorBrush brushDesc = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbDesc[0], rgbDesc[1], rgbDesc[2]));
-            InitializeText(ref LeftTitle, ref brushTitle, ParamStoredInRam.Titles[left_id], 180, 899, 200, 20, 18);
-            InitializeText(ref LeftDesc, ref brushDesc, ParamStoredInRam.Descriptions[left_id], 180, 923, 200, 20, 18);
-            InitializeText(ref centerTitle, ref brushTitle, ParamStoredInRam.Titles[current], 365, 1060, 300, 30, 25);
-            InitializeText(ref centerDesc, ref brushDesc, ParamStoredInRam.Descriptions[current], 365, 1096, 300, 30, 25);
-            InitializeText(ref RightTitle, ref brushTitle, ParamStoredInRam.Titles[right_id], 704, 899, 200, 20, 18);
-            InitializeText(ref RightDesc, ref brushDesc, ParamStoredInRam.Descriptions[right_id], 704, 923, 200, 20, 18);
+            InitializeText(ref LeftTitle, ref brushTitle, wheelTitles[left_id], 180, 899, 200, 20, 18);
+            InitializeText(ref LeftDesc, ref brushDesc, wheelDescriptions[left_id], 180, 923, 200, 20, 18);
+            InitializeText(ref centerTitle, ref brushTitle, wheelTitles[current], 365, 1060, 300, 30, 25);
+            InitializeText(ref centerDesc, ref brushDesc, wheelDescriptions[current], 365, 1096, 300, 30, 25);
+            InitializeText(ref RightTitle, ref brushTitle, wheelTitles[right_id], 704, 899, 200, 20, 18);
+            InitializeText(ref RightDesc, ref brushDesc, wheelDescriptions[right_id], 704, 923, 200, 20, 18);
             // Update the positions list
             positions = newPositions;
             Task.Delay(100).ContinueWith(t =>
@@ -618,7 +658,6 @@ namespace SpinWheelApp
                 // Make sure to update UI elements on the UI thread
                 Dispatcher.Invoke(() => endthis());
             });
-
         }
         public void endthis()
         {

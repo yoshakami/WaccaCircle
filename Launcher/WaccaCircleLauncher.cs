@@ -8,6 +8,9 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Linq;
+using Newtonsoft.Json;
+using System.Diagnostics;
+using System.Media;
 
 namespace SpinWheelApp
 {
@@ -21,8 +24,167 @@ namespace SpinWheelApp
             app.Run(mainWindow);
         }
     }
+
+    public class IntArrayComparer : IComparer<int[]>
+    {
+        public int Compare(int[] ba, int[] bb)
+        {
+            int n = ba.Length;  //fetch the length of the first array
+            int ci = n.CompareTo(bb.Length); //compare to the second
+            if (ci != 0)
+            { //if not equal return the compare result
+                return ci;
+            }
+            else
+            { //else elementwise comparer
+                for (int i = 0; i < n; i++)
+                {
+                    if (ba[i] != bb[i])
+                    { //if not equal element, return compare result
+                        return bb[i].CompareTo(ba[i]);
+                    }
+                }
+                return 0; //if all equal, return 0
+            }
+        }
+    }
+    public struct Color
+    {
+        public double H { get; set; } // Hue: 0-360 degrees
+        public double S { get; set; } // Saturation: 0-1
+        public double V { get; set; } // Value: 0-1
+
+        public Color(double h, double s, double v)
+        {
+            H = h;
+            S = s;
+            V = v;
+        }
+
+        /// <summary>
+        /// Converts the HSV color to an RGB color and returns the result as a tuple of 3 bytes.
+        /// </summary>
+        /// <returns>A tuple containing R, G, and B as bytes (0-255).</returns>
+        /// <summary>
+        /// Converts the HSV color to an RGB color and returns the result as a byte array.
+        /// </summary>
+        /// <returns>An array of 3 bytes representing R, G, and B (0-255).</returns>
+        public byte[] ToRGB()
+        {
+            double r = 0, g = 0, b = 0;
+
+            if (S == 0) // Achromatic (gray)
+            {
+                r = g = b = V;
+            }
+            else
+            {
+                double sector = H / 60.0; // Sector index (0-5)
+                int sectorIndex = (int)Math.Floor(sector);
+                double fractionalPart = sector - sectorIndex; // Fractional part of sector
+
+                double p = V * (1 - S);
+                double q = V * (1 - S * fractionalPart);
+                double t = V * (1 - S * (1 - fractionalPart));
+
+                switch (sectorIndex)
+                {
+                    case 0:
+                        r = V; g = t; b = p;
+                        break;
+                    case 1:
+                        r = q; g = V; b = p;
+                        break;
+                    case 2:
+                        r = p; g = V; b = t;
+                        break;
+                    case 3:
+                        r = p; g = q; b = V;
+                        break;
+                    case 4:
+                        r = t; g = p; b = V;
+                        break;
+                    case 5:
+                        r = V; g = p; b = q;
+                        break;
+                }
+            }
+
+            // Convert to 0-255 range and return as bytes
+            return new byte[] { (byte)(r * 255), (byte)(g * 255), (byte)(b * 255) };
+        }
+
+
+        public override string ToString()
+        {
+            var rgbBytes = ToRGB();
+            return $"HSV({H}, {S}, {V}) -> R: {rgbBytes[0]}, G: {rgbBytes[1]}, B: {rgbBytes[2]}";
+
+        }
+    }
+    public class ParamWrittenInTheJson
+    {
+        public Color TitleColor { get; set; }
+        public Color DescriptionColor { get; set; }
+        public string FontFamily { get; set; }
+        public List<string> Titles { get; set; }
+        public List<string> Descriptions { get; set; }
+    }
+    public static class ParamStoredInRam
+    {
+        public static Color TitleColor = new Color(0, 0, 1);
+        public static Color DescriptionColor = new Color(200, 0.8, 1);     // Blue 
+
+        public static string FontFamily = "Arial";
+
+        public static List<string> Titles = new List<string>();
+        public static List<string> Descriptions = new List<string>();
+    }
+
     public partial class MainWindow : Window
     {
+        public static readonly string configName = "WaccaCircleLauncher.json";
+        public static void SaveConfig()
+        {
+            ParamWrittenInTheJson data = new ParamWrittenInTheJson
+            {
+                TitleColor = ParamStoredInRam.TitleColor,
+                DescriptionColor = ParamStoredInRam.DescriptionColor,
+                FontFamily = ParamStoredInRam.FontFamily,
+                Titles = ParamStoredInRam.Titles,
+                Descriptions = ParamStoredInRam.Descriptions,
+            };
+            string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+            File.WriteAllText(configName, json);
+        }
+        public static void LoadConfig()
+        {
+            if (File.Exists(configName))
+            {
+                try
+                {
+                    string json = File.ReadAllText(configName);
+                    var data = JsonConvert.DeserializeObject<ParamWrittenInTheJson>(json);
+                    ParamStoredInRam.TitleColor = data.TitleColor;
+                    ParamStoredInRam.DescriptionColor = data.DescriptionColor;
+                    ParamStoredInRam.Titles = data.Titles;
+                    ParamStoredInRam.Descriptions = data.Descriptions;
+                    ParamStoredInRam.FontFamily = data.FontFamily;
+
+                    Console.WriteLine($"Loaded {configName}!");
+                }
+                catch (Exception e)
+                {
+                    SaveConfig();
+                }
+            }
+            else
+            {
+                Console.WriteLine($"{configName} not found!\nCreating config file...");
+                SaveConfig();
+            }
+        }
+
         private const double Radius = 3000; // Larger radius for better positioning
         private List<string> image_list = new List<string>();
         private List<string> exe_list = new List<string>();
@@ -31,6 +193,8 @@ namespace SpinWheelApp
         private Canvas myCanvas;
         static int current = 4;
         private const double AnimationDuration = 0.5; // Seconds
+        private List<string> wheelTitles = new List<string>();
+        private List<string> wheelDescriptions = new List<string>();
         private List<Image> wheelImages = new List<Image>();
         private List<string> wheelExe = new List<string>();
         private List<string> imageList = new List<string>();
@@ -38,6 +202,8 @@ namespace SpinWheelApp
         private List<Point> positions = new List<Point>();
         private static readonly string gamesPath = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "Games");
         private static readonly string execPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        // Play a WAV file
+        SoundPlayer player = new SoundPlayer(Path.Combine(execPath, "rotate.wav"));
         private static bool change_wheel_images = true;
         public MainWindow()
         {
@@ -47,7 +213,8 @@ namespace SpinWheelApp
             this.WindowStartupLocation = WindowStartupLocation.Manual;
             this.Left = 0;
             this.Top = 0;
-
+            LoadConfig();
+            PlayBGM();
             PlayVideo();
             // Start video playback when the window is loaded
             this.Loaded += (s, e) =>
@@ -61,7 +228,53 @@ namespace SpinWheelApp
         static int centerX = 540;  // Center point for rotation in the canvas
         static int centerY = 3960;  // Center point for rotation in the canvas
         public static Image overlay;
+        private void PlayBGM()
+        {
+            // Create a MediaElement programmatically
+            var mediaElement = new System.Windows.Controls.MediaElement
+            {
+                LoadedBehavior = System.Windows.Controls.MediaState.Manual, // Don't auto-play
+                UnloadedBehavior = System.Windows.Controls.MediaState.Manual, // Don't auto-stop
+                Volume = 1,  // Adjust volume as needed
+                IsMuted = false
+            };
 
+            // Set the source to your MP3 file
+            if (File.Exists(Path.Combine(execPath, "bgm.flac")))
+            {
+                mediaElement.Source = new Uri(Path.Combine(execPath, "bgm.flac"));
+            }
+            else if (File.Exists(Path.Combine(execPath, "bgm.mp3")))
+            {
+                mediaElement.Source = new Uri(Path.Combine(execPath, "bgm.mp3"));
+            }
+            else if (File.Exists(Path.Combine(execPath, "bgm.wav")))
+            {
+                mediaElement.Source = new Uri(Path.Combine(execPath, "bgm.wav"));
+            }
+            else if (File.Exists(Path.Combine(execPath, "bgm.aac")))
+            {
+                mediaElement.Source = new Uri(Path.Combine(execPath, "bgm.aac"));
+            }
+            else if (File.Exists(Path.Combine(execPath, "bgm.ogg")))
+            {
+                mediaElement.Source = new Uri(Path.Combine(execPath, "bgm.ogg"));
+            }
+            else if (File.Exists(Path.Combine(execPath, "bgm.opus")))
+            {
+                mediaElement.Source = new Uri(Path.Combine(execPath, "bgm.opus"));
+            }
+
+            // Set MediaElement to loop indefinitely
+            mediaElement.MediaEnded += (sender, e) =>
+            {
+                mediaElement.Position = TimeSpan.Zero; // Rewind the track to start
+                mediaElement.Play(); // Restart the playback
+            };
+
+            // Play the media file
+            mediaElement.Play();
+        }
         private void PlayVideo()
         {
             // Set up the window
@@ -109,6 +322,12 @@ namespace SpinWheelApp
         // native .net library supported images
         static readonly string[] imageExtensions = { ".bmp", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".tif", ".tiff" };
         static readonly string[] gameExtensions = { ".bat", ".exe", ".vbs", ".ahk", ".lnk" };
+        TextBlock RightTitle;
+        TextBlock RightDesc;
+        TextBlock centerTitle;
+        TextBlock centerDesc;
+        TextBlock LeftTitle;
+        TextBlock LeftDesc;
         private void InitializeWheel()
         {
             int imgRadius = 192;
@@ -119,6 +338,8 @@ namespace SpinWheelApp
             exeList.Clear();
             imageList.Clear();
             wheelExe.Clear();
+            wheelDescriptions.Clear();
+            wheelTitles.Clear();
 
             // Define positions for the images
             positions.Add(new Point(-3000, 3000 - 160)); // Outside Left 2
@@ -195,10 +416,20 @@ namespace SpinWheelApp
                         //LaunchFile(executableFile);
                         imageList.Add(f);
                         exeList.Add(executableFile);
-                        if (j < wheelImages.Count)
+                        int[] app = { 0, j };
+                        App_Table.Add(app.ToArray());  // adds a copy of the current array, so it won't be linked after changes on next loop
+
+                        if (ParamStoredInRam.Titles.Count <= j) // since j starts at zero then increases here, it means it'll take entries from the json if they exist, or add them here
+                        {
+                            ParamStoredInRam.Titles.Add(f);
+                            ParamStoredInRam.Descriptions.Add(f);
+                        }
+                        if (j < wheelImages.Count)  // max size is 9
                         {
                             wheelImages[j].Source = new BitmapImage(new Uri(f));
                             wheelExe.Add(executableFile);
+                            wheelTitles.Add(f);
+                            wheelDescriptions.Add(f);
                         }
                         j++;
                     }
@@ -209,22 +440,77 @@ namespace SpinWheelApp
                 change_wheel_images = false; // fill the wheel
                 while (j < wheelImages.Count)
                 {
-                    for (int k = 0; k < imageList.Count && j < wheelImages.Count; k++)
+                    for (int k = 0; k < imageList.Count && j < wheelImages.Count; k++, j++)
                     {
+                        if (ParamStoredInRam.Titles.Count <= j)
+                        {
+                            ParamStoredInRam.Titles.Add(ParamStoredInRam.Titles[k]);
+                            ParamStoredInRam.Descriptions.Add(ParamStoredInRam.Descriptions[k]);
+                        }
                         wheelImages[j].Source = new BitmapImage(new Uri(imageList[k]));
                         wheelExe.Add(wheelExe[k]);
-                        j++;
+                        wheelTitles.Add(wheelTitles[k]);
+                        wheelDescriptions.Add(wheelDescriptions[k]);
                     }
                 }
+            }
+            byte[] rgbTitle = ParamStoredInRam.TitleColor.ToRGB();
+            byte[] rgbDesc = ParamStoredInRam.DescriptionColor.ToRGB();
+            SolidColorBrush brushTitle = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbTitle[0], rgbTitle[1], rgbTitle[2]));
+            SolidColorBrush brushDesc = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbDesc[0], rgbDesc[1], rgbDesc[2]));
+            InitializeText(ref LeftTitle, ref brushTitle, ParamStoredInRam.Titles[3],                180,      899,     200,        20,          18);
+            InitializeText(ref LeftDesc, ref brushDesc, ParamStoredInRam.Descriptions[3],            180,      923,     200,        20,          18);
+            InitializeText(ref centerTitle, ref brushTitle, ParamStoredInRam.Titles[4],              365,     1060,     300,        30,          25);
+            InitializeText(ref centerDesc, ref brushDesc, ParamStoredInRam.Descriptions[4],          365,     1096,     300,        30,          25);
+            InitializeText(ref RightTitle, ref brushTitle, ParamStoredInRam.Titles[5],               704,      899,     200,        20,          18);
+            InitializeText(ref RightDesc, ref brushDesc, ParamStoredInRam.Descriptions[5],           704,      923,     200,        20,          18);
+
+            SaveConfig();
+        }
+        private void InitializeText(ref TextBlock text, ref SolidColorBrush brush, string value, int left, int top, int width, int height, byte fontsize)
+        {
+            // Create a TextBlock
+            if (text == null)
+            {
+                text = new TextBlock
+                {
+                    Text = value, // Set your desired text
+                    FontSize = fontsize, // ParamStoredInRam.FontSize,           // Change to desired font size
+                    FontFamily = new FontFamily(ParamStoredInRam.FontFamily), // Set the font family
+                    Foreground = brush,
+                    MaxWidth = width,
+                    Width = width,
+                    Height = height,
+                    MaxHeight = height,
+                    TextAlignment = TextAlignment.Center,  // Center text horizontally
+                    TextWrapping = TextWrapping.Wrap,      // Wrap text within the width
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                // Position the TextBlock on the Canvas
+                Canvas.SetLeft(text, left); // X-coordinate (adjust as needed)
+                Canvas.SetTop(text, top); // Y-coordinate (adjust as needed)
+
+                // Optional: Set ZIndex to layer the text
+                Panel.SetZIndex(text, 200);
+
+                // Add the TextBlock to the Canvas
+                myCanvas.Children.Add(text);
+            }
+            else
+            {
+                text.Text = value;
             }
         }
 
         static bool prevent_execution = false;
+        List<int> displayed = new List<int>();
+        List<int[]> App_Table = new List<int[]>();  // {occurence, every possible salues of a short} used to find the most used colours, and then build a _plt0.colour_palette from 
         private void RotateWheel(int direction)
         {
             if (prevent_execution)
                 return;
             prevent_execution = true;
+            displayed.Clear();
             current += direction;
             if (current == wheelImages.Count)
             {
@@ -245,7 +531,8 @@ namespace SpinWheelApp
             {
                 return;
             }
-
+            int left_id = -1;
+            int right_id = -1;
             // Update positions circularly
             var newPositions = new List<Point>();
             for (int i = 0; i < positions.Count; i++)
@@ -270,10 +557,12 @@ namespace SpinWheelApp
                 if (i == current - 1)
                 {
                     last_1 = img;
+                    left_id = i;
                 }
                 else if (i == current + 1)
                 {
                     last_2 = img;
+                    right_id = i;
                 }
                 else
                 {
@@ -283,14 +572,61 @@ namespace SpinWheelApp
             if (last_1 == null)
             {
                 last_1 = wheelImages[8];
+                left_id = 8;
+                App_Table[7][0]++;  // outer left
+                App_Table[8][0]++;
+                App_Table[0][0]++;  // current
+                App_Table[1][0]++;
+                App_Table[2][0]++;  // outer right
             }
-            if (last_2 == null)
+            else if (last_2 == null)
             {
                 last_2 = wheelImages[0];
+                right_id = 0;
+                App_Table[6][0]++;  // outer left
+                App_Table[7][0]++;
+                App_Table[8][0]++;  // current
+                App_Table[0][0]++;
+                App_Table[1][0]++;  // outer right
             }
+            else if (current - 2 < 0)
+            {
+                App_Table[8][0]++;  // outer left
+                App_Table[0][0]++;
+                App_Table[1][0]++;  // current
+                App_Table[2][0]++;
+                App_Table[3][0]++;  // outer right
+            }
+            else if (current + 2 > 8)
+            {
+                App_Table[5][0]++;  // outer left
+                App_Table[6][0]++;
+                App_Table[7][0]++;  // current
+                App_Table[8][0]++;
+                App_Table[0][0]++;  // outer right
+            }
+            else
+            {
+                App_Table[current - 2][0]++;  // outer left
+                App_Table[current - 1][0]++;
+                App_Table[current + 0][0]++;  // current
+                App_Table[current + 1][0]++;
+                App_Table[current + 2][0]++;  // outer right
+            }
+            App_Table.Sort(new IntArrayComparer());  // sorts the table by the most used colour first
             AnimateImageSize(last_1, 192, 50);
             AnimateImageSize(last_2, 192, 51);
 
+            byte[] rgbTitle = ParamStoredInRam.TitleColor.ToRGB();
+            byte[] rgbDesc = ParamStoredInRam.DescriptionColor.ToRGB();
+            SolidColorBrush brushTitle = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbTitle[0], rgbTitle[1], rgbTitle[2]));
+            SolidColorBrush brushDesc = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbDesc[0], rgbDesc[1], rgbDesc[2]));
+            InitializeText(ref LeftTitle, ref brushTitle, ParamStoredInRam.Titles[left_id], 180, 899, 200, 20, 18);
+            InitializeText(ref LeftDesc, ref brushDesc, ParamStoredInRam.Descriptions[left_id], 180, 923, 200, 20, 18);
+            InitializeText(ref centerTitle, ref brushTitle, ParamStoredInRam.Titles[current], 365, 1060, 300, 30, 25);
+            InitializeText(ref centerDesc, ref brushDesc, ParamStoredInRam.Descriptions[current], 365, 1096, 300, 30, 25);
+            InitializeText(ref RightTitle, ref brushTitle, ParamStoredInRam.Titles[right_id], 704, 899, 200, 20, 18);
+            InitializeText(ref RightDesc, ref brushDesc, ParamStoredInRam.Descriptions[right_id], 704, 923, 200, 20, 18);
             // Update the positions list
             positions = newPositions;
             Task.Delay(100).ContinueWith(t =>
@@ -364,11 +700,17 @@ namespace SpinWheelApp
             // Example: Rotate left and right using arrow keys
             if (e.Key == System.Windows.Input.Key.Left)
             {
+                player.Play();
                 RotateWheel(1); // Rotate counterclockwise
             }
             else if (e.Key == System.Windows.Input.Key.Right)
             {
+                player.Play();
                 RotateWheel(-1); // Rotate clockwise
+            }
+            else if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                Process.Start(wheelExe[current]);
             }
             else if (e.Key == System.Windows.Input.Key.Up)
             {

@@ -3,9 +3,7 @@ using LilyConsole;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Net.NetworkInformation;
 
 namespace WaccaCircle
 {
@@ -445,8 +443,6 @@ namespace WaccaCircle
                 SaveAllColors();
             }
         }
-
-
     }
     public static class WaccaLightAnimation
     {

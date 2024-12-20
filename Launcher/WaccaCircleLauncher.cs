@@ -11,7 +11,6 @@ using System.Linq;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Media;
-using System.Collections;
 
 namespace SpinWheelApp
 {
@@ -23,30 +22,6 @@ namespace SpinWheelApp
             var app = new Application();
             var mainWindow = new MainWindow();
             app.Run(mainWindow);
-        }
-    }
-
-    public class IntArrayComparer : IComparer<int[]>
-    {
-        public int Compare(int[] ba, int[] bb)
-        {
-            int n = ba.Length;  //fetch the length of the first array
-            int ci = n.CompareTo(bb.Length); //compare to the second
-            if (ci != 0)
-            { //if not equal return the compare result
-                return ci;
-            }
-            else
-            { //else elementwise comparer
-                for (int i = 0; i < n; i++)
-                {
-                    if (ba[i] != bb[i])
-                    { //if not equal element, return compare result
-                        return bb[i].CompareTo(ba[i]);
-                    }
-                }
-                return 0; //if all equal, return 0
-            }
         }
     }
     public struct Color
@@ -191,6 +166,7 @@ namespace SpinWheelApp
         private static MediaElement videoPlayer;
         private Canvas myCanvas;
         static int current = 4;
+        static int completeCurrent = 4;
         private const double AnimationDuration = 0.5; // Seconds
         private List<string> wheelTitles = new List<string>();
         private List<string> wheelDescriptions = new List<string>();
@@ -327,7 +303,6 @@ namespace SpinWheelApp
         TextBlock centerDesc;
         TextBlock LeftTitle;
         TextBlock LeftDesc;
-        static List<int[]> App_Table = new List<int[]>();  // {occurence, id, wheel_id}  note that id and wheel_id are not the same!!!!! the wheel is always 9 elements while id is unrestricted
         private void InitializeWheel()
         {
             int imgRadius = 192;
@@ -385,7 +360,8 @@ namespace SpinWheelApp
             }
             overlay = new Image
             {
-                Source = new BitmapImage(new Uri(Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "overlay.png"))),
+                Source = new BitmapImage(new Uri(Path.Combine(System.IO.Path.GetDirectoryName
+                (System.Reflection.Assembly.GetExecutingAssembly().Location), "overlay.png"))),
                 Width = 746,
                 Height = 319
             };
@@ -412,12 +388,11 @@ namespace SpinWheelApp
 
                     if (executableFile != null)
                     {
-                        Console.WriteLine($"Launching: {executableFile}");
+                        Console.WriteLine($"Adding: {executableFile}");
+                        /////////********** THIS IS WHERE EACH GAME IS BEING ADDED IN RAM AS AN ENTRY ***********/////////////
                         //LaunchFile(executableFile);
                         imageList.Add(f);
                         exeList.Add(executableFile);
-                        int[] app = { 0, j, j > 8 ? 100000 : j };
-                        App_Table.Add(app.ToArray());  // adds a copy of the current array, so it won't be linked after changes on next loop
 
                         if (ParamStoredInRam.Titles.Count <= j) // since j starts at zero then increases here, it means it'll take entries from the json if they exist, or add them here
                         {
@@ -428,14 +403,14 @@ namespace SpinWheelApp
                         {
                             wheelImages[j].Source = new BitmapImage(new Uri(f));
                             wheelExe.Add(executableFile);
-                            wheelTitles.Add(f);
-                            wheelDescriptions.Add(f);
+                            wheelTitles.Add(ParamStoredInRam.Titles[j]);
+                            wheelDescriptions.Add(ParamStoredInRam.Descriptions[j]);
                         }
                         j++;
                     }
                 }
             }
-            if (j <= wheelImages.Count && j > 0)
+            if (j <= wheelImages.Count && j > 0)  // if there's less than 9 games in the wheel of 9 elements
             {
                 change_wheel_images = false; // fill the wheel
                 while (j < wheelImages.Count)
@@ -503,14 +478,11 @@ namespace SpinWheelApp
         }
 
         static bool prevent_execution = false;
-        List<int> displayed = new List<int>();
-        static int previous_id = -1;
         private void RotateWheel(int direction)
         {
             if (prevent_execution)
                 return;
             prevent_execution = true;
-            displayed.Clear();
             current += direction;
             if (current == wheelImages.Count)
             {
@@ -519,6 +491,15 @@ namespace SpinWheelApp
             if (current < 0)
             {
                 current = wheelImages.Count - 1;
+            }
+            completeCurrent += direction;
+            if (completeCurrent == imageList.Count)
+            {
+                completeCurrent = 0;
+            }
+            if (completeCurrent < 0)
+            {
+                completeCurrent = imageList.Count - 1;
             }
             // Rotate images right (-1) or left (+1)
             if (direction == -1)
@@ -533,6 +514,8 @@ namespace SpinWheelApp
             }
             int left_id = -1;
             int right_id = -1;
+            int offScreenLeftWheelId = -1;
+            int offScreenRightWheelId = -1;
             // Update positions circularly
             var newPositions = new List<Point>();
             for (int i = 0; i < positions.Count; i++)
@@ -573,71 +556,34 @@ namespace SpinWheelApp
             {
                 last_1 = wheelImages[8];
                 left_id = 8;
-                displayed.Add(7);
-                displayed.Add(8);
-                displayed.Add(0);
-                displayed.Add(1);
-                displayed.Add(2);
+                offScreenLeftWheelId = 6;
+                offScreenRightWheelId = 3;
             }
             else if (last_2 == null)
             {
                 last_2 = wheelImages[0];
                 right_id = 0;
-                displayed.Add(6);
-                displayed.Add(7);
-                displayed.Add(8);
-                displayed.Add(0);
-                displayed.Add(1);
+                offScreenLeftWheelId = 5;
+                offScreenRightWheelId = 2;
             }
             else
             {
-                displayed.Add(current == 1 ? 8 : current - 2); // outer left
-                displayed.Add(current - 1);
-                displayed.Add(current + 0); // current
-                displayed.Add(current + 1);
-                displayed.Add(current == 7 ? 0 : current + 2); // outer right
+                offScreenLeftWheelId = current < 3 ? current + 6 : current - 3;
+                offScreenRightWheelId = current > 5 ? current - 6 : current + 3;
             }
-            for (int i = 0; i < App_Table.Count; i++)
-            {
-                if (App_Table[i][2] == 9)
-                {
-                    App_Table[i][2] = 0;
-                }
-                else if (App_Table[i][2] < 0)
-                {
-                    App_Table[i][2] = 8;
-                }
-                if (displayed.Any(x => x == App_Table[i][2]))  // if it's displayed, add occurence!
-                {
-                    App_Table[i][0]++;
-                }
-                App_Table[i][2] += direction;
-            }
-            App_Table.Sort(new IntArrayComparer());  // sorts the table by the most used colour first
-            int wheel_id = current < 3 ? current + 6 : current - 3;
-            for (int i = 0; i < App_Table.Count; i++)
-            {
-                if (App_Table[i][2] == wheel_id)  // remove this one from the wheel
-                {
-                    App_Table[i][2] = 100000;
-                    break;
-                }
-            }
-            int new_id = App_Table[App_Table.Count - 1][1];
-            if (new_id == previous_id)
-            {
-                new_id = App_Table[App_Table.Count - 2][1];
-                App_Table[App_Table.Count - 2][2] = wheel_id;
-            }
-            else
-            {
-                App_Table[App_Table.Count - 1][2] = wheel_id;
-            }
-            previous_id = new_id;
-            wheelExe[wheel_id] = exeList[new_id];
-            wheelImages[wheel_id].Source = new BitmapImage(new Uri(imageList[new_id]));
-            wheelTitles[wheel_id] = ParamStoredInRam.Titles[new_id];
-            wheelDescriptions[wheel_id] = ParamStoredInRam.Descriptions[new_id];
+            int completeCurrentLeft = completeCurrent < 3 ? completeCurrent + imageList.Count - 3 : completeCurrent - 3;
+            int completeCurrentRight = completeCurrent < 3 ? completeCurrent + imageList.Count - 3 : completeCurrent - 3;
+
+            wheelExe[offScreenLeftWheelId] = exeList[completeCurrentLeft];
+            wheelImages[offScreenLeftWheelId].Source = new BitmapImage(new Uri(imageList[completeCurrentLeft]));
+            wheelTitles[offScreenLeftWheelId] = ParamStoredInRam.Titles[completeCurrentLeft];
+            wheelDescriptions[offScreenLeftWheelId] = ParamStoredInRam.Descriptions[completeCurrentLeft];
+
+            wheelExe[offScreenRightWheelId] = exeList[completeCurrentRight];
+            wheelImages[offScreenRightWheelId].Source = new BitmapImage(new Uri(imageList[completeCurrentRight]));
+            wheelTitles[offScreenRightWheelId] = ParamStoredInRam.Titles[completeCurrentRight];
+            wheelDescriptions[offScreenRightWheelId] = ParamStoredInRam.Descriptions[completeCurrentRight];
+
             AnimateImageSize(last_1, 192, 50);
             AnimateImageSize(last_2, 192, 51);
 
@@ -724,12 +670,12 @@ namespace SpinWheelApp
             if (e.Key == System.Windows.Input.Key.Left)
             {
                 player.Play();
-                RotateWheel(1); // Rotate counterclockwise
+                RotateWheel(-1); // Rotate counterclockwise
             }
             else if (e.Key == System.Windows.Input.Key.Right)
             {
                 player.Play();
-                RotateWheel(-1); // Rotate clockwise
+                RotateWheel(1); // Rotate clockwise
             }
             else if (e.Key == System.Windows.Input.Key.Enter)
             {

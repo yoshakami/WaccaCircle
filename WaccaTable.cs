@@ -1302,7 +1302,7 @@ namespace WaccaCircle
         public static void PrepLightMouse(LightController lights)
         {
             byte[] rgbBytes;
-            for (int i = 17; i < color_num.Length; i++)
+            for (int i = 17; i < 21; i++)
             {
                 switch (color_anim)
                 {

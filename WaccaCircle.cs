@@ -9,6 +9,9 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Drawing;
+using SpinWheelApp;
+using System.Threading.Tasks;
+using System.Windows.Threading;
 //using WaccaCircle;  // needed to use WaccaTable.cs
 
 namespace WaccaCircle
@@ -30,9 +33,11 @@ namespace WaccaCircle
          * write the displayed app name inside waccaCircleText
          * feel free to add a new axes ref inside WaccaTable, or a custom animation */
         static Func<int>[] waccaCircleApps = { WaccaCircle12, WaccaCircle24, WaccaCircle32, WaccaCircle96, WaccaCircleTaiko,
-                                               WaccaCircleSDVX, WaccaCircleRPG, WaccaCircleOsu, WaccaCircleLoveLive, WaccaCircleCemu, WaccaCircleMouse, WaccaCircleKeyboard };
+                                               WaccaCircleSDVX, WaccaCircleRPG, WaccaCircleOsu, WaccaCircleLoveLive, WaccaCircleCemu,
+                                                WaccaCircleMouse, WaccaCircleKeyboard, WaccaCircleLauncher };
         static string[] waccaCircleText = { "WaccaCircle12", "WaccaCircle24", "WaccaCircle32", "WaccaCircle96", "WaccaCircleTaiko",
-                                        "WaccaCircleSDVX", "WaccaCircleRPG", "WaccaCircleOsu", "WaccaCircleLoveLive", "WaccaCircleCemu", "WaccaCircleMouse", "WaccaCircleKeyboard" };
+                                        "WaccaCircleSDVX", "WaccaCircleRPG", "WaccaCircleOsu", "WaccaCircleLoveLive", "WaccaCircleCemu",
+                                           "WaccaCircleMouse", "WaccaCircleKeyboard", "Launching UI in 3 seconds..." };
         public static string exe_title = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "WaccaCircleTitle.exe");
         static TouchController controller;
         static LightController lights;
@@ -64,6 +69,25 @@ namespace WaccaCircle
         [STAThread]
         public static void Main(string[] args)
         {
+            try
+            {
+
+                controller = new TouchController();
+                controller.Initialize();
+                Console.CursorVisible = false;
+                Console.WriteLine("Starting touch streams!");
+                controller.StartTouchStream();
+                Console.WriteLine("Started!");
+                lights = new LightController();
+                if (!lights.Initialize())
+                {
+                    Console.WriteLine("Failed to load lights! Make sure USB2 is plugged correctly");
+                };
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("The Port Com4 does not exist");
+            }
             WaccaTable.Initialize();
             ColorStorage.LoadAllColors();
             // Initialize DirectInput
@@ -135,72 +159,61 @@ namespace WaccaCircle
             //LilyConsole.TouchController = new LilyConsole.TouchController();
             // Initialize vJoy interface
 
-            controller = new TouchController();
-            controller.Initialize();
-            Console.CursorVisible = false;
-            Console.WriteLine("Starting touch streams!");
-            controller.StartTouchStream();
-            Console.WriteLine("Started!");
-            lights = new LightController();
-            if (!lights.Initialize())
-            {
-                Console.WriteLine("Failed to load lights! Make sure USB2 is plugged correctly");
-            };
-
-            _consoleCtrlHandler += s =>
+                _consoleCtrlHandler += s =>
             {
                 CleanUpBeforeExit();
                 return false;
             };
-            SetConsoleCtrlHandler(_consoleCtrlHandler, true);
-            int current = 2;
-            int return_val;
-            while (true)
-            {
-                try
+                SetConsoleCtrlHandler(_consoleCtrlHandler, true);
+                int current = 12;
+                int return_val;
+                while (true)
                 {
-                    // Launch the overlay window
-                    if (File.Exists(exe_title))
+                    try
                     {
-                        RunExternalCommand(exe_title, waccaCircleText[current]);
+                        // Launch the overlay window
+                        if (File.Exists(exe_title))
+                        {
+                            RunExternalCommand(exe_title, waccaCircleText[current]);
+                        }
+                        lights_have_been_sent_once = false;
+                        Console.WriteLine("Launching app");
+                        return_val = waccaCircleApps[current]();
+                        if (return_val == -2)
+                        {
+                            current += 1; // skip the app if it crashes?
+                        }
+                        else
+                        {
+                            current += return_val;
+                            if (current < 0) { current = waccaCircleApps.Length - 1; }  // loop
+                            if (current >= waccaCircleApps.Length) { current = 0; }  // loop
+                        }
                     }
-                    lights_have_been_sent_once = false;
-                    Console.WriteLine("Launching app");
-                    return_val = waccaCircleApps[current]();
-                    if (return_val == -2)
+                    catch (Exception e)
                     {
-                        current += 1; // skip the app if it crashes?
-                    }
-                    else
-                    {
-                        current += return_val;
-                        if (current < 0) { current = waccaCircleApps.Length - 1; }  // loop
-                        if (current >= waccaCircleApps.Length) { current = 0; }  // loop
-                    }
-                }
-                catch (Exception e)
-                {
 
-                    joystick.RelinquishVJD(deviceId);
-                    Thread.Sleep(1000 + canceled_value);  // 0 unless ctrl + c is pressed
-                    Console.WriteLine("vvv---------- Message -----------vvv");
-                    Console.WriteLine(e.Message);
-                    Console.WriteLine("vvv---------- StackTrace --------vvv");
-                    Console.WriteLine(e.StackTrace);
-                    if (e.InnerException != null)
-                    {
-                        Console.WriteLine("vvv---------- InnerException Message --------vvv");
-                        Console.WriteLine(e.InnerException.Message);
+                        joystick.RelinquishVJD(deviceId);
+                        Thread.Sleep(1000 + canceled_value);  // 0 unless ctrl + c is pressed
+                        Console.WriteLine("vvv---------- Message -----------vvv");
+                        Console.WriteLine(e.Message);
+                        Console.WriteLine("vvv---------- StackTrace --------vvv");
+                        Console.WriteLine(e.StackTrace);
+                        if (e.InnerException != null)
+                        {
+                            Console.WriteLine("vvv---------- InnerException Message --------vvv");
+                            Console.WriteLine(e.InnerException.Message);
+                        }
+                        Console.WriteLine("vvv---------- Source ------------vvv");
+                        Console.WriteLine(e.Source);
+                        Console.WriteLine("vvv---------- TargetSite --------vvv");
+                        Console.WriteLine(e.TargetSite);
+                        Console.WriteLine("vvv---------- HelpLink --------vvv");
+                        Console.WriteLine(e.HelpLink);
+                        Console.ReadLine();
                     }
-                    Console.WriteLine("vvv---------- Source ------------vvv");
-                    Console.WriteLine(e.Source);
-                    Console.WriteLine("vvv---------- TargetSite --------vvv");
-                    Console.WriteLine(e.TargetSite);
-                    Console.WriteLine("vvv---------- HelpLink --------vvv");
-                    Console.WriteLine(e.HelpLink);
                 }
             }
-        }
         public static void RunExternalCommand(string fileName, string arguments)
         {
             // Create a new process to start the external executable
@@ -474,16 +487,19 @@ namespace WaccaCircle
                 }
                 button_pressed_on_loop[i] = false;
             }
-            if (WaccaTable.color_anim < 2)
+            if (lights != null)
             {
-                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                lights.SendLightFrame(gradientFrame);
-            }
-            else if (!lights_have_been_sent_once)
-            {
-                LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
-                lights.SendLightFrame(gradientFrame);
-                lights_have_been_sent_once = true;
+                if (WaccaTable.color_anim < 2)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                }
+                else if (!lights_have_been_sent_once)
+                {
+                    LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
+                    lights.SendLightFrame(gradientFrame);
+                    lights_have_been_sent_once = true;
+                }
             }
             try
             {
@@ -1731,6 +1747,125 @@ namespace WaccaCircle
                 }
             }
         }
+        private static double previous_angle = 1000.0;
+        private static double angle = 1000.0;
+        private static double diff = 0;
+        private static int WaccaCircleLauncher()
+        {
+            sbyte poll;
+            int total = 0;
+            bool[] button_pressed = Enumerable.Repeat(false, 13).ToArray();
+            bool[] button_pressed_on_loop = Enumerable.Repeat(false, 13).ToArray();
+            while (true)
+            {
+                Thread.Sleep(LAG_DELAY); // 0ms uses 35% CPU while 5ms uses 4% CPU.
+                total += LAG_DELAY;
+                poll = ResetJoystickAndPoll(1, button_pressed, button_pressed_on_loop, false);
+                if (poll != 0)
+                {
+                    return poll;
+                }
+                if (total > 3000)
+                {
+                    SpinWheelApp.MainWindow mainWindow = new SpinWheelApp.MainWindow();
+                    // Start the WaccaCircleLauncher.Main method on a background thread.
+                    Task.Run(() =>
+                    {
+                        while (true)
+                        {
+                            WaccaTable.PrepLight32(lights);
+                            Thread.Sleep(LAG_DELAY); // change this setting to 0ms, 100ms, 200ms, or 500ms.
+                            total += LAG_DELAY;
+                            controller.GetTouchData();
+                            for (byte i = 0; i < 4; i++)  // for each layer of the circle from inner to outer
+                            {
+                                for (byte j = 0; j < 60; j++)  // for each pannel of each layer, starting at the top, then going left, down, right, and back at the top
+                                {
+                                    if (controller.touchData[i, j])  // if the circle if touched
+                                    {
+                                        for (int k = 2; k < 3; k++)  // buttons from 1 to 12
+                                        {
+                                            if (i > 1)  // RXY is only on the two outer layers, i==2 and i==3)
+                                            {
+                                                if (total > 300)  // this means you can only scroll once every 300ms
+                                                {
+                                                    previous_angle = angle;
+                                                    total = 0;
+                                                }
+                                                angle = Math.Atan2(axes[j][1] - y_mid, axes[j][0] - x_mid);  // calculate the angle on the circle!!! where it's touched
+                                                diff = angle - previous_angle;
+                                                if (Math.Abs(diff) > (Math.PI / 8) && Math.Abs(diff) < (Math.PI * 2 / 3))  // min is pi/8 and max is 2pi/3
+                                                {
+                                                    if (diff > 0)
+                                                    {
+                                                        mainWindow.Dispatcher.Invoke(() => mainWindow.RotateLeft());
+                                                    }
+                                                    else
+                                                    {
+                                                        mainWindow.Dispatcher.Invoke(() => mainWindow.RotateRight());
+                                                    }
+                                                    previous_angle = angle;
+                                                }
+                                                // pro tip: if you touch at the full right the angle is 0, and at the full right it's -3.141592
+                                            }
+                                            else  // parse the 2 inner layers
+                                            {
+                                                button_pressed_on_loop[axes[j][k]] = true;
+                                                if (!button_pressed[axes[j][k]])
+                                                {
+                                                    button_pressed[axes[j][k]] = true;
+                                                }
+                                                for (byte m = 0; m < axes.Length; m++)
+                                                {
+                                                    if (axes[m][2] == axes[j][2])
+                                                    {
+                                                        WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);  // inner layer
+                                                        WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);  // inner layer
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            for (uint i = 1; i < 13; i++)  // can be skipped if first param is 1
+                            {
+                                if (button_pressed[i] && !button_pressed_on_loop[i])
+                                {
+                                    button_pressed[i] = false;
+                                    if (i == 6)
+                                    {
+                                        mainWindow.Dispatcher.Invoke(() => mainWindow.RotateLeft());
+                                    }
+                                    if (i == 5)
+                                    {
+                                        mainWindow.Dispatcher.Invoke(() => mainWindow.Launch());
+                                    }
+                                    if (i == 4)
+                                    {
+                                        mainWindow.Dispatcher.Invoke(() => mainWindow.RotateRight());
+                                    }
+                                }
+                                button_pressed_on_loop[i] = false;
+                            }
+                            poll = ResetJoystickAndPoll(1, button_pressed, button_pressed_on_loop, false);
+                            if (poll != 0)
+                            {
+                                mainWindow.Dispatcher.Invoke(() => mainWindow.CloseTheApp());
+                                return poll;
+                            }
+                        }
+                    });
+                    SpinWheelApp.WaccaCircleLauncher.Main(mainWindow);
+                    return 1;
+                }
+            }
+        }
+        /*Task.Delay(1000).ContinueWith(t =>
+         {
+             // Make sure to update UI elements on the UI thread
+             mainWindow.Dispatcher.Invoke(() => mainWindow.RotateLeft());
+         });*/
         // Import SendInput from user32.dll
         [DllImport("user32.dll", SetLastError = true)]
         public static extern uint SendInput(uint nInputs, ref INPUT pInputs, int cbSize);

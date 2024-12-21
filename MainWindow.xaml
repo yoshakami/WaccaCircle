@@ -1,0 +1,6 @@
+<Window x:Class="SpinWheelApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WaccaCircleLauncher" Width="1080" Height="1600" WindowStyle="None" WindowState="Normal" Background="Black">
+    <Canvas Name="ourCanvas" />
+</Window>

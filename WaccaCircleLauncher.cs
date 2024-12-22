@@ -12,18 +12,26 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Media;
 using System.Threading;
-
 namespace SpinWheelApp
 {
     public class WaccaCircleLauncher
     {
         [STAThread]
-        public static void Main(MainWindow mainWindow)
+        public static Application Main(MainWindow mainWindow, Application previousApp = null)
         {
+            // Create a new Application instance
             var app = new Application();
+
+            // Run the new Application with the new window
             app.Run(mainWindow);
+            return app;
+
         }
     }
+
+
+
+
     public struct Color
     {
         public double H { get; set; } // Hue: 0-360 degrees
@@ -184,11 +192,8 @@ namespace SpinWheelApp
         public MainWindow()
         {
             InitializeComponent();
-
             // Set the window position to (0, 0)
             this.WindowStartupLocation = WindowStartupLocation.Manual;
-            this.Left = 0;
-            this.Top = 0;
             LoadConfig();
             PlayBGM();
             PlayVideo();
@@ -211,7 +216,7 @@ namespace SpinWheelApp
             {
                 LoadedBehavior = System.Windows.Controls.MediaState.Manual, // Don't auto-play
                 UnloadedBehavior = System.Windows.Controls.MediaState.Manual, // Don't auto-stop
-                Volume = 1,  // Adjust volume as needed
+                Volume = 0.5,  // Adjust volume as needed
                 IsMuted = false
             };
 
@@ -434,12 +439,12 @@ namespace SpinWheelApp
             byte[] rgbDesc = ParamStoredInRam.DescriptionColor.ToRGB();
             SolidColorBrush brushTitle = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbTitle[0], rgbTitle[1], rgbTitle[2]));
             SolidColorBrush brushDesc = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbDesc[0], rgbDesc[1], rgbDesc[2]));
-            InitializeText(ref LeftTitle, ref brushTitle, ParamStoredInRam.Titles[3],                180,      899,     200,        20,          18);
-            InitializeText(ref LeftDesc, ref brushDesc, ParamStoredInRam.Descriptions[3],            180,      923,     200,        20,          18);
-            InitializeText(ref centerTitle, ref brushTitle, ParamStoredInRam.Titles[4],              365,     1060,     300,        30,          25);
-            InitializeText(ref centerDesc, ref brushDesc, ParamStoredInRam.Descriptions[4],          365,     1096,     300,        30,          25);
-            InitializeText(ref RightTitle, ref brushTitle, ParamStoredInRam.Titles[5],               704,      899,     200,        20,          18);
-            InitializeText(ref RightDesc, ref brushDesc, ParamStoredInRam.Descriptions[5],           704,      923,     200,        20,          18);
+            InitializeText(ref LeftTitle, ref brushTitle, ParamStoredInRam.Titles[3], 180, 899, 200, 20, 18);
+            InitializeText(ref LeftDesc, ref brushDesc, ParamStoredInRam.Descriptions[3], 180, 923, 200, 20, 18);
+            InitializeText(ref centerTitle, ref brushTitle, ParamStoredInRam.Titles[4], 365, 1060, 300, 30, 25);
+            InitializeText(ref centerDesc, ref brushDesc, ParamStoredInRam.Descriptions[4], 365, 1096, 300, 30, 25);
+            InitializeText(ref RightTitle, ref brushTitle, ParamStoredInRam.Titles[5], 704, 899, 200, 20, 18);
+            InitializeText(ref RightDesc, ref brushDesc, ParamStoredInRam.Descriptions[5], 704, 923, 200, 20, 18);
 
             SaveConfig();
         }
@@ -666,7 +671,7 @@ namespace SpinWheelApp
             // Check if the media element is playing
             if (bgm.Volume > 0)
             {
-                double initialVolume = bgm.Volume;
+                double initialVolume = 0.5;
                 int steps = 20; // Number of steps for the fade-out
                 double stepDuration = (double)durationMs / steps; // Duration per step in milliseconds
 
@@ -701,8 +706,9 @@ namespace SpinWheelApp
         }
         public void CloseTheApp()
         {
-            this.Close();
+            this.Hide();
             FadeOutAndStop(3000); // 3 seconds 
+            Application.Current.Shutdown();
         }
 
         bool ispaused = false;

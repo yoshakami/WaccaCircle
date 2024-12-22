@@ -24,7 +24,7 @@ namespace WaccaCircle
         static int LAG_DELAY = 50; // tweak between 0ms and 100ms to reduce CPU usage or increase responsiveness
         static long axis_max = 32767;
         static int canceled_value = 0;
-        static byte intervalSet = 5;
+        static sbyte intervalSet = 5;
         static double brightness = 100.0;
         static byte volume = 100;
         static Joystick ioboard = null;
@@ -348,7 +348,7 @@ namespace WaccaCircle
             }
             return total;
         }
-        private static byte ScrollUpOrDownOnArrowMode(byte value)
+        private static sbyte ScrollUpOrDownOnArrowMode(sbyte value)
         {
             // 0 = app   1 = animation   2 = volume   3 = delay set   4 = brightness set  5 = anim speed
             // 6 = osu enter/esc   7 = buttons 14 and 15 Dinput    8 = interval set for 2, 3, 4, and 5
@@ -409,13 +409,11 @@ namespace WaccaCircle
                     break;
                 case 8:
                     intervalSet += value;
+                    if (intervalSet < 1) { intervalSet = 1; }
                     text = $"interval set = {intervalSet}";
                     break;
-
-
-
-
             }
+            Console.WriteLine(text);
             // Launch the overlay window
             if (File.Exists(exe_title) && text != null)
             {
@@ -431,6 +429,7 @@ namespace WaccaCircle
             }
             return 0;
         }
+        private static sbyte return_val = 0;
         private static sbyte ResetJoystickAndPoll(int button_number, bool[] button_pressed, bool[] button_pressed_on_loop, bool use_joystick = true)
         {
             if (use_joystick)  // can be skipped if last param is false
@@ -523,6 +522,10 @@ namespace WaccaCircle
                         joystick.SetBtn(false, deviceId, 15); // Press button 15
                     }
                 }
+                if (!do_not_change_app)
+                {
+                    Console.WriteLine(a);
+                }
                 if (a == -2)
                 {
                     return 0;
@@ -533,13 +536,21 @@ namespace WaccaCircle
                 }
                 else if (previous_a == 0x11 && a == 0 && !do_not_change_app)
                 {
+                    return_val = ScrollUpOrDownOnArrowMode(-1);
                     previous_a = a;
-                    return -1;  // scroll down
+                    if (return_val != 0)
+                    {
+                        return return_val;  // scroll down
+                    }
                 }
                 else if (previous_a == 0x22 && a == 0 && !do_not_change_app)
                 {
+                    return_val = ScrollUpOrDownOnArrowMode(1);
                     previous_a = a;
-                    return 1; // scroll up
+                    if (return_val != 0)
+                    {
+                        return return_val;  // scroll down
+                    }
                 }
                 else if (a == 3 || a == 0x13 || a == 0x23)
                 {
@@ -1750,6 +1761,7 @@ namespace WaccaCircle
         private static double previous_angle = 1000.0;
         private static double angle = 1000.0;
         private static double diff = 0;
+        private static System.Windows.Application app;
         private static int WaccaCircleLauncher()
         {
             sbyte poll;
@@ -1767,8 +1779,18 @@ namespace WaccaCircle
                 }
                 if (total > 3000)
                 {
-                    SpinWheelApp.MainWindow mainWindow = new SpinWheelApp.MainWindow();
+                    if (app != null)
+                    {
+                        Console.WriteLine("App is not null!");
+                        // Get the path of the current executable
+                        string execPath = Process.GetCurrentProcess().MainModule.FileName;
+                        // Launch a new process with the same executable
+                        Process.Start(execPath);
+                        // Exit the current process
+                        Environment.Exit(0);
+                    }
                     // Start the WaccaCircleLauncher.Main method on a background thread.
+                    SpinWheelApp.MainWindow mainWindow = new SpinWheelApp.MainWindow();
                     Task.Run(() =>
                     {
                         while (true)
@@ -1799,10 +1821,12 @@ namespace WaccaCircle
                                                     if (diff > 0)
                                                     {
                                                         mainWindow.Dispatcher.Invoke(() => mainWindow.RotateLeft());
+                                                        Console.WriteLine("Rotate left");
                                                     }
                                                     else
                                                     {
                                                         mainWindow.Dispatcher.Invoke(() => mainWindow.RotateRight());
+                                                        Console.WriteLine("Rotate right");
                                                     }
                                                     previous_angle = angle;
                                                 }
@@ -1833,17 +1857,20 @@ namespace WaccaCircle
                                 if (button_pressed[i] && !button_pressed_on_loop[i])
                                 {
                                     button_pressed[i] = false;
-                                    if (i == 6)
+                                    if (i == 7)
                                     {
                                         mainWindow.Dispatcher.Invoke(() => mainWindow.RotateLeft());
+                                        Console.WriteLine("Rotate left");
+                                    }
+                                    if (i == 6)
+                                    {
+                                        mainWindow.Dispatcher.Invoke(() => mainWindow.Launch());
+                                        Console.WriteLine("Launch!!");
                                     }
                                     if (i == 5)
                                     {
-                                        mainWindow.Dispatcher.Invoke(() => mainWindow.Launch());
-                                    }
-                                    if (i == 4)
-                                    {
                                         mainWindow.Dispatcher.Invoke(() => mainWindow.RotateRight());
+                                        Console.WriteLine("Rotate right");
                                     }
                                 }
                                 button_pressed_on_loop[i] = false;
@@ -1856,7 +1883,9 @@ namespace WaccaCircle
                             }
                         }
                     });
-                    SpinWheelApp.WaccaCircleLauncher.Main(mainWindow);
+
+                    app = SpinWheelApp.WaccaCircleLauncher.Main(mainWindow, app);
+                    mainWindow.Dispatcher.Invoke(() => mainWindow.CloseTheApp());
                     return 1;
                 }
             }

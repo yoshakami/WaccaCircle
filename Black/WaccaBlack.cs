@@ -2,7 +2,7 @@ using System;
 using System.Windows.Forms;
 using System.Drawing;
 
-namespace WaccaCircle
+namespace WaccaBlack
 {
     internal class Class
     {
@@ -12,7 +12,7 @@ namespace WaccaCircle
             // Validate command-line arguments
             if (args.Length < 4)
             {
-                Console.WriteLine("usage:\nWaccaCircleBlack <x pos> <y pos> <width> <height>");
+                Console.WriteLine("usage:\nWaccaBlack <x pos> <y pos> <width> <height>");
                 return;
             }
 

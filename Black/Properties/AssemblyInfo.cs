@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("WaccaCircleBlack")]
-[assembly: AssemblyDescription("Open-source WACCA Console circle black overlay")]
+[assembly: AssemblyTitle("WaccaBlack")]
+[assembly: AssemblyDescription("Open-source WACCA Console black overlay")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Yosh")]
-[assembly: AssemblyProduct("WaccaCircleBlack")]
+[assembly: AssemblyProduct("WaccaBlack")]
 [assembly: AssemblyCopyright("made by Yosh in 2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -285,46 +285,53 @@ namespace WaccaCircle
         /// </returns>
         static int IOBoardPoll()
         {
-            if (ioboard == null) return -2;
+            if (ioboard == null) return -2; // No IO board detected
             ioboard.Poll();
             var state = ioboard.GetCurrentState();
 
             // Get button states
             var buttons = state.Buttons;
-            int total = 0;
-            if (buttons[0])
+            int total = 0; // Reset total for this poll
+
+            // Handle Volume Minus (Button 0)
+            if (buttons[0]) // Vol- pressed
             {
-                total += 1;
-                if (ioboard_buttons[0])
+                total += 1; // Add base value for Vol-
+                if (ioboard_buttons[0]) // Still pressed
                 {
-                    total += 1 << 4;
+                    total += (1 << 4); // Add "still pressed" bit
                 }
-                ioboard_buttons[0] = true;
+                ioboard_buttons[0] = true; // Update state
             }
-            if (buttons[1])
+
+            // Handle Volume Plus (Button 1)
+            if (buttons[1]) // Vol+ pressed
             {
-                total += 2;
-                if (ioboard_buttons[1])
+                total += 2; // Add base value for Vol+
+                if (ioboard_buttons[1]) // Still pressed
                 {
-                    total += 2 << 4;
+                    total += (2 << 4); // Add "still pressed" bit
                 }
-                ioboard_buttons[1] = true;
+                ioboard_buttons[1] = true; // Update state
             }
-            if (buttons[6])
+
+            // Handle other buttons (e.g., Service, Test)
+            if (buttons[6]) // Service pressed
             {
-                total += 4;
-                if (ioboard_buttons[6])
+                total += 4; // Add base value for Service
+                if (ioboard_buttons[6]) // Still pressed
                 {
-                    total += 4 << 4;
+                    total += (4 << 4); // Add "still pressed" bit
                 }
-                ioboard_buttons[6] = true;
+                ioboard_buttons[6] = true; // Update state
             }
-            if (buttons[9])
+
+            if (buttons[9]) // Test pressed
             {
-                total += 8;
-                if (ioboard_buttons[9])
+                total += 8; // Add base value for Test
+                if (ioboard_buttons[9]) // Still pressed
                 {
-                    total += 8 << 4;
+                    total += (8 << 4); // Add "still pressed" bit
                 }
                 else
                 {
@@ -337,15 +344,18 @@ namespace WaccaCircle
                         Console.WriteLine($"failed to find " + Path.Combine(ahk, $"test.ahk"));
                     }
                 }
-                ioboard_buttons[9] = true;
+                ioboard_buttons[9] = true; // Update state
             }
+
+            // Reset state for buttons that are no longer pressed
             for (int i = 0; i < ioboard_buttons.Length; i++)
             {
-                if (buttons[i] == false && ioboard_buttons[i])
+                if (!buttons[i] && ioboard_buttons[i]) // Button released
                 {
                     ioboard_buttons[i] = false;
                 }
             }
+
             return total;
         }
         private static sbyte ScrollUpOrDownOnArrowMode(sbyte value)

@@ -425,17 +425,17 @@ namespace WaccaCircle
             }
             Console.WriteLine(text);
             // Launch the overlay window
-            if (File.Exists(exe_title) && text != null)
+            if (!string.IsNullOrEmpty(exe_title) && !string.IsNullOrEmpty(text) && File.Exists(exe_title))
             {
                 RunExternalCommand(exe_title, text);
             }
-            if (File.Exists(Path.Combine(ahk, Vol)) && Vol != null)
+            if (!string.IsNullOrEmpty(Vol) && File.Exists(Path.Combine(ahk, Vol)))
             {
                 Process.Start(Path.Combine(ahk, Vol));
             }
-            else if (Vol != null)
+            else if (!string.IsNullOrEmpty(Vol))
             {
-                Console.WriteLine($"failed to find " + Path.Combine(ahk, Vol));
+                Console.WriteLine($"Debug: Failed to find {Path.Combine(ahk, Vol)}");
             }
             return 0;
         }
@@ -532,10 +532,9 @@ namespace WaccaCircle
                         joystick.SetBtn(false, deviceId, 15); // Press button 15
                     }
                 }
-                if (!do_not_change_app)
+                /*if (!do_not_change_app)
                 {
-                    Console.WriteLine(a);
-                }
+                }*/
                 if (a == -2)
                 {
                     return 0;
@@ -544,7 +543,7 @@ namespace WaccaCircle
                 {
                     do_not_change_app = true;
                 }
-                else if (previous_a == 0x11 && a == 0 && !do_not_change_app)
+                else if ((previous_a == 0x11 || previous_a == 1) && a == 0 && !do_not_change_app)
                 {
                     return_val = ScrollUpOrDownOnArrowMode(-1);
                     previous_a = a;
@@ -553,7 +552,7 @@ namespace WaccaCircle
                         return return_val;  // scroll down
                     }
                 }
-                else if (previous_a == 0x22 && a == 0 && !do_not_change_app)
+                else if ((previous_a == 0x22 || previous_a == 2) && a == 0 && !do_not_change_app)
                 {
                     return_val = ScrollUpOrDownOnArrowMode(1);
                     previous_a = a;
@@ -601,6 +600,8 @@ namespace WaccaCircle
                             text = $"Interval Set";
                             break;
                     }
+                    Console.WriteLine($"exe_title: {exe_title}");
+                    Console.WriteLine($"text: {text}");
                     // Launch the overlay window
                     if (File.Exists(exe_title) && text != null)
                     {
@@ -615,6 +616,8 @@ namespace WaccaCircle
             }
             catch (Exception e)
             {
+                Console.WriteLine($"a={a} previous_a={previous_a} arrowMode={arrowMode}");
+                throw e;
                 ioboard = null;
             }
             return 0;
@@ -636,8 +639,8 @@ namespace WaccaCircle
             // Check if vJoy is enabled and ready
             if (!joystick.vJoyEnabled())
             {
-                Console.WriteLine("vJoy driver not enabled: Failed to find vJoy.\npress enter to exit...");
-                Console.ReadLine();
+                Console.WriteLine("vJoy driver not enabled: Failed to find vJoy.\nexitting in 3 sec...");
+                Thread.Sleep(3000);
                 return -1;
             }
 
@@ -1896,7 +1899,7 @@ namespace WaccaCircle
 
                     app = SpinWheelApp.WaccaCircleLauncher.Main(mainWindow, app);
                     //mainWindow.Dispatcher.Invoke(() => mainWindow.CloseTheApp());
-                    return 1;
+                    return a;
                 }
             }
         }

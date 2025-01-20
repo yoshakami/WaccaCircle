@@ -1,3 +1,5 @@
+#SingleInstance
+#Warn
 #Requires AutoHotkey v2.0
 
 ; Check if an argument is passed

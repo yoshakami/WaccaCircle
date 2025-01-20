@@ -373,12 +373,8 @@ namespace WaccaCircle
                     WaccaTable.UpdateMyAnimBasedOnList();
                     break;
                 case 2:
-                    Vol = "VolDown.ahk";
+                    Vol = "VolSet.ahk";
                     volume += (byte)(value * intervalSet);
-                    if (value == 1)  // volume up
-                    {
-                        Vol = "VolUp.ahk";
-                    }
                     if (volume > 100)
                     { volume = 100; }
                     else if (volume < 0)
@@ -428,6 +424,21 @@ namespace WaccaCircle
             if (!string.IsNullOrEmpty(exe_title) && !string.IsNullOrEmpty(text) && File.Exists(exe_title))
             {
                 RunExternalCommand(exe_title, text);
+            }
+            if (!string.IsNullOrEmpty(Vol) && File.Exists(Path.Combine(ahk, Vol)) && arrowMode == 2)
+            {
+                string volPath = Path.Combine(ahk, Vol);
+                string arguments = $"{volume}"; // Replace this with your actual argument
+
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = volPath, // The executable or script path
+                    Arguments = arguments, // The arguments to pass
+                    UseShellExecute = true, // Set to false if you want to redirect output/input
+                    CreateNoWindow = true // Set to true if you don't want a visible window
+                };
+
+                Process.Start(startInfo);
             }
             if (!string.IsNullOrEmpty(Vol) && File.Exists(Path.Combine(ahk, Vol)))
             {

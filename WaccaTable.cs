@@ -83,7 +83,7 @@ namespace WaccaCircle
     }
     public class ColorData
     {
-        public byte animIndex { get; set; }
+        public sbyte animIndex { get; set; }
         public double animBreatheSpeedStepBetween0And1 { get; set; }
         public double animColorSpeedStepBetween0And360 { get; set; }
         public double animColorJumpStepBetween0And360 { get; set; }
@@ -159,7 +159,7 @@ namespace WaccaCircle
     }
     public static class ColorStorage
     {
-        public static byte animIndex = 0;
+        public static sbyte animIndex = 0;
         public static double animBreatheSpeedStepBetween0And1 = 0.05;
         public static double animColorSpeedStepBetween0And360 = 2.0;
         public static double animColorJumpStepBetween0And360 = 15.0;
@@ -451,10 +451,10 @@ namespace WaccaCircle
         private static double h = 0.0;
         private static byte f2 = 0;
         private static bool dimmer = true;
-        private static double step = ColorStorage.animBreatheSpeedStepBetween0And1;
-        private static double colorStep = ColorStorage.animColorSpeedStepBetween0And360;
+        public static double step = ColorStorage.animBreatheSpeedStepBetween0And1;
+        public static double colorStep = ColorStorage.animColorSpeedStepBetween0And360;
         private static double jumpStep = ColorStorage.animColorJumpStepBetween0And360;
-        private static uint jumpDelay = ColorStorage.animColorJumpDelayCount;
+        public static uint jumpDelay = ColorStorage.animColorJumpDelayCount;
         public static double V() { return v; }
         public static double H() { return h; }
         public static double HSVbreathe()
@@ -688,14 +688,17 @@ namespace WaccaCircle
             MyAnimList.Add(WaccaLightAnimation.Static);
         }
         static string[] waccaCircleText = { "Breathe", "Mid-Breathe", "Sine Breathe", "Sine Mid-Breathe", "Jump",
-                                        "Reverse Jump", "Color Cycle", "Reverse Color Cycle", "Freeze", "Jump",
-                                        "Reverse Jump", "Color Cycle", "Reverse Color Cycle", "Wacca", "Reverse Wacca", "Off", "Custom"};
+                                        "Reverse Jump", "Color Cycle", "Reverse Color Cycle", "Freeze", "Full Circle Jump",
+                                        "Full Circle Reverse Jump", "Full Circle Color Cycle", "Full Circle Reverse Color Cycle", "Wacca", "Reverse Wacca", "Off", "Custom"};
         public static void UpdateMyAnimBasedOnList(bool display_name = true)
         {
-            if (ColorStorage.animIndex < 0 || ColorStorage.animIndex >= MyAnimList.Count)
+            if (ColorStorage.animIndex < 0)
             {
-                ColorStorage.animIndex = 0;
+                ColorStorage.animIndex = (sbyte)(MyAnimList.Count - 1);
             }
+            if (ColorStorage.animIndex >= MyAnimList.Count) {
+                ColorStorage.animIndex = 0;
+                    }
             anim = MyAnimList[ColorStorage.animIndex];  // changes the default function
             // Launch the overlay window
             if (File.Exists(WaccaCircle.exe_title) && display_name)

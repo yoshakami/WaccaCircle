@@ -96,18 +96,12 @@ namespace WaccaCircle
             // Find a connected controller (joystick/gamepad)
             var joystickGuid = Guid.Empty;
 
-            foreach (var deviceInstance in directInput.GetDevices(DeviceType.Gamepad, DeviceEnumerationFlags.AttachedOnly))
+            foreach (var deviceInstance in directInput.GetDevices(DeviceType.Joystick, DeviceEnumerationFlags.AttachedOnly))
             {
+                Console.WriteLine(deviceInstance.ProductName);
                 joystickGuid = deviceInstance.InstanceGuid;
-            }
-
-            // If no gamepad is found, search for a joystick
-            if (joystickGuid == Guid.Empty)
-            {
-                foreach (var deviceInstance in directInput.GetDevices(DeviceType.Joystick, DeviceEnumerationFlags.AttachedOnly))
-                {
-                    joystickGuid = deviceInstance.InstanceGuid;
-                }
+                if (deviceInstance.ProductName.StartsWith("I/O CONTROL BD"))
+                { break; }
             }
 
             // If still no device is found
@@ -117,9 +111,7 @@ namespace WaccaCircle
             }
             else
             {
-                // Instantiate the joystick
                 ioboard = new Joystick(directInput, joystickGuid);
-
                 Console.WriteLine($"Found Joystick/Gamepad: {ioboard.Information.ProductName}");
 
                 // Acquire the joystick
@@ -369,7 +361,7 @@ namespace WaccaCircle
                 case 0:
                     return value;
                 case 1:
-                    ColorStorage.animIndex++;  // inside WaccaTable
+                    ColorStorage.animIndex += value;  // inside WaccaTable
                     WaccaTable.UpdateMyAnimBasedOnList();
                     break;
                 case 2:

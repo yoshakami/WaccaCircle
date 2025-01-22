@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace WaccaCircle
 {
@@ -101,6 +102,22 @@ namespace WaccaCircle
         public Color Color10 { get; set; }
         public Color Color11 { get; set; }
         public Color Color12 { get; set; }
+        public Color Color13 { get; set; }
+        public Color Color14 { get; set; }
+        public Color Color15 { get; set; }
+        public Color Color16 { get; set; }
+        public Color Color17 { get; set; }
+        public Color Color18 { get; set; }
+        public Color Color19 { get; set; }
+        public Color Color20 { get; set; }
+        public Color Color21 { get; set; }
+        public Color Color22 { get; set; }
+        public Color Color23 { get; set; }
+        public Color Color24 { get; set; }
+        public Color ArrowUp { get; set; }
+        public Color ArrowRight { get; set; }
+        public Color ArrowDown { get; set; }
+        public Color ArrowLeft { get; set; }
         public Color LoveLiveBack12 { get; set; }
         public Color LoveLiveCoin0 { get; set; }
         public Color LoveLive1Left { get; set; }
@@ -179,6 +196,28 @@ namespace WaccaCircle
             new Color(270, 0.8, 1),     // Purple
             new Color(300, 1, 1),     // Magenta
             new Color(330, 0.8, 1),     // Pink
+        };
+        public static readonly Color[] ArrayHSV12 =
+        {
+            new Color(90, 0.8, 1),      // Light Green
+            new Color(120, 1, 1),     // Green
+            new Color(150, 0.8, 1),     // Cyan-Green
+            new Color(180, 1, 1),     // Cyan
+            new Color(210, 0.8, 1),     // Blue-Cyan
+            new Color(240, 1, 1),     // Blue
+            new Color(270, 0.8, 1),     // Purple
+            new Color(300, 1, 1),     // Magenta
+            new Color(330, 0.8, 1),     // Pink
+            new Color(0, 1, 1),       // Red
+            new Color(30, 0.8, 1),      // Orange
+            new Color(60, 1, 1),      // Yellow
+        };
+        public static readonly Color[] ArrowsHSV =
+        {
+            new Color(0, 1, 1),       // Red
+            new Color(240, 1, 1),     // Blue
+            new Color(120, 1, 1),     // Green
+            new Color(60, 1, 1),      // Yellow
         };
 
         public static readonly Color[] LoveLiveColorsHSV =
@@ -286,6 +325,22 @@ namespace WaccaCircle
                 Color10 = ColorStorage.ColorsHSV12[9],
                 Color11 = ColorStorage.ColorsHSV12[10],
                 Color12 = ColorStorage.ColorsHSV12[11],
+                Color13 = ArrayHSV12[0],
+                Color14 = ArrayHSV12[1],
+                Color15 = ArrayHSV12[2],
+                Color16 = ArrayHSV12[3],
+                Color17 = ArrayHSV12[4],
+                Color18 = ArrayHSV12[5],
+                Color19 = ArrayHSV12[6],
+                Color20 = ArrayHSV12[7],
+                Color21 = ArrayHSV12[8],
+                Color22 = ArrayHSV12[9],
+                Color23 = ArrayHSV12[10],
+                Color24 = ArrayHSV12[11],
+                ArrowUp = ArrowsHSV[0],
+                ArrowRight = ArrowsHSV[1],
+                ArrowDown = ArrowsHSV[2],
+                ArrowLeft = ArrowsHSV[3],
                 LoveLiveBack12 = LoveLiveColorsHSV[12],
                 LoveLiveCoin0 = LoveLiveColorsHSV[0],
                 LoveLive1Left = LoveLiveColorsHSV[1],
@@ -375,6 +430,22 @@ namespace WaccaCircle
                     ColorStorage.ColorsHSV12[9] = data.Color10;
                     ColorStorage.ColorsHSV12[10] = data.Color11;
                     ColorStorage.ColorsHSV12[11] = data.Color12;
+                    ArrayHSV12[0] = data.Color13;
+                    ArrayHSV12[1] = data.Color14;
+                    ArrayHSV12[2] = data.Color15;
+                    ArrayHSV12[3] = data.Color16;
+                    ArrayHSV12[4] = data.Color17;
+                    ArrayHSV12[5] = data.Color18;
+                    ArrayHSV12[6] = data.Color19;
+                    ArrayHSV12[7] = data.Color20;
+                    ArrayHSV12[8] = data.Color21;
+                    ArrayHSV12[9] = data.Color22;
+                    ArrayHSV12[10] = data.Color23;
+                    ArrayHSV12[11] = data.Color24;
+                    ArrowsHSV[0] = data.ArrowUp;
+                    ArrowsHSV[1] = data.ArrowRight;
+                    ArrowsHSV[2] = data.ArrowDown;
+                    ArrowsHSV[3] = data.ArrowLeft;
                     LoveLiveColorsHSV[12] = data.LoveLiveBack12;
                     LoveLiveColorsHSV[0] = data.LoveLiveCoin0;
                     LoveLiveColorsHSV[1] = data.LoveLive1Left;
@@ -1120,7 +1191,7 @@ namespace WaccaCircle
         /// Call this method repeatedly to produce a breathing animation effect.  
         /// To reset the animation, set <see cref="f"/> back to <c>1.0</c>.
         /// </remarks>
-        public static void PrepLight12(LightController lights)
+        public static void PrepLight12(LightController lights, bool onlyInner=false)
         {
 
             for (int i = 0; i < ColorStorage.ColorsHSV12.Length; i++)
@@ -1149,12 +1220,56 @@ namespace WaccaCircle
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
             anim();
+            if (onlyInner)
+            {
+                for (byte i = 0; i < 60; i++)
+                {
+                    layer0.SetSegmentColor(0, i, color_num[axes[i][2] - 1]);
+                    layer0.SetSegmentColor(1, i, color_num[axes[i][2] - 1]);
+                }
+                return;
+            }
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(0, i, color_num[axes[i][2] - 1]);
                 layer0.SetSegmentColor(1, i, color_num[axes[i][2] - 1]);
                 layer0.SetSegmentColor(2, i, color_num[axes[i][2] - 1]);
                 layer0.SetSegmentColor(3, i, color_num[axes[i][2] - 1]);
+            }
+        }
+        public static void PrepLightArrowsOuter(LightController lights)
+        {
+            byte[] rgbBytes;
+            for (int i = 0; i < ColorStorage.ArrowsHSV.Count(); i++)
+            {
+                switch (color_anim)
+                {
+                    case 0:
+                        ColorStorage.ArrowsHSV[i].V = WaccaLightAnimation.V();
+                        break;
+                    case 1:
+                        ColorStorage.ArrowsHSV[i].H = WaccaLightAnimation.H();
+                        anim();
+                        break;
+                    case 3:
+                        ColorStorage.ArrowsHSV[i].H = WaccaLightAnimation.H();
+                        break;
+                    case 4:
+                        SetAwesomeColors();
+                        return;
+                    case 5:
+                        return;
+                    default:
+                        break;
+                } // 0 is full circle, 1 is localized for each button, 2 is freeze, 3 is full circle, 4 is wacca title, 5 is off, and 6 is reset
+                rgbBytes = ColorStorage.ArrowsHSV[i].ToRGB();
+                color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+            }
+            anim();
+            for (byte i = 0; i < 60; i++)
+            {
+                layer0.SetSegmentColor(2, i, color_num[axes[i][4] - 17]);
+                layer0.SetSegmentColor(3, i, color_num[axes[i][4] - 17]);
             }
         }
         /// <summary>
@@ -1445,19 +1560,19 @@ namespace WaccaCircle
                 rgbBytes = ColorStorage.ColorsHSV12[i].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            for (int i = 0; i < ColorStorage.SDVXColorsHSV.Length; i++)
+            for (int i = 0; i < ColorStorage.ArrayHSV12.Length; i++)
             {
                 switch (color_anim)
                 {
                     case 0:
-                        ColorStorage.SDVXColorsHSV[i].V = WaccaLightAnimation.V();
+                        ColorStorage.ArrayHSV12[i].V = WaccaLightAnimation.V();
                         break;
                     case 1:
-                        ColorStorage.SDVXColorsHSV[i].H = WaccaLightAnimation.H();
+                        ColorStorage.ArrayHSV12[i].H = WaccaLightAnimation.H();
                         anim();
                         break;
                     case 3:
-                        ColorStorage.SDVXColorsHSV[i].H = WaccaLightAnimation.H();
+                        ColorStorage.ArrayHSV12[i].H = WaccaLightAnimation.H();
                         break;
                     case 4:
                         SetAwesomeColors();
@@ -1467,17 +1582,17 @@ namespace WaccaCircle
                     default:
                         break;
                 } // 0 is full circle, 1 is localized for each button, 2 is freeze, 3 is full circle, 4 is wacca title, 5 is off, and 6 is reset
-                rgbBytes = ColorStorage.SDVXColorsHSV[i].ToRGB();
+                rgbBytes = ColorStorage.ArrayHSV12[i].ToRGB();
                 color_num[i + 12] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
             anim();
 
             for (byte i = 0; i < 60; i++)
             {
-                layer0.SetSegmentColor(0, i, color_num[axes[i][3] - 1]);
-                layer0.SetSegmentColor(1, i, color_num[axes[i][3] - 1]);
-                layer0.SetSegmentColor(2, i, color_num[axes[i][3] + 11]);
-                layer0.SetSegmentColor(3, i, color_num[axes[i][3] + 11]);
+                layer0.SetSegmentColor(0, i, color_num[axes[i][2] - 1]);
+                layer0.SetSegmentColor(1, i, color_num[axes[i][2] - 1]);
+                layer0.SetSegmentColor(2, i, color_num[axes[i][2] + 11]);
+                layer0.SetSegmentColor(3, i, color_num[axes[i][2] + 11]);
             }
         }
         public static void PrepLight32(LightController lights)

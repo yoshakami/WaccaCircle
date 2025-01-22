@@ -805,7 +805,7 @@ namespace WaccaCircle
                             {
                                 for (byte m = 0; m < axes.Length; m++)
                                 {
-                                    if (axes[m][3] == axes[j][3])
+                                    if (axes[m][2] == axes[j][2])
                                     {
                                         WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);  // outer layer
                                         WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);  // outer layer
@@ -825,7 +825,7 @@ namespace WaccaCircle
                             {
                                 for (byte m = 0; m < axes.Length; m++)
                                 {
-                                    if (axes[m][3] == axes[j][3])
+                                    if (axes[m][2] == axes[j][2])
                                     {
                                         WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);  // inner layer
                                         WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);  // inner layer
@@ -1654,10 +1654,10 @@ namespace WaccaCircle
             string key = "key";
             while (true)
             {
-                WaccaTable.PrepLight12(lights);
+                WaccaTable.PrepLight12(lights, true);  // only fill inner
+                WaccaTable.PrepLightArrowsOuter(lights);
                 Thread.Sleep(LAG_DELAY); // 0ms uses 35% CPU while 5ms uses 4% CPU.
                 controller.GetTouchData();
-
                 for (int i = 0; i < 4; i++)
                 {
                     for (int j = 0; j < 60; j++)
@@ -1700,7 +1700,7 @@ namespace WaccaCircle
 
                                 for (byte m = 0; m < axes.Length; m++)
                                 {
-                                    if (axes[m][3] == axes[j][3])
+                                    if (axes[m][2] == axes[j][2])
                                     {
                                         WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);  // inner layer
                                         WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);  // inner layer

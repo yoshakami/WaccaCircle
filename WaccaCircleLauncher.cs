@@ -113,6 +113,7 @@ namespace SpinWheelApp
         public string FontFamily { get; set; }
         public List<string> Titles { get; set; }
         public List<string> Descriptions { get; set; }
+        public string WaccaReversePath { get; set; }
     }
     public static class ParamStoredInRam
     {
@@ -123,6 +124,7 @@ namespace SpinWheelApp
 
         public static List<string> Titles = new List<string>();
         public static List<string> Descriptions = new List<string>();
+        public static string WaccaReversePath = null;
     }
 
     public partial class MainWindow : Window
@@ -137,6 +139,7 @@ namespace SpinWheelApp
                 FontFamily = ParamStoredInRam.FontFamily,
                 Titles = ParamStoredInRam.Titles,
                 Descriptions = ParamStoredInRam.Descriptions,
+                WaccaReversePath = ParamStoredInRam.WaccaReversePath,
             };
             string json = JsonConvert.SerializeObject(data, Formatting.Indented);
             File.WriteAllText(configName, json);
@@ -154,6 +157,7 @@ namespace SpinWheelApp
                     ParamStoredInRam.Titles = data.Titles;
                     ParamStoredInRam.Descriptions = data.Descriptions;
                     ParamStoredInRam.FontFamily = data.FontFamily;
+                    ParamStoredInRam.WaccaReversePath = data.WaccaReversePath;
 
                     Console.WriteLine($"Loaded {configName}!");
                 }
@@ -189,6 +193,7 @@ namespace SpinWheelApp
         // Play a WAV file
         SoundPlayer player = new SoundPlayer(Path.Combine(execPath, "rotate.wav"));
         private static bool change_wheel_images = true;
+        private bool rescue_mode_f_pressed = false;
         public MainWindow()
         {
             InitializeComponent();
@@ -729,6 +734,14 @@ namespace SpinWheelApp
             }
             else if (e.Key == System.Windows.Input.Key.Escape) // Close the window with Escape
             {
+                CloseTheApp();
+            }
+            else if (e.Key == System.Windows.Input.Key.F) // FIX the wheel being absolutely crazy
+            {
+                if (rescue_mode_f_pressed)
+                { return; }
+                rescue_mode_f_pressed = true;
+                Process.Start(ParamStoredInRam.WaccaReversePath);
                 CloseTheApp();
             }
             else if (e.Key == System.Windows.Input.Key.Up)

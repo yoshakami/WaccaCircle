@@ -188,9 +188,9 @@ namespace WaccaCircle
             new Color(30, 0.8, 1),      // Orange
             new Color(60, 1, 1),      // Yellow
             new Color(90, 0.8, 1),      // Light Green
-            new Color(120, 1, 1),     // Green
-            new Color(150, 0.8, 1),     // Cyan-Green
-            new Color(180, 1, 1),     // Cyan
+            new Color(82, 0.92, 0.74),     // Green
+            new Color(319, 0.98, 0.95),     // Cyan-Green
+            new Color(82, 0.92, 0.74),     // Cyan
             new Color(210, 0.8, 1),     // Blue-Cyan
             new Color(240, 1, 1),     // Blue
             new Color(270, 0.8, 1),     // Purple
@@ -201,13 +201,13 @@ namespace WaccaCircle
         {
             new Color(90, 0.8, 1),      // Light Green
             new Color(120, 1, 1),     // Green
-            new Color(150, 0.8, 1),     // Cyan-Green
+            new Color(150, 0.5, 1),     // Cyan-Green
             new Color(180, 1, 1),     // Cyan
-            new Color(210, 0.8, 1),     // Blue-Cyan
+            new Color(210, 0.5, 1),     // Blue-Cyan
             new Color(240, 1, 1),     // Blue
-            new Color(270, 0.8, 1),     // Purple
-            new Color(300, 1, 1),     // Magenta
-            new Color(330, 0.8, 1),     // Pink
+            new Color(270, 1, 1),     // Purple
+            new Color(300, 0.6, 1),     // Magenta
+            new Color(330, 1, 1),     // Pink
             new Color(0, 1, 1),       // Red
             new Color(30, 0.8, 1),      // Orange
             new Color(60, 1, 1),      // Yellow

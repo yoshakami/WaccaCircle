@@ -18,105 +18,64 @@ namespace WaccaKeyboardIndex
                 return;
             }
 
-            string text = string.Join(" ", args); // Combine all arguments into a single string
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             // Launch the overlay window
-            Application.Run(new TransparentOverlay(text));
+            Application.Run(new TransparentOverlay(args));
         }
     }
-
     internal class TransparentOverlay : Form
     {
-        private string displayText;
+        private string[] displayText;
 
-        public TransparentOverlay(string text)
+        public TransparentOverlay(string[] text)
         {
             displayText = text;
 
             // Remove window border and make it transparent
             FormBorderStyle = FormBorderStyle.None;
             StartPosition = FormStartPosition.CenterScreen;
-            TopMost = true; // Always stay on top
-            this.TopMost = true;
-            Width = 1000;
-            Height = 200;
-            BackColor = System.Drawing.Color.Blue; // Transparency key requires this
-            TransparencyKey = System.Drawing.Color.Blue; // Make the form background transparent
+            TopMost = true;
+            Width = 1100;
+            Height = 1100;
+            BackColor = System.Drawing.Color.Blue;
+            TransparencyKey = System.Drawing.Color.Blue;
 
             // Enable click-through (optional)
             int initialStyle = NativeMethods.GetWindowLong(Handle, NativeMethods.GWL_EXSTYLE);
             NativeMethods.SetWindowLong(Handle, NativeMethods.GWL_EXSTYLE, initialStyle | NativeMethods.WS_EX_LAYERED | NativeMethods.WS_EX_TOPMOST);
 
-            // Timer to close after 5 seconds
-            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer
-            {
-                Interval = 5000 // 5 seconds
-            };
-            timer.Tick += (s, e) =>
-            {
-                timer.Stop();
-                Close();
-            };
-            timer.Start();
+            // Create the circle of labels
+            CreateCircleOfLabels();
         }
 
-        protected override void OnPaint(PaintEventArgs e)
+        private void CreateCircleOfLabels()
         {
-            base.OnPaint(e);
+            int numLabels = 12;
+            int radius = 400;
+            Point center = new Point(Width / 2, Height / 2);
 
-            // Set rectangle size and position
-            int padding = 20;
-            SizeF textSize;
-            using (Font font = new Font("Arial", 24, FontStyle.Bold))
+            for (int i = 0; i < numLabels; i++)
             {
-                textSize = e.Graphics.MeasureString(displayText, font);
-            }
+                double angle = (2 * Math.PI / numLabels) * i;
+                int x = (int)(center.X + radius * Math.Cos(angle)) - 30;
+                int y = (int)(center.Y + radius * Math.Sin(angle)) - 15;
 
-            // Define your rectangle with padding and size
-            RectangleF rect = new RectangleF(
-                (Width - textSize.Width) / 2 - padding, // Horizontal center with padding
-                (Height - textSize.Height) / 2 - padding, // Vertical center with padding
-                textSize.Width + 2 * padding,            // Total width with padding
-                textSize.Height + 2 * padding            // Total height with padding
-            );
-
-            // Create a GraphicsPath to define the rounded rectangle
-            using (GraphicsPath path = new GraphicsPath())
-            {
-                // Set the radius for the rounded corners
-                float cornerRadius = 50f; // Adjust this value to control the roundness
-                path.AddArc(rect.X, rect.Y, cornerRadius, cornerRadius, 180, 90); // Top-left corner
-                path.AddArc(rect.Right - cornerRadius, rect.Y, cornerRadius, cornerRadius, 270, 90); // Top-right corner
-                path.AddArc(rect.Right - cornerRadius, rect.Bottom - cornerRadius, cornerRadius, cornerRadius, 0, 90); // Bottom-right corner
-                path.AddArc(rect.X, rect.Bottom - cornerRadius, cornerRadius, cornerRadius, 90, 90); // Bottom-left corner
-                path.CloseFigure();
-
-                // Draw the semi-transparent background with rounded corners
-                using (Brush backgroundBrush = new SolidBrush(Color.FromArgb(255, 0, 0, 0))) // Semi-transparent black
+                Label lbl = new Label
                 {
-                    e.Graphics.FillPath(backgroundBrush, path);
-                }
-            }
-
-            // Draw white text on top
-            using (Font font = new Font("Arial", 24, FontStyle.Bold))
-            using (Brush textBrush = new SolidBrush(Color.White))
-            {
-                StringFormat stringFormat = new StringFormat
-                {
-                    Alignment = StringAlignment.Center,
-                    LineAlignment = StringAlignment.Center
+                    Text = (i < displayText.Length) ? displayText[i] : $"Label {i + 1}",
+                    AutoSize = true,
+                    Location = new Point(x, y),
+                    ForeColor = Color.White,
+                    BackColor = Color.Black,
+                    Font = new Font("Arial", 24, FontStyle.Bold)
                 };
 
-                // Center the text in the rectangle
-                e.Graphics.DrawString(displayText, font, textBrush, rect, stringFormat);
+                Controls.Add(lbl);
             }
         }
-
-
     }
+
     internal static class NativeMethods
     {
         public const int GWL_EXSTYLE = -20;

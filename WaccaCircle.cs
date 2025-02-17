@@ -1652,127 +1652,134 @@ namespace WaccaCircle
             const sbyte w = 28;
             sbyte x;
             string key = "key";
-            while (true)
+            TransparentOverlay mainWindow =  new TransparentOverlay(new string[] { "Ctrl", "Del", "Esc", "F11", "Shift", "Win+D", "Alt", "Tab", "F4", "Enter", "F1", "Win" });
+            Task.Run(() =>
             {
-                WaccaTable.PrepLight12(lights, true);  // only fill inner
-                WaccaTable.PrepLightArrowsOuter(lights);
-                Thread.Sleep(LAG_DELAY); // 0ms uses 35% CPU while 5ms uses 4% CPU.
-                controller.GetTouchData();
-                for (int i = 0; i < 4; i++)
+                while (true)
                 {
-                    for (int j = 0; j < 60; j++)
+                    WaccaTable.PrepLight12(lights, true);  // only fill inner
+                    WaccaTable.PrepLightArrowsOuter(lights);
+                    Thread.Sleep(LAG_DELAY); // 0ms uses 35% CPU while 5ms uses 4% CPU.
+                    controller.GetTouchData();
+                    for (int i = 0; i < 4; i++)
                     {
-                        if (controller.touchData[i, j])  // if the circle if touched
+                        for (int j = 0; j < 60; j++)
                         {
-                            if (i > 1)  // RXY is only on the two outer layers, i==2 and i==3
+                            if (controller.touchData[i, j])  // if the circle if touched
                             {
-
-                                for (byte m = 0; m < axes.Length; m++)
+                                if (i > 1)  // RXY is only on the two outer layers, i==2 and i==3
                                 {
-                                    if (axes[m][4] == axes[j][4])
+
+                                    for (byte m = 0; m < axes.Length; m++)
                                     {
-                                        WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);  // outer layer
-                                        WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);  // outer layer
+                                        if (axes[m][4] == axes[j][4])
+                                        {
+                                            WaccaTable.layer0.SetSegmentColor(2, m, LightColor.White);  // outer layer
+                                            WaccaTable.layer0.SetSegmentColor(3, m, LightColor.White);  // outer layer
+                                        }
+                                    }
+                                    for (int k = 4; k < 5; k++)  // parse axes columns
+                                    {
+                                        if (!button_pressed[axes[j][k] + w])  // starts at 17 + 28 = 45
+                                        {
+                                            button_pressed[axes[j][k] + w] = true;
+                                            if (File.Exists(Path.Combine(ahk, $"arrow{axes[j][k] + u}d.ahk")))  // starts at 17 + -16 = 1
+                                            {
+
+                                                Process.Start(Path.Combine(ahk, $"arrow{axes[j][k] + u}d.ahk")); // ends at 20 + -16 = 4
+                                                keydown[axes[j][k] + w] = true;
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine($"failed to find " + Path.Combine(ahk, $"arrow{axes[j][k] + u}d.ahk"));
+                                            }
+                                        }
+
+                                        button_pressed_on_loop[axes[j][k] + w] = true;  // ends at  20 + 28 = 48
                                     }
                                 }
-                                for (int k = 4; k < 5; k++)  // parse axes columns
+                                else  // parse the 2 inner layers
                                 {
-                                    if (!button_pressed[axes[j][k] + w])  // starts at 17 + 28 = 45
-                                    {
-                                        button_pressed[axes[j][k] + w] = true;
-                                        if (File.Exists(Path.Combine(ahk, $"arrow{axes[j][k] + u}d.ahk")))  // starts at 17 + -16 = 1
-                                        {
 
-                                            Process.Start(Path.Combine(ahk, $"arrow{axes[j][k] + u}d.ahk")); // ends at 20 + -16 = 4
-                                            keydown[axes[j][k] + w] = true;
-                                        }
-                                        else
+                                    for (byte m = 0; m < axes.Length; m++)
+                                    {
+                                        if (axes[m][2] == axes[j][2])
                                         {
-                                            Console.WriteLine($"failed to find " + Path.Combine(ahk, $"arrow{axes[j][k] + u}d.ahk"));
+                                            WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);  // inner layer
+                                            WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);  // inner layer
                                         }
                                     }
-
-                                    button_pressed_on_loop[axes[j][k] + w] = true;  // ends at  20 + 28 = 48
-                                }
-                            }
-                            else  // parse the 2 inner layers
-                            {
-
-                                for (byte m = 0; m < axes.Length; m++)
-                                {
-                                    if (axes[m][2] == axes[j][2])
+                                    for (int k = 2; k < 3; k++)
                                     {
-                                        WaccaTable.layer0.SetSegmentColor(0, m, LightColor.White);  // inner layer
-                                        WaccaTable.layer0.SetSegmentColor(1, m, LightColor.White);  // inner layer
-                                    }
-                                }
-                                for (int k = 2; k < 3; k++)
-                                {
-                                    n = 0;
-                                    x = 32;
-                                    key = "key";
-                                    button_pressed_on_loop[axes[j][k] + x] = true;
-                                    if (!button_pressed[axes[j][k] + x])
-                                    {
-                                        if (File.Exists(Path.Combine(ahk, $"{key}{axes[j][k] + n}d.ahk")))
+                                        n = 0;
+                                        x = 32;
+                                        key = "key";
+                                        button_pressed_on_loop[axes[j][k] + x] = true;
+                                        if (!button_pressed[axes[j][k] + x])
                                         {
-                                            Process.Start(Path.Combine(ahk, $"{key}{axes[j][k] + n}d.ahk"));
+                                            if (File.Exists(Path.Combine(ahk, $"{key}{axes[j][k] + n}d.ahk")))
+                                            {
+                                                Process.Start(Path.Combine(ahk, $"{key}{axes[j][k] + n}d.ahk"));
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine($"failed to find " + Path.Combine(ahk, $"{key}{axes[j][k] + n}d.ahk"));
+                                            }
+                                            button_pressed[axes[j][k] + x] = true;
+                                            keydown[axes[j][k] + x] = true;
                                         }
-                                        else
-                                        {
-                                            Console.WriteLine($"failed to find " + Path.Combine(ahk, $"{key}{axes[j][k] + n}d.ahk"));
-                                        }
-                                        button_pressed[axes[j][k] + x] = true;
-                                        keydown[axes[j][k] + x] = true;
-                                    }
 
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                for (uint i = 33; i < 49; i++)
-                {
-                    if (button_pressed[i] && !button_pressed_on_loop[i])
+                    for (uint i = 33; i < 49; i++)
                     {
-                        if (keydown[i])
+                        if (button_pressed[i] && !button_pressed_on_loop[i])
                         {
-                            if (i > 44)
+                            if (keydown[i])
                             {
-                                if (File.Exists(Path.Combine(ahk, $"arrow{i - 44}u.ahk")))  // starts at 45 + -44 = 1
+                                if (i > 44)
                                 {
+                                    if (File.Exists(Path.Combine(ahk, $"arrow{i - 44}u.ahk")))  // starts at 45 + -44 = 1
+                                    {
 
-                                    Process.Start(Path.Combine(ahk, $"arrow{i - 44}u.ahk")); // ends at 48 + -44 = 4
+                                        Process.Start(Path.Combine(ahk, $"arrow{i - 44}u.ahk")); // ends at 48 + -44 = 4
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"failed to find " + Path.Combine(ahk, $"arrow{i - 44}u.ahk"));
+                                    }
                                 }
                                 else
                                 {
-                                    Console.WriteLine($"failed to find " + Path.Combine(ahk, $"arrow{i - 44}u.ahk"));
-                                }
-                            }
-                            else
-                            {
-                                if (File.Exists(Path.Combine(ahk, $"key{i - 32}u.ahk")))  // starts at 33 + -32 = 1
-                                {
+                                    if (File.Exists(Path.Combine(ahk, $"key{i - 32}u.ahk")))  // starts at 33 + -32 = 1
+                                    {
 
-                                    Process.Start(Path.Combine(ahk, $"key{i - 32}u.ahk")); // ends at 44 + -32 = 12
+                                        Process.Start(Path.Combine(ahk, $"key{i - 32}u.ahk")); // ends at 44 + -32 = 12
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"failed to find " + Path.Combine(ahk, $"key{i - 32}u.ahk"));
+                                    }
                                 }
-                                else
-                                {
-                                    Console.WriteLine($"failed to find " + Path.Combine(ahk, $"key{i - 32}u.ahk"));
-                                }
+                                keydown[i] = false;
                             }
-                            keydown[i] = false;
+                            button_pressed[i] = false;
                         }
-                        button_pressed[i] = false;
+                        button_pressed_on_loop[i] = false;
                     }
-                    button_pressed_on_loop[i] = false;
+                    poll = ResetJoystickAndPoll(1, button_pressed, button_pressed_on_loop, false);  // skip for loop, no axes
+                    if (poll != 0)
+                    {
+                        mainWindow.Enabled = false;
+                        mainWindow.Dispose();
+                        return poll;
+                    }
                 }
-                poll = ResetJoystickAndPoll(1, button_pressed, button_pressed_on_loop, false);  // skip for loop, no axes
-                if (poll != 0)
-                {
-                    return poll;
-                }
-            }
+            });
+            return 0;
         }
         private static double previous_angle = 1000.0;
         private static double angle = 1000.0;
@@ -2082,4 +2089,68 @@ namespace WaccaCircle
             }  // end while(true)
         }  // end of Mouse()
     }  // end of Class
+    internal class TransparentOverlay : Form
+    {
+        private string[] displayText;
+
+        public TransparentOverlay(string[] text)
+        {
+            displayText = text;
+
+            // Remove window border and make it transparent
+            FormBorderStyle = FormBorderStyle.None;
+            StartPosition = FormStartPosition.CenterScreen;
+            TopMost = true;
+            Width = 1100;
+            Height = 1100;
+            BackColor = System.Drawing.Color.Blue;
+            TransparencyKey = System.Drawing.Color.Blue;
+
+            // Enable click-through (optional)
+            int initialStyle = NativeMethods.GetWindowLong(Handle, NativeMethods.GWL_EXSTYLE);
+            NativeMethods.SetWindowLong(Handle, NativeMethods.GWL_EXSTYLE, initialStyle | NativeMethods.WS_EX_LAYERED | NativeMethods.WS_EX_TOPMOST);
+
+            // Create the circle of labels
+            CreateCircleOfLabels();
+        }
+
+        private void CreateCircleOfLabels()
+        {
+            int numLabels = 12;
+            int radius = 600;
+            Point center = new Point(Width / 2, Height / 2);
+
+            for (int i = 0; i < numLabels; i++)
+            {
+                double angle = (2 * Math.PI / numLabels) * i;
+                int x = (int)(center.X + radius * Math.Cos(angle)) - 30;
+                int y = (int)(center.Y + radius * Math.Sin(angle)) - 15;
+
+                Label lbl = new Label
+                {
+                    Text = (i < displayText.Length) ? displayText[i] : $"Label {i + 1}",
+                    AutoSize = true,
+                    Location = new Point(x, y),
+                    ForeColor = System.Drawing.Color.White,
+                    BackColor = System.Drawing.Color.Black,
+                    Font = new Font("Arial", 24, FontStyle.Bold)
+                };
+
+                Controls.Add(lbl);
+            }
+        }
+    }
+
+    internal static class NativeMethods
+    {
+        public const int GWL_EXSTYLE = -20;
+        public const int WS_EX_LAYERED = 0x80000;
+        public const int WS_EX_TOPMOST = 0x00000008;
+
+        [DllImport("user32.dll")]
+        public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll")]
+        public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+    }
 }  // end of namespace

@@ -740,8 +740,8 @@ namespace WaccaCircle
         {
             MyAnimList.Add(WaccaLightAnimation.HSVbreathe);
             MyAnimList.Add(WaccaLightAnimation.HSVmid);
-            MyAnimList.Add(WaccaLightAnimation.HSVsine);
             MyAnimList.Add(WaccaLightAnimation.HSVsineMid);
+            MyAnimList.Add(WaccaLightAnimation.HSVsine);
             MyAnimList.Add(WaccaLightAnimation.HSVColorJump);
             MyAnimList.Add(WaccaLightAnimation.HSVColorJumpReverse);
             MyAnimList.Add(WaccaLightAnimation.HSVColorCycle);
@@ -758,7 +758,7 @@ namespace WaccaCircle
             MyAnimList.Add(WaccaLightAnimation.Off);
             MyAnimList.Add(WaccaLightAnimation.Static);
         }
-        static string[] waccaCircleText = { "Breathe", "Mid-Breathe", "Sine Breathe", "Sine Mid-Breathe", "Jump",
+        static string[] waccaCircleText = { "Breathe", "Mid-Breathe", "Sine Mid-Breathe", "Sine Breathe", "Jump",
                                         "Reverse Jump", "Color Cycle", "Reverse Color Cycle", "Freeze", "Full Circle Jump",
                                         "Full Circle Reverse Jump", "Full Circle Color Cycle", "Full Circle Reverse Color Cycle", "Wacca", "Reverse Wacca", "Off", "Custom"};
         public static void UpdateMyAnimBasedOnList(bool display_name = true)
@@ -1157,7 +1157,25 @@ namespace WaccaCircle
         }
         private static void SetAwesomeColors()
         {
-            for (byte i = 0; i < 60; i++)
+            if (ColorStorage.animIndex == 13) // forward Wacca
+            {
+                for (byte i = 59; i <= 0; i++)
+                {
+                    ColorStorage.ColorsHSV12[0].H = anim();
+                    byte[] rgbBytes = ColorStorage.ColorsHSV12[0].ToRGB();
+                    LightColor c = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
+                    layer0.SetSegmentColor(0, i, c);
+                    layer0.SetSegmentColor(1, i, c);
+                    layer0.SetSegmentColor(2, i, c);
+                    layer0.SetSegmentColor(3, i, c);
+                }
+                for (byte i = 0; i < ColorStorage.animColorWaccaSpeedBetween0And60; i++)
+                {
+                    anim();
+                }
+                return;
+            }
+            for (byte i = 0; i < 60; i++)  // backwards
             {
                 ColorStorage.ColorsHSV12[0].H = anim();
                 byte[] rgbBytes = ColorStorage.ColorsHSV12[0].ToRGB();
@@ -1188,6 +1206,7 @@ namespace WaccaCircle
         /// Call this method repeatedly to produce a breathing animation effect.  
         /// To reset the animation, set <see cref="f"/> back to <c>1.0</c>.
         /// </remarks>
+        static public int previous = 0;
         public static void PrepLight12(LightController lights, bool onlyInner=false)
         {
             anim();
@@ -1217,12 +1236,50 @@ namespace WaccaCircle
             }
             if (onlyInner)
             {
+                if (color_anim == 1)
+                {
+                    bool previous_was_not_found = true;
+                    bool first_time = true;
+                    while (previous_was_not_found)
+                    {
+                        for (byte i = 0; i < 60; i++)
+                        {
+                            if ((axes[i][2] - 1) == previous)
+                            {
+                                previous_was_not_found = false;
+                                if (!first_time)
+                                {
+                                    layer0.SetSegmentColor(0, i, color_num[axes[i][2] - 1]);
+                                    layer0.SetSegmentColor(1, i, color_num[axes[i][2] - 1]);
+                                }
+                            }
+                            if ((axes[i][2] - 1) != previous && !previous_was_not_found)
+                            {
+                                if (!first_time)
+                                    return;
+                                first_time = false;
+                                previous = (axes[i][2] - 1);
+                                layer0.SetSegmentColor(0, i, color_num[axes[i][2] - 1]);
+                                layer0.SetSegmentColor(1, i, color_num[axes[i][2] - 1]);
+                            }
+                        }
+                        if (previous_was_not_found)
+                        {
+                            previous = axes[0][2] - 1;
+                        }
+                    }
+                    return;
+                }
                 for (byte i = 0; i < 60; i++)
                 {
                     layer0.SetSegmentColor(0, i, color_num[axes[i][2] - 1]);
                     layer0.SetSegmentColor(1, i, color_num[axes[i][2] - 1]);
                 }
                 return;
+            }
+            if (color_anim == 1)
+            {
+                LightSeparateAnim(axes, 2, -1);
             }
             for (byte i = 0; i < 60; i++)
             {
@@ -1231,6 +1288,44 @@ namespace WaccaCircle
                 layer0.SetSegmentColor(2, i, color_num[axes[i][2] - 1]);
                 layer0.SetSegmentColor(3, i, color_num[axes[i][2] - 1]);
             }
+        }
+        private static void LightSeparateAnim(int[][] axes_num, int j, int k)
+        {
+            bool previous_was_not_found = true;
+            bool first_time = true;
+            while (previous_was_not_found)
+            {
+                for (byte i = 0; i < 60; i++)
+                {
+                    if ((axes_num[i][j] + k) == previous)
+                    {
+                        previous_was_not_found = false;
+                        if (!first_time)
+                        {
+                            layer0.SetSegmentColor(0, i, color_num[axes_num[i][j] + k]);
+                            layer0.SetSegmentColor(1, i, color_num[axes_num[i][j] + k]);
+                            layer0.SetSegmentColor(2, i, color_num[axes_num[i][j] + k]);
+                            layer0.SetSegmentColor(3, i, color_num[axes_num[i][j] + k]);
+                        }
+                    }
+                    if ((axes_num[i][j] + k) != previous && !previous_was_not_found)
+                    {
+                        if (!first_time)
+                            return;
+                        first_time = false;
+                        previous = (axes_num[i][j] + k);
+                        layer0.SetSegmentColor(0, i, color_num[axes_num[i][j] + k]);
+                        layer0.SetSegmentColor(1, i, color_num[axes_num[i][j] + k]);
+                        layer0.SetSegmentColor(2, i, color_num[axes_num[i][j] + k]);
+                        layer0.SetSegmentColor(3, i, color_num[axes_num[i][j] + k]);
+                    }
+                }
+                if (previous_was_not_found)
+                {
+                    previous = axes[0][2] - 1;
+                }
+            }
+            return;
         }
         public static void PrepLightArrowsOuter(LightController lights)
         {

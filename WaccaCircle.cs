@@ -561,10 +561,10 @@ namespace WaccaCircle
                     previous_a = a;
                     if (return_val != 0)
                     {
-                        return return_val;  // scroll down
+                        return return_val;  // scroll up
                     }
                 }
-                else if (a == 3 || a == 0x13 || a == 0x23)
+                else if (a == 3 || a == 0x13 || a == 0x23) // switch mode
                 {
 
                     // 0 = app   1 = animation   2 = volume   3 = delay set   4 = brightness set  5 = anim speed

@@ -765,7 +765,7 @@ namespace WaccaCircle
         {
             if (ColorStorage.animIndex < 0)
             {
-                ColorStorage.animIndex = (sbyte)(MyAnimList.Count - 1);
+                ColorStorage.animIndex = (sbyte)(MyAnimList.Count - 2);
             }
             if (ColorStorage.animIndex >= MyAnimList.Count) {
                 ColorStorage.animIndex = 0;
@@ -1203,7 +1203,6 @@ namespace WaccaCircle
                         break;
                     case 1:
                         ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
-                        anim();
                         break;
                     case 3:
                         ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
@@ -1249,7 +1248,6 @@ namespace WaccaCircle
                         break;
                     case 1:
                         ColorStorage.ArrowsHSV[i].H = WaccaLightAnimation.H();
-                        anim();
                         break;
                     case 3:
                         ColorStorage.ArrowsHSV[i].H = WaccaLightAnimation.H();
@@ -1265,7 +1263,6 @@ namespace WaccaCircle
                 rgbBytes = ColorStorage.ArrowsHSV[i].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            anim();
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(2, i, color_num[axes[i][4] - 17]);
@@ -1294,7 +1291,6 @@ namespace WaccaCircle
                         break;
                     case 1:
                         ColorStorage.LoveLiveColorsHSV[i].H = WaccaLightAnimation.H();
-                        anim();
                         break;
                     case 3:
                         ColorStorage.LoveLiveColorsHSV[i].H = WaccaLightAnimation.H();
@@ -1333,7 +1329,6 @@ namespace WaccaCircle
                         break;
                     case 1:
                         ColorStorage.SDVXColorsHSV[i].H = WaccaLightAnimation.H();
-                        anim();
                         break;
                     case 3:
                         ColorStorage.SDVXColorsHSV[i].H = WaccaLightAnimation.H();
@@ -1392,7 +1387,6 @@ namespace WaccaCircle
                         break;
                     case 1:
                         ColorStorage.OsuColorsHSV[i].H = WaccaLightAnimation.H();
-                        anim();
                         break;
                     case 3:
                         ColorStorage.OsuColorsHSV[i].H = WaccaLightAnimation.H();
@@ -1429,7 +1423,6 @@ namespace WaccaCircle
                         break;
                     case 1:
                         ColorStorage.mouseHSV[i - 17].H = WaccaLightAnimation.H();
-                        anim();
                         break;
                     case 3:
                         ColorStorage.mouseHSV[i - 17].H = WaccaLightAnimation.H();
@@ -1468,7 +1461,6 @@ namespace WaccaCircle
                         break;
                     case 1:
                         ColorStorage.RPGColorsHSV[i].H = WaccaLightAnimation.H();
-                        anim();
                         break;
                     case 3:
                         ColorStorage.RPGColorsHSV[i].H = WaccaLightAnimation.H();
@@ -1505,7 +1497,6 @@ namespace WaccaCircle
                         break;
                     case 1:
                         ColorStorage.TaikoColorsHSV[i - 12].H = WaccaLightAnimation.H();
-                        anim();
                         break;
                     case 3:
                         ColorStorage.TaikoColorsHSV[i - 12].H = WaccaLightAnimation.H();
@@ -1544,7 +1535,6 @@ namespace WaccaCircle
                         break;
                     case 1:
                         ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
-                        anim();
                         break;
                     case 3:
                         ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
@@ -1569,7 +1559,6 @@ namespace WaccaCircle
                         break;
                     case 1:
                         ColorStorage.ArrayHSV12[i].H = WaccaLightAnimation.H();
-                        anim();
                         break;
                     case 3:
                         ColorStorage.ArrayHSV12[i].H = WaccaLightAnimation.H();
@@ -1607,7 +1596,6 @@ namespace WaccaCircle
                         break;
                     case 1:
                         ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();
-                        anim();
                         break;
                     case 3:
                         ColorStorage.ColorsHSV12[i].H = WaccaLightAnimation.H();

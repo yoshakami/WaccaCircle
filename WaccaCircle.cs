@@ -9,9 +9,8 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Drawing;
-using SpinWheelApp;
 using System.Threading.Tasks;
-using System.Windows.Threading;
+using SpinWheelApp;
 //using WaccaCircle;  // needed to use WaccaTable.cs
 
 namespace WaccaCircle
@@ -37,7 +36,7 @@ namespace WaccaCircle
                                                 WaccaCircleMouse, WaccaCircleKeyboard, WaccaCircleLauncher };
         static string[] waccaCircleText = { "WaccaCircle12", "WaccaCircle24", "WaccaCircle32", "WaccaCircle96", "WaccaCircleTaiko",
                                         "WaccaCircleSDVX", "WaccaCircleRPG", "WaccaCircleOsu", "WaccaCircleLoveLive", "WaccaCircleCemu",
-                                           "WaccaCircleMouse", "WaccaCircleKeyboard", "Launching UI in 3 seconds..." };
+                                           "WaccaCircleMouse", "WaccaCircleKeyboard", "Launching UI in 1 second..." };
         public static string exe_title = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "WaccaCircleTitle.exe");
         static TouchController controller;
         static LightController lights;
@@ -171,6 +170,7 @@ namespace WaccaCircle
                         lights_have_been_sent_once = false;
                         Console.WriteLine("Launching app");
                         return_val = waccaCircleApps[current]();
+                        Console.WriteLine(return_val.ToString());
                         if (return_val == -2)
                         {
                             current += 1; // skip the app if it crashes?
@@ -1641,6 +1641,7 @@ namespace WaccaCircle
                 }
             }
         }
+        static sbyte publicPoll = 1;
         private static int WaccaCircleKeyboard()
         {
             sbyte poll;
@@ -1773,13 +1774,15 @@ namespace WaccaCircle
                     poll = ResetJoystickAndPoll(1, button_pressed, button_pressed_on_loop, false);  // skip for loop, no axes
                     if (poll != 0)
                     {
+                        publicPoll = poll;
                         mainWindow.Enabled = false;
-                        mainWindow.Dispose();
+                        mainWindow.Close();
                         return poll;
                     }
                 }
             });
-            return 0;
+            Application.Run(mainWindow);
+            return publicPoll;
         }
         private static double previous_angle = 1000.0;
         private static double angle = 1000.0;
@@ -1787,7 +1790,7 @@ namespace WaccaCircle
         private static System.Windows.Application app;
         private static int WaccaCircleLauncher()
         {
-            sbyte poll;
+            sbyte poll = 0;
             int total = 0;
             bool[] button_pressed = Enumerable.Repeat(false, 13).ToArray();
             bool[] button_pressed_on_loop = Enumerable.Repeat(false, 13).ToArray();
@@ -1800,7 +1803,7 @@ namespace WaccaCircle
                 {
                     return poll;
                 }
-                if (total > 3000)
+                if (total > 1000)  // 1 second
                 {
                     if (app != null)
                     {
@@ -1889,6 +1892,8 @@ namespace WaccaCircle
                                     {
                                         mainWindow.Dispatcher.Invoke(() => mainWindow.Launch());
                                         Console.WriteLine("Launch!!");
+                                        mainWindow.Dispatcher.Invoke(() => mainWindow.CloseTheApp());
+                                        return ParamStoredInRam.AppNumber[SpinWheelApp.MainWindow.current] - waccaCircleApps.Length;
                                     }
                                     if (i == 5)
                                     {
@@ -1909,7 +1914,11 @@ namespace WaccaCircle
 
                     app = SpinWheelApp.WaccaCircleLauncher.Main(mainWindow, app);
                     //mainWindow.Dispatcher.Invoke(() => mainWindow.CloseTheApp());
-                    return a;
+                    if (poll != 0)
+                    {
+                        return poll;
+                    }
+                    return ParamStoredInRam.AppNumber[SpinWheelApp.MainWindow.current] - waccaCircleApps.Length;
                 }
             }
         }
@@ -2117,8 +2126,8 @@ namespace WaccaCircle
         private void CreateCircleOfLabels()
         {
             int numLabels = 12;
-            int radius = 600;
-            Point center = new Point(Width / 2, Height / 2);
+            int radius = 470;
+            Point center = new Point(Width / 2, Height / 2 - 40);
 
             for (int i = 0; i < numLabels; i++)
             {

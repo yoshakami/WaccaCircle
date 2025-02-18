@@ -113,6 +113,7 @@ namespace SpinWheelApp
         public string FontFamily { get; set; }
         public List<string> Titles { get; set; }
         public List<string> Descriptions { get; set; }
+        public List<int> AppNumber { get; set; }
         public string WaccaReversePath { get; set; }
     }
     public static class ParamStoredInRam
@@ -124,6 +125,7 @@ namespace SpinWheelApp
 
         public static List<string> Titles = new List<string>();
         public static List<string> Descriptions = new List<string>();
+        public static List<int> AppNumber = new List<int>();
         public static string WaccaReversePath = null;
     }
 
@@ -139,6 +141,7 @@ namespace SpinWheelApp
                 FontFamily = ParamStoredInRam.FontFamily,
                 Titles = ParamStoredInRam.Titles,
                 Descriptions = ParamStoredInRam.Descriptions,
+                AppNumber = ParamStoredInRam.AppNumber,
                 WaccaReversePath = ParamStoredInRam.WaccaReversePath,
             };
             string json = JsonConvert.SerializeObject(data, Formatting.Indented);
@@ -156,6 +159,7 @@ namespace SpinWheelApp
                     ParamStoredInRam.DescriptionColor = data.DescriptionColor;
                     ParamStoredInRam.Titles = data.Titles;
                     ParamStoredInRam.Descriptions = data.Descriptions;
+                    ParamStoredInRam.AppNumber = data.AppNumber;
                     ParamStoredInRam.FontFamily = data.FontFamily;
                     ParamStoredInRam.WaccaReversePath = data.WaccaReversePath;
 
@@ -173,14 +177,11 @@ namespace SpinWheelApp
             }
         }
 
-        private const double Radius = 3000; // Larger radius for better positioning
-        private double currentAngle = 0; // Current rotation angle in radians
         private static MediaElement videoPlayer;
         private static MediaElement bgm;
         private Canvas myCanvas;
-        static int current = 4;
+        public static int current = 4;
         static int completeCurrent = 4;
-        private const double AnimationDuration = 0.5; // Seconds
         private List<string> wheelTitles = new List<string>();
         private List<string> wheelDescriptions = new List<string>();
         private List<Image> wheelImages = new List<Image>();
@@ -192,7 +193,6 @@ namespace SpinWheelApp
         private static readonly string execPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         // Play a WAV file
         SoundPlayer player = new SoundPlayer(Path.Combine(execPath, "rotate.wav"));
-        private static bool change_wheel_images = true;
         private bool rescue_mode_f_pressed = false;
         public MainWindow()
         {
@@ -211,8 +211,6 @@ namespace SpinWheelApp
         }
         static int screenWidth = 1080; // Full screen width
         static int screenHeight = 1600; // Full screen height
-        static int centerX = 540;  // Center point for rotation in the canvas
-        static int centerY = 3960;  // Center point for rotation in the canvas
         public static Image overlay;
         private void PlayBGM()
         {
@@ -249,6 +247,10 @@ namespace SpinWheelApp
             else if (File.Exists(Path.Combine(execPath, "bgm.opus")))
             {
                 bgm.Source = new Uri(Path.Combine(execPath, "bgm.opus"));
+            }
+            else
+            {
+                Console.WriteLine("bgm.flac not found\nbgm.mp3 not found\nbgm.wav not found\nbgm.aac not found\nbgm.ogg not found\nbgm.opus not found\nplease add at least one bgm\n");
             }
 
             // Set MediaElement to loop indefinitely
@@ -337,12 +339,6 @@ namespace SpinWheelApp
             positions.Add(new Point(868, 868 - 160)); // Right
             positions.Add(new Point(1080, 900 - 160)); // Outside Right 1
             positions.Add(new Point(3000, 3000 - 160)); // Outside Right 2
-            /*
-            AddImage(16, 868, 192); // left
-            AddImage(869, 868, 192);  // right
-            AddImage(540 - 128, 960 - 128, 256);  // middle
-            AddImage(278 - 96, 835, 192);
-            AddImage(704, 835, 192);*/
 
             // Create and add images to the canvas
             int i = 0;
@@ -401,7 +397,6 @@ namespace SpinWheelApp
                     {
                         Console.WriteLine($"Adding: {executableFile}");
                         /////////********** THIS IS WHERE EACH GAME IS BEING ADDED IN RAM AS AN ENTRY ***********/////////////
-                        //LaunchFile(executableFile);
                         imageList.Add(f);
                         exeList.Add(executableFile);
 
@@ -409,6 +404,7 @@ namespace SpinWheelApp
                         {
                             ParamStoredInRam.Titles.Add(f);
                             ParamStoredInRam.Descriptions.Add(f);
+                            ParamStoredInRam.AppNumber.Add(1);
                         }
                         if (j < wheelImages.Count)  // max size is 9
                         {
@@ -423,7 +419,6 @@ namespace SpinWheelApp
             }
             if (j <= wheelImages.Count && j > 0)  // if there's less than 9 games in the wheel of 9 elements
             {
-                change_wheel_images = false; // fill the wheel
                 while (j < wheelImages.Count)
                 {
                     for (int k = 0; k < imageList.Count && j < wheelImages.Count; k++, j++)
@@ -432,6 +427,7 @@ namespace SpinWheelApp
                         {
                             ParamStoredInRam.Titles.Add(ParamStoredInRam.Titles[k]);
                             ParamStoredInRam.Descriptions.Add(ParamStoredInRam.Descriptions[k]);
+                            ParamStoredInRam.AppNumber.Add(ParamStoredInRam.AppNumber[k]);
                         }
                         wheelImages[j].Source = new BitmapImage(new Uri(imageList[k]));
                         wheelExe.Add(wheelExe[k]);
@@ -712,7 +708,7 @@ namespace SpinWheelApp
         public void CloseTheApp()
         {
             this.Hide();
-            FadeOutAndStop(3000); // 3 seconds 
+            FadeOutAndStop(1000); // 1 seconds 
             Application.Current.Shutdown();
         }
 
@@ -743,16 +739,6 @@ namespace SpinWheelApp
                 rescue_mode_f_pressed = true;
                 Process.Start(ParamStoredInRam.WaccaReversePath);
                 CloseTheApp();
-            }
-            else if (e.Key == System.Windows.Input.Key.Up)
-            {
-                centerY += 100;  // Center point for rotation in the canvas
-                InitializeWheel();
-            }
-            else if (e.Key == System.Windows.Input.Key.Down)
-            {
-                centerY -= 100;  // Center point for rotation in the canvas
-                InitializeWheel();
             }
             else if (e.Key == System.Windows.Input.Key.RightShift)
                 InitializeWheel();

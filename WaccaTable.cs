@@ -180,7 +180,7 @@ namespace WaccaCircle
         public static double animBreatheSpeedStepBetween0And1 = 0.05;
         public static double animColorSpeedStepBetween0And360 = 2.0;
         public static double animColorJumpStepBetween0And360 = 15.0;
-        public static uint animColorJumpDelayCount = 10;
+        public static uint animColorJumpDelayCount = 100;
         public static byte animColorWaccaSpeedBetween0And60 = 1;
         public static readonly Color[] ColorsHSV12 =
         {
@@ -634,7 +634,7 @@ namespace WaccaCircle
                 h += jumpStep;
             }
             f2++;
-            if (h <= 0)
+            if (h < 0)
             {
                 h = 360.0;
             }
@@ -652,7 +652,7 @@ namespace WaccaCircle
                 h -= jumpStep;
             }
             f2++;
-            if (h <= 0)
+            if (h < 0)
             {
                 h = 360.0;
             }
@@ -665,7 +665,7 @@ namespace WaccaCircle
         public static double HSVColorCycle()
         {
             h += colorStep;
-            if (h <= 0)
+            if (h < 0)
             {
                 h = 360.0;
             }
@@ -678,7 +678,7 @@ namespace WaccaCircle
         public static double HSVColorCycleReverse()
         {
             h -= colorStep;
-            if (h <= 0.0)
+            if (h < 0.0)
             {
                 h = 360.0;
             }
@@ -691,7 +691,7 @@ namespace WaccaCircle
         public static double HSVColorAdd6()
         {
             h += 6.0;
-            if (h <= 0)
+            if (h < 0)
             {
                 h = 360.0;
             }
@@ -704,7 +704,7 @@ namespace WaccaCircle
         public static double HSVColorSub6()
         {
             h -= 6.0;
-            if (h <= 0)
+            if (h < 0)
             {
                 h = 360.0;
             }
@@ -1193,7 +1193,7 @@ namespace WaccaCircle
         /// </remarks>
         public static void PrepLight12(LightController lights, bool onlyInner=false)
         {
-
+            anim();
             for (int i = 0; i < ColorStorage.ColorsHSV12.Length; i++)
             {
                 switch (color_anim)
@@ -1218,7 +1218,6 @@ namespace WaccaCircle
                 byte[] rgbBytes = ColorStorage.ColorsHSV12[i].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            anim();
             if (onlyInner)
             {
                 for (byte i = 0; i < 60; i++)
@@ -1281,7 +1280,7 @@ namespace WaccaCircle
         /// </remarks>
         public static void PrepLightLoveLive(LightController lights)
         {
-
+            anim();
             for (int i = 0; i < ColorStorage.LoveLiveColorsHSV.Length; i++)
             {
                 switch (color_anim)
@@ -1306,7 +1305,6 @@ namespace WaccaCircle
                 byte[] rgbBytes = ColorStorage.LoveLiveColorsHSV[i].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            anim();
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(0, i, color_num[SDVXaxesxy0125LoveLive017[i][7] - 1]);
@@ -1318,6 +1316,7 @@ namespace WaccaCircle
         public static LightColor[] sdvx = { sdvx0, sdvx1, sdvx2, sdvx3, sdvx4, sdvx5, sdvx6, sdvx7, sdvx8, sdvx9, sdvx10, sdvx11, sdvx12 };
         public static void PrepLightSDVX(LightController lights, byte state)
         {
+            anim();
             byte[] rgbBytes;
             for (int i = 0; i < ColorStorage.SDVXColorsHSV.Length; i++)
             {
@@ -1344,7 +1343,6 @@ namespace WaccaCircle
                 rgbBytes = ColorStorage.SDVXColorsHSV[i].ToRGB();
                 sdvx[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            anim();
             rgbBytes = ColorStorage.SDVXouterR.ToRGB();
             sdvxPink = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             rgbBytes = ColorStorage.SDVXouterL.ToRGB();
@@ -1378,6 +1376,7 @@ namespace WaccaCircle
         public static LightColor[] osu = { osu0, osu1, osu2, osu3, osu4, osu5, osu6, osu7 };
         public static void PrepLightOsu(LightController lights)
         {
+            anim();
             for (int i = 0; i < ColorStorage.OsuColorsHSV.Length; i++)
             {
                 switch (color_anim)
@@ -1402,7 +1401,6 @@ namespace WaccaCircle
                 byte[] rgbBytes = ColorStorage.OsuColorsHSV[i].ToRGB();
                 osu[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            anim();
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(0, i, osu[axes[i][7] - 25]);
@@ -1413,6 +1411,7 @@ namespace WaccaCircle
         }
         public static void PrepLightMouse(LightController lights)
         {
+            anim();
             byte[] rgbBytes;
             for (int i = 17; i < 21; i++)
             {
@@ -1440,7 +1439,6 @@ namespace WaccaCircle
             }
             rgbBytes = ColorStorage.mouseHSV[4].ToRGB();
             mouseOuter = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
-            anim();
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(0, i, color_num[mouseAxes[i][4]]);
@@ -1452,6 +1450,7 @@ namespace WaccaCircle
         public static LightColor[] rpg = { r, rpgBack, rpgEnter, r, rpgMenu, r, r, rpgAttacc, rpgUp, rpgDown, rpgLeft, rpgRight };
         public static void PrepLightRPG(LightController lights)
         {
+            anim();
             for (int i = 0; i < ColorStorage.RPGColorsHSV.Length; i++)
             {
                 switch (color_anim)
@@ -1476,8 +1475,6 @@ namespace WaccaCircle
                 byte[] rgbBytes = ColorStorage.RPGColorsHSV[i].ToRGB();
                 rpg[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            anim();
-
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(0, i, rpg[RPGaxes[i][3]]);
@@ -1488,6 +1485,7 @@ namespace WaccaCircle
         }
         public static void PrepLightTaiko(LightController lights)
         {
+            anim();
             for (int i = 12; i < 16; i++)
             {
                 switch (color_anim)
@@ -1512,8 +1510,6 @@ namespace WaccaCircle
                 byte[] rgbBytes = ColorStorage.TaikoColorsHSV[i - 12].ToRGB();
                 color_num[i] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            anim();
-
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(0, i, color_num[axes[i][6] - 23 + 12]);
@@ -1525,6 +1521,7 @@ namespace WaccaCircle
         public static LightColor white;
         public static void PrepLight24(LightController lights)
         {
+            anim();
             byte[] rgbBytes;
             for (int i = 0; i < ColorStorage.ColorsHSV12.Length; i++)
             {
@@ -1574,8 +1571,6 @@ namespace WaccaCircle
                 rgbBytes = ColorStorage.ArrayHSV12[i].ToRGB();
                 color_num[i + 12] = new LightColor(rgbBytes[0], rgbBytes[1], rgbBytes[2]);
             }
-            anim();
-
             for (byte i = 0; i < 60; i++)
             {
                 layer0.SetSegmentColor(0, i, color_num[axes[i][2] - 1]);

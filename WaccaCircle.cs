@@ -501,7 +501,7 @@ namespace WaccaCircle
             }
             if (lights != null)
             {
-                if (WaccaTable.color_anim < 2)
+                if (WaccaTable.color_anim != 2 && WaccaTable.color_anim != 5)  // freeze and off are excluded of here
                 {
                     LightFrame gradientFrame = new LightFrame { layers = { [0] = WaccaTable.layer0, } };
                     lights.SendLightFrame(gradientFrame);

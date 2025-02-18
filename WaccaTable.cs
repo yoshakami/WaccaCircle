@@ -793,12 +793,10 @@ namespace WaccaCircle
             else if (ColorStorage.animIndex < 13)
             {
                 color_anim = 3;  // Complete circle anim
-                WaccaCircle.lights_have_been_sent_once = false;
             }
             else if (ColorStorage.animIndex < 15)
             {
                 color_anim = 4;  // Wacca
-                WaccaCircle.lights_have_been_sent_once = false;
             }
             else if (ColorStorage.animIndex < 16)
             {
@@ -810,7 +808,6 @@ namespace WaccaCircle
             {
                 color_anim = 6;  // reset
                 ColorStorage.LoadAllColors();
-                WaccaCircle.lights_have_been_sent_once = false;
             }
         }
         private static int A(double v)

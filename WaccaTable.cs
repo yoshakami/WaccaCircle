@@ -39,8 +39,8 @@ namespace WaccaCircle
             }
             else
             {
-                double sector = H / 60.0; // Sector index (0-5)
-                int sectorIndex = (int)Math.Floor(sector);
+                double sector = (H % 360) / 60.0; // This ensures 360 becomes 0
+                int sectorIndex = (int)Math.Abs(Math.Floor(sector));
                 double fractionalPart = sector - sectorIndex; // Fractional part of sector
 
                 double p = V * (1 - S);
@@ -180,7 +180,7 @@ namespace WaccaCircle
         public static double animBreatheSpeedStepBetween0And1 = 0.05;
         public static double animColorSpeedStepBetween0And360 = 2.0;
         public static double animColorJumpStepBetween0And360 = 15.0;
-        public static uint animColorJumpDelayCount = 100;
+        public static uint animColorJumpDelayCount = 50;
         public static byte animColorWaccaSpeedBetween0And60 = 1;
         public static readonly Color[] ColorsHSV12 =
         {
@@ -408,9 +408,9 @@ namespace WaccaCircle
                     string json = File.ReadAllText("WaccaCircleConfig.json");
                     var data = JsonConvert.DeserializeObject<ColorData>(json);
                     ColorStorage.animIndex = data.animIndex;
-                    animBreatheSpeedStepBetween0And1 = data.animBreatheSpeedStepBetween0And1;
-                    animColorSpeedStepBetween0And360 = data.animColorSpeedStepBetween0And360;
-                    animColorJumpStepBetween0And360 = data.animColorJumpStepBetween0And360;
+                    animBreatheSpeedStepBetween0And1 = Math.Abs(data.animBreatheSpeedStepBetween0And1);
+                    animColorSpeedStepBetween0And360 = Math.Abs(data.animColorSpeedStepBetween0And360);
+                    animColorJumpStepBetween0And360 = Math.Abs(data.animColorJumpStepBetween0And360);
                     animColorWaccaSpeedBetween0And60 = data.animColorWaccaSpeedBetween0And60;
                     animColorJumpDelayCount = data.animColorJumpDelayCount;
                     WaccaTable.UpdateMyAnimBasedOnList(false);
@@ -652,11 +652,11 @@ namespace WaccaCircle
                 h -= jumpStep;
             }
             f2++;
-            if (h < 0)
+            if (h <= 0)
             {
                 h = 360.0;
             }
-            else if (h >= 360.0)
+            else if (h > 360.0)
             {
                 h = 0.0;
             }
@@ -678,11 +678,11 @@ namespace WaccaCircle
         public static double HSVColorCycleReverse()
         {
             h -= colorStep;
-            if (h < 0.0)
+            if (h <= 0.0)
             {
                 h = 360.0;
             }
-            else if (h >= 360.0)
+            else if (h > 360.0)
             {
                 h = 0.0;
             }

@@ -7,14 +7,13 @@ You need to download vJoy and configure a controller (don't forget to set up but
 download: https://sourceforge.net/projects/vjoystick/ <br>
 source: https://github.com/shauleiz/vJoy <br>
 
-You need to configure the joystick#1 through vJoyConf.exe before launching any exe of WaccaCircle.
-the -id2 or -id3 at the end of the exe name means that it's acting with joystick#2 or joystick#3 respectively
+You need to configure the joystick#1 through vJoyConf.exe before launching WaccaCircle.
 
 ## lnk
 if you wanna make a .lnk file to a start.bat, the beginning of your file should be like below. <br>
 The second line will kill all instances of WaccaCircle since they collectivize the touch panels and prevent wacca from starting. <br>
 if you wanna automatically launch WaccaCircleStartup when you're done playing Wacca, you need to launch `WaccaStartupBackgroundLauncher.exe` on startup. <br>
-There's no way to stop mercury other than plugging a keyboard, a rubber ducky, or using remote desktop.
+There's no way to stop mercury other than 'restart to apply closing time' on the test menu, plugging a keyboard, a rubber ducky, or using remote desktop.
 ```
 @echo off
 wmic process where "name like '%WaccaCircle%'" call terminate
@@ -59,7 +58,7 @@ A: you need to paste all the dll files in the same folder as the .exe,<br>
 Q: How do I add WaccaStartupBackgroundLauncher to windows startup?<br>
 A: copy WaccaStartupBackgroundLauncher.exe, press Win+R then type `shell:startup` and press enter, then paste shortcut (do not paste the exe, you definitely want a lnk there) 
 
-Q: What are each exe for?<br>
+Q: What are each app for?<br>
 A: Read below
 
 ## Dolphin

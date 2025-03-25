@@ -129,12 +129,12 @@ namespace WaccaCircle
                 if (buttons.Length < 10)
                 {
                     Console.WriteLine("DInput IOBoard should have more than 10 buttons. Please plug in USB1");
-                    return;
+                    joystickGuid = Guid.Empty;
                 }
             }
             if (SetupJoystick() == -1)
             {
-                return;
+                
             }
 
             /*
@@ -445,6 +445,8 @@ namespace WaccaCircle
         private static sbyte return_val = 0;
         private static sbyte ResetJoystickAndPoll(int button_number, bool[] button_pressed, bool[] button_pressed_on_loop, bool use_joystick = true)
         {
+            if (joystick == null)
+            { return -1; }
             if (use_joystick)  // can be skipped if last param is false
             {
                 if (pressed_on_loop)  // average all the axes towards the middle of all the pressed spots
@@ -642,8 +644,7 @@ namespace WaccaCircle
             // Check if vJoy is enabled and ready
             if (!joystick.vJoyEnabled())
             {
-                Console.WriteLine("vJoy driver not enabled: Failed to find vJoy.\nexitting in 3 sec...");
-                Thread.Sleep(3000);
+                Console.WriteLine("vJoy driver not enabled: Failed to find vJoy.");
                 return -1;
             }
 
@@ -655,16 +656,14 @@ namespace WaccaCircle
                 // Attempt to acquire the joystick
                 if (!joystick.AcquireVJD(deviceId))
                 {
-                    Console.WriteLine("Failed to acquire vJoy device.\npress enter to exit...");
-                    Console.ReadLine();
+                    Console.WriteLine("Failed to acquire vJoy device.");
                     return -1;
                 }
                 Console.WriteLine("vJoy device acquired successfully.");
             }
             else
             {
-                Console.WriteLine("vJoy device is not free. Status: " + status.ToString() + "\npress enter to exit...");
-                Console.ReadLine();
+                Console.WriteLine("vJoy device is not free. Status: " + status.ToString());
                 return -1;
             }
 

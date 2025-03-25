@@ -176,7 +176,7 @@ namespace SpinWheelApp
                 SaveConfig();
             }
         }
-
+        
         private static MediaElement videoPlayer;
         private static MediaElement bgm;
         private Canvas myCanvas;
@@ -206,7 +206,16 @@ namespace SpinWheelApp
             this.Loaded += (s, e) =>
             {
                 videoPlayer.Play();
-                InitializeWheel();
+                if (System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width > System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height)
+                {
+                    InitializeWheel(-360);
+                    Canvas.SetTop(overlay, 273);
+                    this.Top = 0;
+                }
+                else
+                {
+                    InitializeWheel(0);
+                }
             };
         }
         static int screenWidth = 1080; // Full screen width
@@ -316,7 +325,7 @@ namespace SpinWheelApp
         TextBlock centerDesc;
         TextBlock LeftTitle;
         TextBlock LeftDesc;
-        private void InitializeWheel()
+        private void InitializeWheel(int offset)
         {
             int imgRadius = 192;
 
@@ -330,15 +339,15 @@ namespace SpinWheelApp
             wheelTitles.Clear();
 
             // Define positions for the images
-            positions.Add(new Point(-3000, 3000 - 160)); // Outside Left 2
-            positions.Add(new Point(-200, 900 - 160)); // Outside Left 1
-            positions.Add(new Point(16, 868 - 160)); // Left
-            positions.Add(new Point(278 - 96, 835 - 160)); // Middle-left
-            positions.Add(new Point(540 - 128, 962 - 128 - 160)); // Center
-            positions.Add(new Point(704, 835 - 160)); // Middle-right
-            positions.Add(new Point(868, 868 - 160)); // Right
-            positions.Add(new Point(1080, 900 - 160)); // Outside Right 1
-            positions.Add(new Point(3000, 3000 - 160)); // Outside Right 2
+            positions.Add(new Point(-3000,2840 + offset)); // Outside Left 2
+            positions.Add(new Point(-200, 740 + offset)); // Outside Left 1
+            positions.Add(new Point(16, 708 + offset)); // Left
+            positions.Add(new Point(278 - 96, 675 + offset)); // Middle-left
+            positions.Add(new Point(540 - 128, 675 + offset)); // Center
+            positions.Add(new Point(704, 675 + offset)); // Middle-right
+            positions.Add(new Point(868, 708 + offset)); // Right
+            positions.Add(new Point(1080, 740 + offset)); // Outside Right 1
+            positions.Add(new Point(3000, 2840 + offset)); // Outside Right 2
 
             // Create and add images to the canvas
             int i = 0;
@@ -440,12 +449,12 @@ namespace SpinWheelApp
             byte[] rgbDesc = ParamStoredInRam.DescriptionColor.ToRGB();
             SolidColorBrush brushTitle = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbTitle[0], rgbTitle[1], rgbTitle[2]));
             SolidColorBrush brushDesc = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbDesc[0], rgbDesc[1], rgbDesc[2]));
-            InitializeText(ref LeftTitle, ref brushTitle, ParamStoredInRam.Titles[3], 180, 899, 200, 20, 18);
-            InitializeText(ref LeftDesc, ref brushDesc, ParamStoredInRam.Descriptions[3], 180, 923, 200, 20, 18);
-            InitializeText(ref centerTitle, ref brushTitle, ParamStoredInRam.Titles[4], 365, 1060, 300, 30, 25);
-            InitializeText(ref centerDesc, ref brushDesc, ParamStoredInRam.Descriptions[4], 365, 1096, 300, 30, 25);
-            InitializeText(ref RightTitle, ref brushTitle, ParamStoredInRam.Titles[5], 704, 899, 200, 20, 18);
-            InitializeText(ref RightDesc, ref brushDesc, ParamStoredInRam.Descriptions[5], 704, 923, 200, 20, 18);
+            InitializeText(ref LeftTitle, ref brushTitle, ParamStoredInRam.Titles[3], 180, 899 + offset, 200, 20, 18);
+            InitializeText(ref LeftDesc, ref brushDesc, ParamStoredInRam.Descriptions[3], 180, 923 + offset, 200, 20, 18);
+            InitializeText(ref centerTitle, ref brushTitle, ParamStoredInRam.Titles[4], 365, 1060 + offset, 300, 30, 25);
+            InitializeText(ref centerDesc, ref brushDesc, ParamStoredInRam.Descriptions[4], 365, 1096 + offset, 300, 30, 25);
+            InitializeText(ref RightTitle, ref brushTitle, ParamStoredInRam.Titles[5], 704, 899 + offset, 200, 20, 18);
+            InitializeText(ref RightDesc, ref brushDesc, ParamStoredInRam.Descriptions[5], 704, 923 + offset, 200, 20, 18);
 
             SaveConfig();
         }
@@ -741,7 +750,7 @@ namespace SpinWheelApp
                 CloseTheApp();
             }
             else if (e.Key == System.Windows.Input.Key.RightShift)
-                InitializeWheel();
+                InitializeWheel(0);
             // Optional: Add keyboard controls for the video
             if (e.Key == System.Windows.Input.Key.Space) // Pause/Play with Space
             {

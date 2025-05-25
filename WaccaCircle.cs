@@ -31,12 +31,12 @@ namespace WaccaCircle
          * put the function name inside waccaCircleApps
          * write the displayed app name inside waccaCircleText
          * feel free to add a new axes ref inside WaccaTable, or a custom animation */
-        static Func<int>[] waccaCircleApps = { WaccaCircle12, WaccaCircle24, WaccaCircle32, WaccaCircle96, WaccaCircleTaiko,
-                                               WaccaCircleSDVX, WaccaCircleRPG, WaccaCircleOsu, WaccaCircleLoveLive, WaccaCircleCemu,
-                                                WaccaCircleMouse, WaccaCircleKeyboard, WaccaCircleLauncher };
-        static string[] waccaCircleText = { "WaccaCircle12", "WaccaCircle24", "WaccaCircle32", "WaccaCircle96", "WaccaCircleTaiko",
-                                        "WaccaCircleSDVX", "WaccaCircleRPG", "WaccaCircleOsu", "WaccaCircleLoveLive", "WaccaCircleCemu",
-                                           "WaccaCircleMouse", "WaccaCircleKeyboard", "Launching UI in 1 second..." };
+        static Func<int>[] waccaCircleApps = { WaccaCircleLauncher, WaccaCircle12, WaccaCircle24, WaccaCircle32,
+                                                WaccaCircle96, WaccaCircleTaiko, WaccaCircleSDVX, WaccaCircleRPG, WaccaCircleLoveLive, WaccaCircleCemu, WaccaCircleMouse, WaccaCircleOsu, WaccaCircleKeyboard,  };
+        static string[] waccaCircleText = { "Launching UI in 1 second...","WaccaCircle12", "WaccaCircle24",
+                                            "WaccaCircle32", "WaccaCircle96", "WaccaCircleTaiko",
+                                        "WaccaCircleSDVX", "WaccaCircleRPG", "WaccaCircleLoveLive", "WaccaCircleCemu",
+                                           "WaccaCircleMouse", "WaccaCircleOsu", "WaccaCircleKeyboard" };
         public static string exe_title = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "WaccaCircleTitle.exe");
         static TouchController controller;
         static LightController lights;
@@ -81,7 +81,8 @@ namespace WaccaCircle
                 if (!lights.Initialize())
                 {
                     Console.WriteLine("Failed to load lights! Make sure USB2 is plugged correctly");
-                };
+                }
+                ;
             }
             catch (Exception e)
             {
@@ -134,7 +135,7 @@ namespace WaccaCircle
             }
             if (SetupJoystick() == -1)
             {
-                
+
             }
 
             /*
@@ -150,62 +151,62 @@ namespace WaccaCircle
             //LilyConsole.TouchController = new LilyConsole.TouchController();
             // Initialize vJoy interface
 
-                _consoleCtrlHandler += s =>
+            _consoleCtrlHandler += s =>
+        {
+            CleanUpBeforeExit();
+            return false;
+        };
+            SetConsoleCtrlHandler(_consoleCtrlHandler, true);
+            int current = 0;
+            int return_val;
+            while (true)
             {
-                CleanUpBeforeExit();
-                return false;
-            };
-                SetConsoleCtrlHandler(_consoleCtrlHandler, true);
-                int current = 12;
-                int return_val;
-                while (true)
+                try
                 {
-                    try
+                    // Launch the overlay window
+                    if (File.Exists(exe_title))
                     {
-                        // Launch the overlay window
-                        if (File.Exists(exe_title))
-                        {
-                            RunExternalCommand(exe_title, waccaCircleText[current]);
-                        }
-                        lights_have_been_sent_once = false;
-                        Console.WriteLine("Launching app");
-                        return_val = waccaCircleApps[current]();
-                        Console.WriteLine(return_val.ToString());
-                        if (return_val == -2)
-                        {
-                            current += 1; // skip the app if it crashes?
-                        }
-                        else
-                        {
-                            current += return_val;
-                            if (current < 0) { current = waccaCircleApps.Length - 1; }  // loop
-                            if (current >= waccaCircleApps.Length) { current = 0; }  // loop
-                        }
+                        RunExternalCommand(exe_title, waccaCircleText[current]);
                     }
-                    catch (Exception e)
+                    lights_have_been_sent_once = false;
+                    Console.WriteLine("Launching app");
+                    return_val = waccaCircleApps[current]();
+                    Console.WriteLine(return_val.ToString());
+                    if (return_val == -2)
                     {
-
-                        joystick.RelinquishVJD(deviceId);
-                        Thread.Sleep(1000 + canceled_value);  // 0 unless ctrl + c is pressed
-                        Console.WriteLine("vvv---------- Message -----------vvv");
-                        Console.WriteLine(e.Message);
-                        Console.WriteLine("vvv---------- StackTrace --------vvv");
-                        Console.WriteLine(e.StackTrace);
-                        if (e.InnerException != null)
-                        {
-                            Console.WriteLine("vvv---------- InnerException Message --------vvv");
-                            Console.WriteLine(e.InnerException.Message);
-                        }
-                        Console.WriteLine("vvv---------- Source ------------vvv");
-                        Console.WriteLine(e.Source);
-                        Console.WriteLine("vvv---------- TargetSite --------vvv");
-                        Console.WriteLine(e.TargetSite);
-                        Console.WriteLine("vvv---------- HelpLink --------vvv");
-                        Console.WriteLine(e.HelpLink);
-                        Console.ReadLine();
+                        current += 1; // skip the app if it crashes?
+                    }
+                    else
+                    {
+                        current += return_val;
+                        if (current < 0) { current = waccaCircleApps.Length - 1; }  // loop
+                        if (current >= waccaCircleApps.Length) { current = 0; }  // loop
                     }
                 }
+                catch (Exception e)
+                {
+
+                    joystick.RelinquishVJD(deviceId);
+                    Thread.Sleep(1000 + canceled_value);  // 0 unless ctrl + c is pressed
+                    Console.WriteLine("vvv---------- Message -----------vvv");
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine("vvv---------- StackTrace --------vvv");
+                    Console.WriteLine(e.StackTrace);
+                    if (e.InnerException != null)
+                    {
+                        Console.WriteLine("vvv---------- InnerException Message --------vvv");
+                        Console.WriteLine(e.InnerException.Message);
+                    }
+                    Console.WriteLine("vvv---------- Source ------------vvv");
+                    Console.WriteLine(e.Source);
+                    Console.WriteLine("vvv---------- TargetSite --------vvv");
+                    Console.WriteLine(e.TargetSite);
+                    Console.WriteLine("vvv---------- HelpLink --------vvv");
+                    Console.WriteLine(e.HelpLink);
+                    Console.ReadLine();
+                }
             }
+        }
         public static void RunExternalCommand(string fileName, string arguments)
         {
             // Create a new process to start the external executable
@@ -1652,7 +1653,7 @@ namespace WaccaCircle
             const sbyte w = 28;
             sbyte x;
             string key = "key";
-            TransparentOverlay mainWindow =  new TransparentOverlay(new string[] { "Ctrl", "Del", "Esc", "F11", "Shift", "Win+D", "Alt", "Tab", "F4", "Enter", "F1", "Win" });
+            TransparentOverlay mainWindow = new TransparentOverlay(new string[] { "Ctrl", "Del", "Esc", "F11", "Shift", "Win+D", "Alt", "Tab", "F4", "Enter", "F1", "Win" });
             Task.Run(() =>
             {
                 while (true)
@@ -1892,7 +1893,7 @@ namespace WaccaCircle
                                         mainWindow.Dispatcher.Invoke(() => mainWindow.Launch());
                                         Console.WriteLine("Launch!!");
                                         mainWindow.Dispatcher.Invoke(() => mainWindow.CloseTheApp());
-                                        return ParamStoredInRam.AppNumber[SpinWheelApp.MainWindow.current] - waccaCircleApps.Length;
+                                        return ParamStoredInRam.AppNumber[SpinWheelApp.MainWindow.current];
                                     }
                                     if (i == 5)
                                     {
@@ -1917,7 +1918,7 @@ namespace WaccaCircle
                     {
                         return poll;
                     }
-                    return ParamStoredInRam.AppNumber[SpinWheelApp.MainWindow.current] - waccaCircleApps.Length;
+                    return SpinWheelApp.MainWindow.wheelAppNumber[SpinWheelApp.MainWindow.current];
                 }
             }
         }

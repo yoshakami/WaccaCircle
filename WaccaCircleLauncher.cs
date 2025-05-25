@@ -180,15 +180,17 @@ namespace SpinWheelApp
         private static MediaElement videoPlayer;
         private static MediaElement bgm;
         private Canvas myCanvas;
+        private static int completeCurrent = 4;
+
         public static int current = 4;
-        static int completeCurrent = 4;
-        private List<string> wheelTitles = new List<string>();
-        private List<string> wheelDescriptions = new List<string>();
-        private List<Image> wheelImages = new List<Image>();
-        private List<string> wheelExe = new List<string>();
-        private List<string> imageList = new List<string>();
-        private List<string> exeList = new List<string>();
-        private List<Point> positions = new List<Point>();
+        public static List<int> wheelAppNumber = new List<int>();
+        private static List<string> wheelTitles = new List<string>();
+        private static List<string> wheelDescriptions = new List<string>();
+        private static List<Image> wheelImages = new List<Image>();
+        private static List<string> wheelExe = new List<string>();
+        private static List<string> imageList = new List<string>();
+        private static List<string> exeList = new List<string>();
+        private static List<Point> positions = new List<Point>();
         private static readonly string gamesPath = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "Games");
         private static readonly string execPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         // Play a WAV file
@@ -337,6 +339,7 @@ namespace SpinWheelApp
             wheelExe.Clear();
             wheelDescriptions.Clear();
             wheelTitles.Clear();
+            wheelAppNumber.Clear();
 
             // Define positions for the images
             positions.Add(new Point(-3000,2840 + offset)); // Outside Left 2
@@ -421,6 +424,7 @@ namespace SpinWheelApp
                             wheelExe.Add(executableFile);
                             wheelTitles.Add(ParamStoredInRam.Titles[j]);
                             wheelDescriptions.Add(ParamStoredInRam.Descriptions[j]);
+                            wheelAppNumber.Add(ParamStoredInRam.AppNumber[j]);
                         }
                         j++;
                     }
@@ -442,6 +446,7 @@ namespace SpinWheelApp
                         wheelExe.Add(wheelExe[k]);
                         wheelTitles.Add(wheelTitles[k]);
                         wheelDescriptions.Add(wheelDescriptions[k]);
+                        wheelAppNumber.Add(wheelAppNumber[k]);
                     }
                 }
             }
@@ -594,11 +599,13 @@ namespace SpinWheelApp
             wheelImages[offScreenLeftWheelId].Source = new BitmapImage(new Uri(imageList[completeCurrentLeft]));
             wheelTitles[offScreenLeftWheelId] = ParamStoredInRam.Titles[completeCurrentLeft];
             wheelDescriptions[offScreenLeftWheelId] = ParamStoredInRam.Descriptions[completeCurrentLeft];
+            wheelAppNumber[offScreenLeftWheelId] = ParamStoredInRam.AppNumber[completeCurrentLeft];
 
             wheelExe[offScreenRightWheelId] = exeList[completeCurrentRight];
             wheelImages[offScreenRightWheelId].Source = new BitmapImage(new Uri(imageList[completeCurrentRight]));
             wheelTitles[offScreenRightWheelId] = ParamStoredInRam.Titles[completeCurrentRight];
             wheelDescriptions[offScreenRightWheelId] = ParamStoredInRam.Descriptions[completeCurrentRight];
+            wheelAppNumber[offScreenRightWheelId] = ParamStoredInRam.AppNumber[completeCurrentRight];
 
             AnimateImageSize(last_1, 192, 50);
             AnimateImageSize(last_2, 192, 51);

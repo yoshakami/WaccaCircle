@@ -3,16 +3,27 @@
  link : https://github.com/yellowberryHN/LilyConsole
 
 ## Usage
-You need to download vJoy and configure a controller (don't forget to set up buttons number. by default it's 8, setting 128 or 96 is fine).<br>
+You need to download vJoy and configure a controller (don't forget to set up buttons number. by default it's 8, setting 128 is best, also keep all axes enabled).<br>
 download: https://sourceforge.net/projects/vjoystick/ <br>
 source: https://github.com/shauleiz/vJoy <br>
+this app also uses autohotkey v2 to send keystrokes, if you wanna get out of task manager or send keystrokes to spice2x, you'll need to manually set `waccacircle.exe` to launch as admin in compatibility mode.<br>
+download: https://www.autohotkey.com/
 
 You need to configure the joystick#1 through vJoyConf.exe before launching WaccaCircle.
+
+once you're all set, the launcher starts and can be controlled with the Wacca Circle.
+
+## how to add a game
+The launcher automatically scans for { ".bat", ".exe", ".vbs", ".ahk", ".lnk" }, if there is an image with the same name and one of these extensions { ".bmp", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".tif", ".tiff" } <br>
+then it will add the game to the list. everything is added in the ascii order. an entry will then be added to the json.
+you need to manually edit the json through a text editor before launching the exe. If you're too lazy to add entries after launching your file, just start the exe then close it and it'll update the json.
+
 
 ## lnk
 if you wanna make a .lnk file to a start.bat, the beginning of your file should be like below. <br>
 The second line will kill all instances of WaccaCircle since they collectivize the touch panels and prevent wacca from starting. <br>
 if you wanna automatically launch WaccaCircleStartup when you're done playing Wacca, you need to launch `WaccaStartupBackgroundLauncher.exe` on startup. <br>
+To do that, type Win+R then `shell:startup` and paste a shortcut of `WaccaStartupBackgroundLauncher.exe` in that folder.
 There's no way to stop mercury other than 'restart to apply closing time' on the test menu, plugging a keyboard, a rubber ducky, or using remote desktop.
 ```
 @echo off

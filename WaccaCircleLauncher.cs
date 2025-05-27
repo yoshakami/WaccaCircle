@@ -106,16 +106,22 @@ namespace SpinWheelApp
 
         }
     }
+    public class GameEntry
+    {
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public int AppNumber { get; set; }
+    }
+
     public class ParamWrittenInTheJson
     {
+        public Dictionary<string, GameEntry> Games { get; set; }
         public Color TitleColor { get; set; }
         public Color DescriptionColor { get; set; }
         public string FontFamily { get; set; }
-        public List<string> Titles { get; set; }
-        public List<string> Descriptions { get; set; }
-        public List<int> AppNumber { get; set; }
         public string WaccaReversePath { get; set; }
     }
+
     public static class ParamStoredInRam
     {
         public static Color TitleColor = new Color(0, 0, 1);
@@ -126,6 +132,7 @@ namespace SpinWheelApp
         public static List<string> Titles = new List<string>();
         public static List<string> Descriptions = new List<string>();
         public static List<int> AppNumber = new List<int>();
+        public static List<string> FileNames = new List<string>();
         public static string WaccaReversePath = null;
     }
 
@@ -134,49 +141,81 @@ namespace SpinWheelApp
         public static readonly string configName = "WaccaCircleLauncher.json";
         public static void SaveConfig()
         {
-            ParamWrittenInTheJson data = new ParamWrittenInTheJson
+            var games = new Dictionary<string, GameEntry>();
+
+            for (int i = 0; i < ParamStoredInRam.Titles.Count; i++)
             {
+                games[ParamStoredInRam.FileNames[i]] = new GameEntry
+                {
+                    Title = ParamStoredInRam.Titles[i],
+                    Description = ParamStoredInRam.Descriptions[i],
+                    AppNumber = ParamStoredInRam.AppNumber[i]
+                };
+            }
+
+            var data = new ParamWrittenInTheJson
+            {
+                Games = games,
                 TitleColor = ParamStoredInRam.TitleColor,
                 DescriptionColor = ParamStoredInRam.DescriptionColor,
                 FontFamily = ParamStoredInRam.FontFamily,
-                Titles = ParamStoredInRam.Titles,
-                Descriptions = ParamStoredInRam.Descriptions,
-                AppNumber = ParamStoredInRam.AppNumber,
-                WaccaReversePath = ParamStoredInRam.WaccaReversePath,
+                WaccaReversePath = ParamStoredInRam.WaccaReversePath
             };
+
             string json = JsonConvert.SerializeObject(data, Formatting.Indented);
             File.WriteAllText(configName, json);
         }
+
         public static void LoadConfig()
         {
-            if (File.Exists(configName))
-            {
-                try
-                {
-                    string json = File.ReadAllText(configName);
-                    var data = JsonConvert.DeserializeObject<ParamWrittenInTheJson>(json);
-                    ParamStoredInRam.TitleColor = data.TitleColor;
-                    ParamStoredInRam.DescriptionColor = data.DescriptionColor;
-                    ParamStoredInRam.Titles = data.Titles;
-                    ParamStoredInRam.Descriptions = data.Descriptions;
-                    ParamStoredInRam.AppNumber = data.AppNumber;
-                    ParamStoredInRam.FontFamily = data.FontFamily;
-                    ParamStoredInRam.WaccaReversePath = data.WaccaReversePath;
-
-                    Console.WriteLine($"Loaded {configName}!");
-                }
-                catch (Exception e)
-                {
-                    SaveConfig();
-                }
-            }
-            else
+            if (!File.Exists(configName))
             {
                 Console.WriteLine($"{configName} not found!\nCreating config file...");
                 SaveConfig();
+                return;
+            }
+
+            try
+            {
+                string json = File.ReadAllText(configName);
+                var data = JsonConvert.DeserializeObject<ParamWrittenInTheJson>(json);
+
+                if (data != null)
+                {
+                    ParamStoredInRam.TitleColor = data.TitleColor;
+                    ParamStoredInRam.DescriptionColor = data.DescriptionColor;
+                    ParamStoredInRam.FontFamily = data.FontFamily;
+                    ParamStoredInRam.WaccaReversePath = data.WaccaReversePath;
+
+                    // Clear previous values
+                    ParamStoredInRam.Titles.Clear();
+                    ParamStoredInRam.Descriptions.Clear();
+                    ParamStoredInRam.AppNumber.Clear();
+
+                    foreach (var entry in data.Games)
+                    {
+                        ParamStoredInRam.FileNames.Add(entry.Key);
+                        ParamStoredInRam.Titles.Add(entry.Value.Title);
+                        ParamStoredInRam.Descriptions.Add(entry.Value.Description);
+                        ParamStoredInRam.AppNumber.Add(entry.Value.AppNumber);
+                    }
+
+                    Console.WriteLine($"Loaded {configName}!");
+                }
+                else
+                {
+                    Console.WriteLine("Config data was null. Creating a new one.");
+                    SaveConfig();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to load config: {ex.Message}\nCreating default config...");
+                SaveConfig();
             }
         }
-        
+
+
         private static MediaElement videoPlayer;
         private static MediaElement bgm;
         private Canvas myCanvas;
@@ -342,7 +381,7 @@ namespace SpinWheelApp
             wheelAppNumber.Clear();
 
             // Define positions for the images
-            positions.Add(new Point(-3000,2840 + offset)); // Outside Left 2
+            positions.Add(new Point(-3000, 2840 + offset)); // Outside Left 2
             positions.Add(new Point(-200, 740 + offset)); // Outside Left 1
             positions.Add(new Point(16, 708 + offset)); // Left
             positions.Add(new Point(278 - 96, 675 + offset)); // Middle-left
@@ -396,39 +435,45 @@ namespace SpinWheelApp
                 Console.WriteLine($"no file in {gamesPath}");
                 System.IO.Directory.CreateDirectory(gamesPath);
             }
-            foreach (string f in System.IO.Directory.EnumerateFiles(gamesPath))
+            foreach (string f in System.IO.Directory.EnumerateFiles(gamesPath))  // this checks all files in the game folder
             {
-                if (imageExtensions.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
+                if (!imageExtensions.Any(ext => f.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+                string fileWithoutExtension = Path.Combine(Path.GetDirectoryName(f), Path.GetFileNameWithoutExtension(f));
+                string executableFile = gameExtensions
+                                        .Select(ext => fileWithoutExtension + ext)
+                                        .FirstOrDefault(File.Exists);
+
+                if (executableFile == null)
+                    continue;
+                imageList.Add(f);  // add it to the wheel
+                exeList.Add(executableFile); // add it to the wheel
+                Console.WriteLine($"Adding: {executableFile}");
+
+                int index = ParamStoredInRam.FileNames.IndexOf(executableFile);
+                if (index != -1)  // check if it is in the json
+                    continue;
+                // add it to the ram, it'll then be added to the json after this func
+                /////////********** THIS IS WHERE EACH GAME IS BEING ADDED IN RAM AS AN ENTRY ***********/////////////
+
+                if (ParamStoredInRam.Titles.Count <= j) // since j starts at zero then increases here, it means it'll take entries from the json if they exist, or add them here
                 {
-                    string fileWithoutExtension = Path.Combine(Path.GetDirectoryName(f), Path.GetFileNameWithoutExtension(f));
-                    string executableFile = gameExtensions
-                                            .Select(ext => fileWithoutExtension + ext)
-                                            .FirstOrDefault(File.Exists);
-
-                    if (executableFile != null)
-                    {
-                        Console.WriteLine($"Adding: {executableFile}");
-                        /////////********** THIS IS WHERE EACH GAME IS BEING ADDED IN RAM AS AN ENTRY ***********/////////////
-                        imageList.Add(f);
-                        exeList.Add(executableFile);
-
-                        if (ParamStoredInRam.Titles.Count <= j) // since j starts at zero then increases here, it means it'll take entries from the json if they exist, or add them here
-                        {
-                            ParamStoredInRam.Titles.Add(f);
-                            ParamStoredInRam.Descriptions.Add(f);
-                            ParamStoredInRam.AppNumber.Add(1);
-                        }
-                        if (j < wheelImages.Count)  // max size is 9
-                        {
-                            wheelImages[j].Source = new BitmapImage(new Uri(f));
-                            wheelExe.Add(executableFile);
-                            wheelTitles.Add(ParamStoredInRam.Titles[j]);
-                            wheelDescriptions.Add(ParamStoredInRam.Descriptions[j]);
-                            wheelAppNumber.Add(ParamStoredInRam.AppNumber[j]);
-                        }
-                        j++;
-                    }
+                    ParamStoredInRam.FileNames.Add(Path.GetFileName(executableFile).ToString());
+                    ParamStoredInRam.Titles.Add(Path.GetFileNameWithoutExtension(executableFile));
+                    ParamStoredInRam.Descriptions.Add("");
+                    ParamStoredInRam.AppNumber.Add(1);
                 }
+                if (j < wheelImages.Count)  // max size is 9
+                {
+                    wheelImages[j].Source = new BitmapImage(new Uri(f));
+                    wheelExe.Add(executableFile);
+                    wheelTitles.Add(ParamStoredInRam.Titles[j]);
+                    wheelDescriptions.Add(ParamStoredInRam.Descriptions[j]);
+                    wheelAppNumber.Add(ParamStoredInRam.AppNumber[j]);
+                }
+                j++;
+
+
             }
             if (j <= wheelImages.Count && j > 0)  // if there's less than 9 games in the wheel of 9 elements
             {

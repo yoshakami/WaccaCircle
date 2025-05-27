@@ -593,7 +593,8 @@ namespace SpinWheelApp
                 offScreenRightWheelId = current > 5 ? current - 6 : current + 3;
             }
             int completeCurrentLeft = completeCurrent < 3 ? completeCurrent + imageList.Count - 3 : completeCurrent - 3;
-            int completeCurrentRight = completeCurrent < 3 ? completeCurrent + imageList.Count - 3 : completeCurrent - 3;
+            int completeCurrentRight = (completeCurrent + 3) % imageList.Count;
+
 
             wheelExe[offScreenLeftWheelId] = exeList[completeCurrentLeft];
             wheelImages[offScreenLeftWheelId].Source = new BitmapImage(new Uri(imageList[completeCurrentLeft]));

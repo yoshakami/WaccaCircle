@@ -198,6 +198,8 @@ namespace SpinWheelApp
                         ParamStoredInRam.Titles.Add(entry.Value.Title);
                         ParamStoredInRam.Descriptions.Add(entry.Value.Description);
                         ParamStoredInRam.AppNumber.Add(entry.Value.AppNumber);
+                        imageList.Add("");
+                        exeList.Add("");
                     }
 
                     Console.WriteLine($"Loaded {configName}!");
@@ -373,8 +375,6 @@ namespace SpinWheelApp
             myCanvas.Children.Clear();
             wheelImages.Clear();
             positions.Clear();
-            exeList.Clear();
-            imageList.Clear();
             wheelExe.Clear();
             wheelDescriptions.Clear();
             wheelTitles.Clear();
@@ -446,23 +446,36 @@ namespace SpinWheelApp
 
                 if (executableFile == null)
                     continue;
-                imageList.Add(f);  // add it to the wheel
-                exeList.Add(executableFile); // add it to the wheel
                 Console.WriteLine($"Adding: {executableFile}");
 
-                int index = ParamStoredInRam.FileNames.IndexOf(executableFile);
+                int index = ParamStoredInRam.FileNames.IndexOf(Path.GetFileName(executableFile));
                 if (index != -1)  // check if it is in the json
+                {
+                    imageList[index] = f;  // add it to the wheel
+                    exeList[index] = executableFile; // add it to the wheel
+
+                    if (j < wheelImages.Count)  // max size is 9
+                    {
+                        wheelImages[j].Source = new BitmapImage(new Uri(f));
+                        wheelExe.Add(executableFile);
+                        wheelTitles.Add(ParamStoredInRam.Titles[index]);
+                        wheelDescriptions.Add(ParamStoredInRam.Descriptions[index]);
+                        wheelAppNumber.Add(ParamStoredInRam.AppNumber[index]);
+                    }
+                    j++;
                     continue;
+                }
                 // add it to the ram, it'll then be added to the json after this func
                 /////////********** THIS IS WHERE EACH GAME IS BEING ADDED IN RAM AS AN ENTRY ***********/////////////
 
-                if (ParamStoredInRam.Titles.Count <= j) // since j starts at zero then increases here, it means it'll take entries from the json if they exist, or add them here
-                {
-                    ParamStoredInRam.FileNames.Add(Path.GetFileName(executableFile).ToString());
-                    ParamStoredInRam.Titles.Add(Path.GetFileNameWithoutExtension(executableFile));
-                    ParamStoredInRam.Descriptions.Add("");
-                    ParamStoredInRam.AppNumber.Add(1);
-                }
+                //add entry to the json
+                ParamStoredInRam.FileNames.Add(Path.GetFileName(executableFile).ToString());
+                ParamStoredInRam.Titles.Add(Path.GetFileNameWithoutExtension(executableFile));
+                ParamStoredInRam.Descriptions.Add("");
+                ParamStoredInRam.AppNumber.Add(1);
+
+                imageList.Add(f);  // add it to the wheel
+                exeList.Add(executableFile); // add it to the wheel
                 if (j < wheelImages.Count)  // max size is 9
                 {
                     wheelImages[j].Source = new BitmapImage(new Uri(f));
@@ -472,8 +485,6 @@ namespace SpinWheelApp
                     wheelAppNumber.Add(ParamStoredInRam.AppNumber[j]);
                 }
                 j++;
-
-
             }
             if (j <= wheelImages.Count && j > 0)  // if there's less than 9 games in the wheel of 9 elements
             {
@@ -499,12 +510,13 @@ namespace SpinWheelApp
             byte[] rgbDesc = ParamStoredInRam.DescriptionColor.ToRGB();
             SolidColorBrush brushTitle = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbTitle[0], rgbTitle[1], rgbTitle[2]));
             SolidColorBrush brushDesc = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbDesc[0], rgbDesc[1], rgbDesc[2]));
-            InitializeText(ref LeftTitle, ref brushTitle, ParamStoredInRam.Titles[3], 180, 899 + offset, 200, 20, 18);
-            InitializeText(ref LeftDesc, ref brushDesc, ParamStoredInRam.Descriptions[3], 180, 923 + offset, 200, 20, 18);
-            InitializeText(ref centerTitle, ref brushTitle, ParamStoredInRam.Titles[4], 365, 1060 + offset, 300, 30, 25);
-            InitializeText(ref centerDesc, ref brushDesc, ParamStoredInRam.Descriptions[4], 365, 1096 + offset, 300, 30, 25);
-            InitializeText(ref RightTitle, ref brushTitle, ParamStoredInRam.Titles[5], 704, 899 + offset, 200, 20, 18);
-            InitializeText(ref RightDesc, ref brushDesc, ParamStoredInRam.Descriptions[5], 704, 923 + offset, 200, 20, 18);
+            InitializeText(ref LeftTitle, ref brushTitle, "", 180, 899 + offset, 200, 20, 18);
+            InitializeText(ref LeftDesc, ref brushDesc, "", 180, 923 + offset, 200, 20, 18);
+            InitializeText(ref centerTitle, ref brushTitle, "", 365, 1060 + offset, 300, 30, 25);
+            InitializeText(ref centerDesc, ref brushDesc, "", 365, 1096 + offset, 300, 30, 25);
+            InitializeText(ref RightTitle, ref brushTitle, "", 704, 899 + offset, 200, 20, 18);
+            InitializeText(ref RightDesc, ref brushDesc, "", 704, 923 + offset, 200, 20, 18);
+            RotateRight();
 
             SaveConfig();
         }

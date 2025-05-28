@@ -16,8 +16,8 @@ once you're all set, the launcher starts and can be controlled with the Wacca Ci
 ## how to add a game
 The launcher automatically scans for { ".bat", ".exe", ".vbs", ".ahk", ".lnk" }, if there is an image with the same name and one of these extensions { ".bmp", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".tif", ".tiff" } <br>
 then it will add the game to the list. everything is added in the ascii order. an entry will then be added to the json.
-you need to manually edit the json through a text editor before launching the exe. If you're too lazy to add entries after launching your file, just start the exe then close it and it'll update the json.
-
+you need to manually edit the json through a text editor before launching the exe. If you're too lazy to add entries after launching your file, just start the exe then close it and it'll update the json.<br>
+make backups of your json before launching the exe, because it'll rewrite it completely if there was syntax errors in it (missing games or useless new entries are fine)
 
 ## lnk
 if you wanna make a .lnk file to a start.bat, the beginning of your file should be like below. <br>

@@ -194,12 +194,15 @@ namespace SpinWheelApp
 
                     foreach (var entry in data.Games)
                     {
-                        ParamStoredInRam.FileNames.Add(entry.Key);
-                        ParamStoredInRam.Titles.Add(entry.Value.Title);
-                        ParamStoredInRam.Descriptions.Add(entry.Value.Description);
-                        ParamStoredInRam.AppNumber.Add(entry.Value.AppNumber);
-                        imageList.Add("");
-                        exeList.Add("");
+                        if (File.Exists(gamesPath + '/' + entry.Key))
+                        {
+                            ParamStoredInRam.FileNames.Add(entry.Key);
+                            ParamStoredInRam.Titles.Add(entry.Value.Title);
+                            ParamStoredInRam.Descriptions.Add(entry.Value.Description);
+                            ParamStoredInRam.AppNumber.Add(entry.Value.AppNumber);
+                            imageList.Add("");
+                            exeList.Add("");
+                        }
                     }
 
                     Console.WriteLine($"Loaded {configName}!");
@@ -516,8 +519,18 @@ namespace SpinWheelApp
             InitializeText(ref centerDesc, ref brushDesc, "", 365, 1096 + offset, 300, 30, 25);
             InitializeText(ref RightTitle, ref brushTitle, "", 704, 899 + offset, 200, 20, 18);
             InitializeText(ref RightDesc, ref brushDesc, "", 704, 923 + offset, 200, 20, 18);
-            RotateRight();
-
+            RotateWheel(1); // Rotate clockwise
+            prevent_execution = false;
+            RotateWheel(1); // Rotate clockwise
+            prevent_execution = false;
+            RotateWheel(1); // Rotate clockwise
+            prevent_execution = false;
+            RotateWheel(1); // Rotate clockwise
+            prevent_execution = false;
+            RotateWheel(1); // Rotate clockwise
+            prevent_execution = false;
+            RotateWheel(1); // Rotate clockwise
+            prevent_execution = false;
             SaveConfig();
         }
         private void InitializeText(ref TextBlock text, ref SolidColorBrush brush, string value, int left, int top, int width, int height, byte fontsize)
@@ -606,6 +619,10 @@ namespace SpinWheelApp
             // Animate each image to its new position and size
             for (int i = 0; i < wheelImages.Count; i++)
             {
+                if (wheelImages[i].Source == null)
+                {
+                    Console.WriteLine($"{wheelExe[i]} & {imageList[i]}");
+                }
                 var img = wheelImages[i];
                 var oldPos = positions[i];
                 var newPos = newPositions[i];

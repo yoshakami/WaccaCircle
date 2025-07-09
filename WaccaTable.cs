@@ -1,4 +1,4 @@
-
+﻿
 using LilyConsole;
 using Newtonsoft.Json;
 using System;
@@ -716,7 +716,7 @@ namespace WaccaCircle
         }
         public static double Static()
         {
-            return h;
+            return v;
         }
         public static double Freeze()
         {
@@ -732,12 +732,17 @@ namespace WaccaCircle
     {
         public static LightLayer layer0 = new LightLayer();
         private static List<Func<double>> MyAnimList = new List<Func<double>>();
-        private static Func<double> anim = WaccaLightAnimation.HSVmid;
+        private static Func<double> anim = WaccaLightAnimation.Static;
         private static readonly long axis_max = 32767;
-        // if you wanna add a new color anim, just att a text entry to waccaCircleText, then add your func to MyAnimList below.
+        /* Tutorial: how to add a new animation:
+         * add your func to MyAnimList below
+         * add a text entry to waccaCircleText
+         * change animMap -- depending on what HSV component you're changing
+         * feel free to add a new axes ref inside WaccaTable, or a custom animation */
         public static byte color_anim = 0;
         public static void Initialize()
         {
+            MyAnimList.Add(WaccaLightAnimation.Static);
             MyAnimList.Add(WaccaLightAnimation.HSVbreathe);
             MyAnimList.Add(WaccaLightAnimation.HSVmid);
             MyAnimList.Add(WaccaLightAnimation.HSVsineMid);
@@ -756,16 +761,26 @@ namespace WaccaCircle
             MyAnimList.Add(WaccaLightAnimation.HSVColorSub6);
             // ========== FULL CIRCLE COLOR END ===========
             MyAnimList.Add(WaccaLightAnimation.Off);
-            MyAnimList.Add(WaccaLightAnimation.Static);
         }
-        static string[] waccaCircleText = { "Breathe", "Mid-Breathe", "Sine Mid-Breathe", "Sine Breathe", "Jump",
+        static string[] waccaCircleText = { "Static", "Breathe", "Mid-Breathe", "Sine Mid-Breathe", "Sine Breathe", "Jump",
                                         "Reverse Jump", "Color Cycle", "Reverse Color Cycle", "Freeze", "Full Circle Jump",
                                         "Full Circle Reverse Jump", "Full Circle Color Cycle", "Full Circle Reverse Color Cycle", "Wacca", "Reverse Wacca", "Off", "Custom"};
+
+        static byte[] animMap = new byte[]
+        {
+                0, 0, 0, 0, 0,   // 0–4 → brightness
+                1, 1, 1, 1,      // 5–8 → hue
+                2,              // 9    → freeze
+                3, 3, 3, 3,      // 10–13 → circle
+                4, 4,           // 14–15 → Wacca
+                5,              // 16   → off
+                6               // 17   → reset
+        };
         public static void UpdateMyAnimBasedOnList(bool display_name = true)
         {
             if (ColorStorage.animIndex < 0)
             {
-                ColorStorage.animIndex = (sbyte)(MyAnimList.Count - 2);
+                ColorStorage.animIndex = (sbyte)(MyAnimList.Count - 1);
             }
             if (ColorStorage.animIndex >= MyAnimList.Count) {
                 ColorStorage.animIndex = 0;
@@ -777,36 +792,17 @@ namespace WaccaCircle
                 WaccaCircle.RunExternalCommand(WaccaCircle.exe_title, waccaCircleText[ColorStorage.animIndex]);
             }
             Console.WriteLine("Changing animation");
-            if (ColorStorage.animIndex < 4)
+            // Define the animation map, by index. This is a flat one-to-one lookup table.
+
+            // Assign directly
+            color_anim = animMap[ColorStorage.animIndex];
+            if (color_anim == 5)  // off
             {
-                color_anim = 0;  // brightness anim Value
-            }
-            else if (ColorStorage.animIndex < 8)
-            {
-                color_anim = 1;  // hue anim
-            }
-            else if (ColorStorage.animIndex < 9)
-            {
-                color_anim = 2;  // freeze
-                WaccaCircle.lights_have_been_sent_once = false;
-            }
-            else if (ColorStorage.animIndex < 13)
-            {
-                color_anim = 3;  // Complete circle anim
-            }
-            else if (ColorStorage.animIndex < 15)
-            {
-                color_anim = 4;  // Wacca
-            }
-            else if (ColorStorage.animIndex < 16)
-            {
-                color_anim = 5;  // off
                 TurnOffTheLights();
                 WaccaCircle.lights_have_been_sent_once = false;
             }
-            else if (ColorStorage.animIndex < 17)
+            if (color_anim == 6)   // reset
             {
-                color_anim = 6;  // reset
                 ColorStorage.LoadAllColors();
             }
         }

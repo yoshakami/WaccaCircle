@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Media;
 using System.Threading;
+using WaccaCircle;
 namespace SpinWheelApp
 {
     public class WaccaCircleLauncher
@@ -28,84 +29,6 @@ namespace SpinWheelApp
 
         }
     }
-
-
-
-
-    public struct Color
-    {
-        public double H { get; set; } // Hue: 0-360 degrees
-        public double S { get; set; } // Saturation: 0-1
-        public double V { get; set; } // Value: 0-1
-
-        public Color(double h, double s, double v)
-        {
-            H = h;
-            S = s;
-            V = v;
-        }
-
-        /// <summary>
-        /// Converts the HSV color to an RGB color and returns the result as a tuple of 3 bytes.
-        /// </summary>
-        /// <returns>A tuple containing R, G, and B as bytes (0-255).</returns>
-        /// <summary>
-        /// Converts the HSV color to an RGB color and returns the result as a byte array.
-        /// </summary>
-        /// <returns>An array of 3 bytes representing R, G, and B (0-255).</returns>
-        public byte[] ToRGB()
-        {
-            double r = 0, g = 0, b = 0;
-
-            if (S == 0) // Achromatic (gray)
-            {
-                r = g = b = V;
-            }
-            else
-            {
-                double sector = H / 60.0; // Sector index (0-5)
-                int sectorIndex = (int)Math.Floor(sector);
-                double fractionalPart = sector - sectorIndex; // Fractional part of sector
-
-                double p = V * (1 - S);
-                double q = V * (1 - S * fractionalPart);
-                double t = V * (1 - S * (1 - fractionalPart));
-
-                switch (sectorIndex)
-                {
-                    case 0:
-                        r = V; g = t; b = p;
-                        break;
-                    case 1:
-                        r = q; g = V; b = p;
-                        break;
-                    case 2:
-                        r = p; g = V; b = t;
-                        break;
-                    case 3:
-                        r = p; g = q; b = V;
-                        break;
-                    case 4:
-                        r = t; g = p; b = V;
-                        break;
-                    case 5:
-                        r = V; g = p; b = q;
-                        break;
-                }
-            }
-
-            // Convert to 0-255 range and return as bytes
-            return new byte[] { (byte)(r * 255), (byte)(g * 255), (byte)(b * 255) };
-        }
-
-
-        public override string ToString()
-        {
-            var rgbBytes = ToRGB();
-            return $"HSV({H}, {S}, {V}) -> R: {rgbBytes[0]}, G: {rgbBytes[1]}, B: {rgbBytes[2]}";
-
-        }
-    }
     public class GameEntry
     {
         public string Title { get; set; }
@@ -116,16 +39,16 @@ namespace SpinWheelApp
     public class ParamWrittenInTheJson
     {
         public Dictionary<string, GameEntry> Games { get; set; }
-        public Color TitleColor { get; set; }
-        public Color DescriptionColor { get; set; }
+        public WaccaColor TitleWaccaColor { get; set; }
+        public WaccaColor DescriptionWaccaColor { get; set; }
         public string FontFamily { get; set; }
         public string WaccaReversePath { get; set; }
     }
 
     public static class ParamStoredInRam
     {
-        public static Color TitleColor = new Color(0, 0, 1);
-        public static Color DescriptionColor = new Color(200, 0.8, 1);     // Blue 
+        public static WaccaColor TitleWaccaColor = new WaccaColor(0, 0, 1);
+        public static WaccaColor DescriptionWaccaColor = new WaccaColor(200, 0.8, 1);     // Blue 
 
         public static string FontFamily = "Arial";
 
@@ -138,6 +61,20 @@ namespace SpinWheelApp
 
     public partial class MainWindow : Window
     {
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            double screenH = SystemParameters.PrimaryScreenHeight;
+            if (screenH == 1080)
+            {
+                Width = 1080;
+                Height = 1080;
+                Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
+                Top = (screenH - Height) / 2;
+            }
+        }
+
         public static readonly string configName = "WaccaCircleLauncher.json";
         public static void SaveConfig()
         {
@@ -156,8 +93,8 @@ namespace SpinWheelApp
             var data = new ParamWrittenInTheJson
             {
                 Games = games,
-                TitleColor = ParamStoredInRam.TitleColor,
-                DescriptionColor = ParamStoredInRam.DescriptionColor,
+                TitleWaccaColor = ParamStoredInRam.TitleWaccaColor,
+                DescriptionWaccaColor = ParamStoredInRam.DescriptionWaccaColor,
                 FontFamily = ParamStoredInRam.FontFamily,
                 WaccaReversePath = ParamStoredInRam.WaccaReversePath
             };
@@ -182,8 +119,8 @@ namespace SpinWheelApp
 
                 if (data != null)
                 {
-                    ParamStoredInRam.TitleColor = data.TitleColor;
-                    ParamStoredInRam.DescriptionColor = data.DescriptionColor;
+                    ParamStoredInRam.TitleWaccaColor = data.TitleWaccaColor;
+                    ParamStoredInRam.DescriptionWaccaColor = data.DescriptionWaccaColor;
                     ParamStoredInRam.FontFamily = data.FontFamily;
                     ParamStoredInRam.WaccaReversePath = data.WaccaReversePath;
 
@@ -509,8 +446,8 @@ namespace SpinWheelApp
                     }
                 }
             }
-            byte[] rgbTitle = ParamStoredInRam.TitleColor.ToRGB();
-            byte[] rgbDesc = ParamStoredInRam.DescriptionColor.ToRGB();
+            byte[] rgbTitle = ParamStoredInRam.TitleWaccaColor.ToRGB();
+            byte[] rgbDesc = ParamStoredInRam.DescriptionWaccaColor.ToRGB();
             SolidColorBrush brushTitle = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbTitle[0], rgbTitle[1], rgbTitle[2]));
             SolidColorBrush brushDesc = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbDesc[0], rgbDesc[1], rgbDesc[2]));
             InitializeText(ref LeftTitle, ref brushTitle, "", 180, 899 + offset, 200, 20, 18);
@@ -685,8 +622,8 @@ namespace SpinWheelApp
             AnimateImageSize(last_1, 192, 50);
             AnimateImageSize(last_2, 192, 51);
 
-            byte[] rgbTitle = ParamStoredInRam.TitleColor.ToRGB();
-            byte[] rgbDesc = ParamStoredInRam.DescriptionColor.ToRGB();
+            byte[] rgbTitle = ParamStoredInRam.TitleWaccaColor.ToRGB();
+            byte[] rgbDesc = ParamStoredInRam.DescriptionWaccaColor.ToRGB();
             SolidColorBrush brushTitle = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbTitle[0], rgbTitle[1], rgbTitle[2]));
             SolidColorBrush brushDesc = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, rgbDesc[0], rgbDesc[1], rgbDesc[2]));
             InitializeText(ref LeftTitle, ref brushTitle, wheelTitles[left_id], 180, 899, 200, 20, 18);

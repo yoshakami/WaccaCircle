@@ -71,11 +71,11 @@ namespace WaccaCircle
             try
             {
 
-                controller = new TouchController();
-                controller.Initialize();
+                //controller = new TouchController();
+                //controller.Initialize();
                 Console.CursorVisible = false;
                 Console.WriteLine("Starting touch streams!");
-                controller.StartTouchStream();
+                //controller.StartTouchStream();
                 Console.WriteLine("Started!");
                 lights = new LightController();
                 if (!lights.Initialize())
@@ -89,7 +89,7 @@ namespace WaccaCircle
                 Console.WriteLine("The Port Com4 does not exist");
             }
             WaccaTable.Initialize();
-            ColorStorage.LoadAllColors();
+            WaccaColorStorage.LoadAllColors();
             // Initialize DirectInput
             var directInput = new DirectInput();
 
@@ -226,7 +226,7 @@ namespace WaccaCircle
             Console.WriteLine("ctrl+c detected!\ndisposing virtual Joystick....\ndone!\npress enter to exit...");
             // Release the device when done
             joystick.RelinquishVJD(deviceId);
-            lights.CleanUp();
+            lights.Close();
         }
 
         static bool[] ioboard_buttons = Enumerable.Repeat(false, 10).ToArray();
@@ -362,7 +362,7 @@ namespace WaccaCircle
                 case 0:
                     return value;
                 case 1:
-                    ColorStorage.animIndex += value;  // inside WaccaTable
+                    WaccaColorStorage.animIndex += value;  // inside WaccaTable
                     WaccaTable.UpdateMyAnimBasedOnList();
                     break;
                 case 2:

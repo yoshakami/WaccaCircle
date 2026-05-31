@@ -158,7 +158,7 @@ namespace SpinWheelApp
         }
 
 
-        public static WaccaBackground background;
+        private static MediaElement videoPlayer;
         public static WaccaWheelMenu wheel;
         private static int currentWheelMode = -1;
         private int CurrentDifficultyIndex = 0;
@@ -191,6 +191,7 @@ namespace SpinWheelApp
             // Start video playback when the window is loaded
             this.Loaded += (s, e) =>
             {
+                videoPlayer.Play();
                 if (System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width > System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height)
                 {
                     InitializeWheel(-360);
@@ -271,14 +272,24 @@ namespace SpinWheelApp
             var mainGrid = new Grid();
             this.Content = mainGrid;
 
-            background = new WaccaBackground
+            videoPlayer = new MediaElement
             {
                 Width = screenWidth,
                 Height = screenHeight,
+                LoadedBehavior = MediaState.Manual,
+                UnloadedBehavior = MediaState.Close,
+                Stretch = Stretch.Uniform,
+                Source = new Uri(Path.Combine(execPath, "background.mp4")),
                 HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
+                VerticalAlignment = VerticalAlignment.Center,
+                IsHitTestVisible = false
             };
-            mainGrid.Children.Add(background);
+            videoPlayer.MediaEnded += (s, e) =>
+            {
+                videoPlayer.Position = TimeSpan.Zero;
+                videoPlayer.Play();
+            };
+            mainGrid.Children.Add(videoPlayer);
 
             // Add Canvas for images
             myCanvas = new Canvas
@@ -465,15 +476,10 @@ namespace SpinWheelApp
         private void InitWheelMenu()
         {
             if (wheel != null) return;
-            wheel = new WaccaWheelMenu
-            {
-                Width = screenWidth,
-                Height = screenHeight,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
+            wheel = new WaccaWheelMenu();
             Panel.SetZIndex(wheel, 500);
-            ((Grid)this.Content).Children.Add(wheel);
+            var grid = this.Content as Grid;
+            grid.Children.Add(wheel);
 
             wheel.Confirmed += (idx) => { ApplyWheelChoice(currentWheelMode, idx, wheel.SelectedItem); wheel.Hide(); };
             wheel.Cancelled += () => wheel.Hide();
@@ -513,7 +519,7 @@ namespace SpinWheelApp
                 default:
                     return;
             }
-            wheel.Show();
+            if (mode != 0) wheel.Show();
         }
 
         public void WheelStep(int dir) { if (wheel != null && wheel.IsOpen) wheel.Step(dir); }
@@ -807,6 +813,7 @@ namespace SpinWheelApp
             Application.Current.Shutdown();
         }
 
+        bool ispaused = false;
         protected override void OnKeyDown(System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key == System.Windows.Input.Key.Left)
@@ -843,6 +850,19 @@ namespace SpinWheelApp
             }
             else if (e.Key == System.Windows.Input.Key.RightShift)
                 InitializeWheel(0);
+            else if (e.Key == System.Windows.Input.Key.Space)
+            {
+                if (ispaused)
+                {
+                    videoPlayer.Play();
+                    ispaused = false;
+                }
+                else
+                {
+                    videoPlayer.Pause();
+                    ispaused = true;
+                }
+            }
         }
     }
 }

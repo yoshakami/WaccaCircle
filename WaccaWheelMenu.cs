@@ -31,10 +31,10 @@ namespace SpinWheelApp
         private const double DesignW = 1000, DesignH = 1000;
         private double _cx = 500, _cy = 490;
         private const double BackdropR = 405;   // masks the song wheel beneath
-        private const double CoreR = 135;        // navy animated core
-        private const double LaneIn = 175;       // inner end of a lane
-        private const double LaneOut = 392;      // outer end of a lane
-        private const double LaneH = 34;         // lane thickness
+        private const double CoreR = 155;        // navy animated core (bigger = closer to game)
+        private const double LaneIn = 192;       // inner end of a lane
+        private const double LaneOut = 394;      // outer end of a lane
+        private const double LaneH = 27;         // lane thickness
         private const double LaneStep = 20;      // degrees between lanes
         private const int LanesEachSide = 7;     // how many lanes to draw around
 
@@ -66,6 +66,7 @@ namespace SpinWheelApp
         private TextBlock _titleTb, _descTb;
         private readonly RotateTransform _ring1 = new RotateTransform();
         private readonly RotateTransform _ring2 = new RotateTransform();
+        private readonly RotateTransform _ring3 = new RotateTransform();
         private readonly RotateTransform _arc = new RotateTransform();
         private readonly ScaleTransform _haloScale = new ScaleTransform(1, 1);
         private Path _halo;
@@ -167,14 +168,18 @@ namespace SpinWheelApp
 
         private void BuildCore()
         {
-            // pulsing magenta halo
+            // The "tunnel": deep navy disc, radar ticks, several rotating dashed
+            // rings, pink spiral arcs, a bright violet centre, and a thick glowing
+            // magenta rim. Drawn inner -> outer so the rim sits on top.
+
+            // outer magenta halo (soft glow, pulses)
             var halo = new RadialGradientBrush { Center = new Point(0.5, 0.5), GradientOrigin = new Point(0.5, 0.5) };
-            halo.GradientStops.Add(new GradientStop(Color.FromArgb(0x00, Magenta.R, Magenta.G, Magenta.B), 0.55));
-            halo.GradientStops.Add(new GradientStop(Color.FromArgb(0xAA, Magenta.R, Magenta.G, Magenta.B), 0.80));
+            halo.GradientStops.Add(new GradientStop(Color.FromArgb(0x00, Magenta.R, Magenta.G, Magenta.B), 0.62));
+            halo.GradientStops.Add(new GradientStop(Color.FromArgb(0x88, Magenta.R, Magenta.G, Magenta.B), 0.84));
             halo.GradientStops.Add(new GradientStop(Color.FromArgb(0x00, Magenta.R, Magenta.G, Magenta.B), 1.0));
             _halo = new Path
             {
-                Data = new EllipseGeometry(new Point(0, 0), CoreR + 28, CoreR + 28),
+                Data = new EllipseGeometry(new Point(0, 0), CoreR + 34, CoreR + 34),
                 Fill = halo,
                 RenderTransformOrigin = new Point(0.5, 0.5)
             };
@@ -182,37 +187,83 @@ namespace SpinWheelApp
             _halo.RenderTransform = _haloScale;
             _root.Children.Add(_halo);
 
-            // navy core disc
-            var coreFill = new RadialGradientBrush { Center = new Point(0.5, 0.55), GradientOrigin = new Point(0.5, 0.55) };
-            coreFill.GradientStops.Add(new GradientStop(Color.FromRgb(0x5A, 0x2A, 0x8F), 0));
-            coreFill.GradientStops.Add(new GradientStop(Color.FromRgb(0x1B, 0x13, 0x40), 0.6));
-            coreFill.GradientStops.Add(new GradientStop(Color.FromRgb(0x0D, 0x0A, 0x26), 1));
-            var core = new Ellipse { Width = CoreR * 2, Height = CoreR * 2, Fill = coreFill };
-            Canvas.SetLeft(core, _cx - CoreR); Canvas.SetTop(core, _cy - CoreR);
-            _root.Children.Add(core);
+            double inner = CoreR - 12;   // tunnel content radius
 
-            // bright magenta rim
+            // deep navy disc (slightly off-centre gradient = "looking down a well")
+            var coreFill = new RadialGradientBrush { Center = new Point(0.5, 0.52), GradientOrigin = new Point(0.5, 0.52) };
+            coreFill.GradientStops.Add(new GradientStop(Color.FromRgb(0x3a, 0x22, 0x70), 0));
+            coreFill.GradientStops.Add(new GradientStop(Color.FromRgb(0x16, 0x10, 0x3a), 0.55));
+            coreFill.GradientStops.Add(new GradientStop(Color.FromRgb(0x08, 0x06, 0x1c), 1));
+            var disc = new Ellipse { Width = inner * 2, Height = inner * 2, Fill = coreFill };
+            Canvas.SetLeft(disc, _cx - inner); Canvas.SetTop(disc, _cy - inner);
+            _root.Children.Add(disc);
+
+            // radar tick marks all around (faint)
+            var tickBrush = new SolidColorBrush(Color.FromArgb(0x40, 0x3a, 0x6a, 0x8a));
+            for (int i = 0; i < 36; i++)
+            {
+                double a = i * (Math.PI / 18);
+                double r0 = inner * 0.55, r1 = inner * 0.92;
+                _root.Children.Add(new Line
+                {
+                    X1 = _cx + r0 * Math.Cos(a), Y1 = _cy + r0 * Math.Sin(a),
+                    X2 = _cx + r1 * Math.Cos(a), Y2 = _cy + r1 * Math.Sin(a),
+                    Stroke = tickBrush, StrokeThickness = 1
+                });
+            }
+
+            // three concentric dashed rings, different radii (rotate at diff speeds)
+            _root.Children.Add(DashedRing(inner * 0.88, new double[] { 4, 7 }, 0.55, _ring1));
+            _root.Children.Add(DashedRing(inner * 0.66, new double[] { 3, 10 }, 0.40, _ring2));
+            var ring3 = DashedRing(inner * 0.46, new double[] { 2, 8 }, 0.50, _ring3);
+            _root.Children.Add(ring3);
+
+            // pink spiral arcs (rotate together on their own host)
+            var arcHost = new Canvas { RenderTransform = _arc };
+            arcHost.Children.Add(Arc(inner * 0.90, 180, 95));   // big bottom-left sweep
+            arcHost.Children.Add(Arc(inner * 0.72, 0, 90));     // smaller top-right sweep
+            _root.Children.Add(arcHost);
+
+            // bright violet centre point
+            var cg = new RadialGradientBrush { Center = new Point(0.5, 0.5), GradientOrigin = new Point(0.5, 0.5) };
+            cg.GradientStops.Add(new GradientStop(Color.FromRgb(0xCF, 0xE6, 0xFF), 0.0));
+            cg.GradientStops.Add(new GradientStop(Color.FromArgb(0xB0, 0x7A, 0x4A, 0xD0), 0.55));
+            cg.GradientStops.Add(new GradientStop(Color.FromArgb(0x00, 0x2A, 0x15, 0x60), 1.0));
+            double cr = inner * 0.34;
+            var centre = new Ellipse { Width = cr * 2, Height = cr * 2, Fill = cg };
+            Canvas.SetLeft(centre, _cx - cr); Canvas.SetTop(centre, _cy - cr);
+            _root.Children.Add(centre);
+
+            // thin cyan inner edge
+            var cyanEdge = new Ellipse
+            {
+                Width = inner * 2, Height = inner * 2,
+                Stroke = new SolidColorBrush(Cyan), StrokeThickness = 2, Opacity = 0.7,
+                Fill = Brushes.Transparent
+            };
+            Canvas.SetLeft(cyanEdge, _cx - inner); Canvas.SetTop(cyanEdge, _cy - inner);
+            _root.Children.Add(cyanEdge);
+
+            // soft magenta rim glow (wide, blurred via low-opacity wide stroke)
+            var rimGlow = new Ellipse
+            {
+                Width = CoreR * 2, Height = CoreR * 2,
+                Stroke = new SolidColorBrush(Color.FromArgb(0x55, Magenta.R, Magenta.G, Magenta.B)),
+                StrokeThickness = 24, Fill = Brushes.Transparent,
+                Effect = new System.Windows.Media.Effects.BlurEffect { Radius = 10 }
+            };
+            Canvas.SetLeft(rimGlow, _cx - CoreR); Canvas.SetTop(rimGlow, _cy - CoreR);
+            _root.Children.Add(rimGlow);
+
+            // thick bright magenta rim (the donut)
             var rim = new Ellipse
             {
-                Width = CoreR * 2,
-                Height = CoreR * 2,
-                Stroke = new SolidColorBrush(Magenta),
-                StrokeThickness = 6,
+                Width = CoreR * 2, Height = CoreR * 2,
+                Stroke = new SolidColorBrush(Magenta), StrokeThickness = 13,
                 Fill = Brushes.Transparent
             };
             Canvas.SetLeft(rim, _cx - CoreR); Canvas.SetTop(rim, _cy - CoreR);
             _root.Children.Add(rim);
-
-            // two rotating dashed cyan rings
-            _root.Children.Add(DashedRing(CoreR - 22, new double[] { 3, 12 }, 0.7, _ring1));
-            _root.Children.Add(DashedRing(CoreR - 45, new double[] { 2, 18 }, 0.5, _ring2));
-
-            // rotating pink arc pair
-            var arcHost = new Canvas();
-            arcHost.Children.Add(Arc(CoreR - 8, 200, 80));
-            arcHost.Children.Add(Arc(CoreR - 8, 20, 80));
-            arcHost.RenderTransform = _arc;
-            _root.Children.Add(arcHost);
         }
 
         private Ellipse DashedRing(double r, double[] dash, double opacity, RotateTransform rot)
@@ -259,17 +310,25 @@ namespace SpinWheelApp
             _laneHost.Children.Clear();
             if (_items.Count == 0) return;
 
-            for (int k = -LanesEachSide; k <= LanesEachSide; k++)
+            // Adaptive step: many values (speed wheel) pack tight at LaneStep; a short
+            // list (categories, difficulties) spreads wider so it still fills the ring
+            // instead of bunching at the bottom. Total fan kept under ~320 deg so it
+            // never collides with the title panel at the top.
+            double effStep = LaneStep;
+            if (_items.Count > 1)
+                effStep = Math.Max(LaneStep, Math.Min(40.0, 300.0 / (_items.Count - 1)));
+
+            int span = Math.Max(LanesEachSide, _items.Count);   // draw all items if few
+            for (int k = -span; k <= span; k++)
             {
                 int idx = _selected + k;
                 if (idx < 0 || idx >= _items.Count) continue;
-                if (k == 0) continue;                       // selected handled by banner
-                double deg = 180 - k * LaneStep;            // 180 = 9 o'clock (SET slot)
+                if (k == 0) continue;                            // selected handled by banner
+                double deg = 180 - k * effStep;                  // 180 = 9 o'clock; higher values clockwise (down)
                 AddLane(deg, _items[idx], LaneCols[((idx % LaneCols.Length) + LaneCols.Length) % LaneCols.Length]);
             }
 
-            // selected banner (big yellow, left) + SET wedge
-            AddBanner(_items[_selected]);
+            AddBanner(_items[_selected]);                        // big yellow banner + SET wedge
         }
 
         private void AddLane(double deg, string label, Color col)
@@ -297,10 +356,19 @@ namespace SpinWheelApp
                 Foreground = new SolidColorBrush(Ink)
             };
             t.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            Canvas.SetLeft(t, mid - t.DesiredSize.Width / 2);
-            Canvas.SetTop(t, _cy - t.DesiredSize.Height / 2);
-            g.Children.Add(t);                              // group's rotate(deg) orients it
+            double tw = t.DesiredSize.Width, th = t.DesiredSize.Height;
+            Canvas.SetLeft(t, mid - tw / 2);
+            Canvas.SetTop(t, _cy - th / 2);
 
+            // The group rotates the whole lane by `deg`. If the lane points into the
+            // left half (deg between 90 and 270), the text would be upside down
+            // ("Pop" -> "dod"), so flip it 180 about its own centre. Result: text
+            // always reads upright, radially, like the real wheel.
+            double nd = ((deg % 360) + 360) % 360;
+            if (nd > 90 && nd < 270)
+                t.RenderTransform = new RotateTransform(180, tw / 2, th / 2);
+
+            g.Children.Add(t);                                  // group's rotate(deg) orients the lane
             _laneHost.Children.Add(g);
         }
 
@@ -496,7 +564,8 @@ namespace SpinWheelApp
         {
             Loop(_ring1, RotateTransform.AngleProperty, 0, 360, 14);
             Loop(_ring2, RotateTransform.AngleProperty, 360, 0, 9);
-            Loop(_arc, RotateTransform.AngleProperty, 0, 360, 4);
+            Loop(_ring3, RotateTransform.AngleProperty, 0, 360, 6);
+            Loop(_arc, RotateTransform.AngleProperty, 0, 360, 5);
             var pulse = new DoubleAnimation(1.0, 1.10, new Duration(TimeSpan.FromSeconds(0.95)))
             {
                 AutoReverse = true,
@@ -511,6 +580,7 @@ namespace SpinWheelApp
         {
             _ring1.BeginAnimation(RotateTransform.AngleProperty, null);
             _ring2.BeginAnimation(RotateTransform.AngleProperty, null);
+            _ring3.BeginAnimation(RotateTransform.AngleProperty, null);
             _arc.BeginAnimation(RotateTransform.AngleProperty, null);
             _haloScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
             _haloScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);

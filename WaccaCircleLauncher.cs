@@ -159,7 +159,7 @@ namespace SpinWheelApp
 
 
         private static MediaElement videoPlayer;
-        public static WaccaWheelMenuRaster wheel;
+        public static WaccaWheelMenu wheel;
         private static int currentWheelMode = -1;
         private int CurrentDifficultyIndex = 0;
         private static MediaElement bgm;
@@ -476,7 +476,7 @@ namespace SpinWheelApp
         private void InitWheelMenu()
         {
             if (wheel != null) return;
-            wheel = new WaccaWheelMenuRaster();
+            wheel = new WaccaWheelMenu();
             Panel.SetZIndex(wheel, 500);
             var grid = this.Content as Grid;
             grid.Children.Add(wheel);

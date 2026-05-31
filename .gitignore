@@ -396,7 +396,3 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-
-# Ripped Wacca wheel sprites (generate locally with extract_sprites.py)
-sprites/core.png
-sprites/ring.png

@@ -87,7 +87,6 @@
     <Compile Include="WaccaCircleLauncher.cs" />
     <Compile Include="WaccaTable.cs" />
     <Compile Include="WaccaWheelMenu.cs" />
-    <Compile Include="WaccaWheelMenuRaster.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -111,14 +110,6 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="sprites\core.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="sprites\ring.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainWindow.xaml">

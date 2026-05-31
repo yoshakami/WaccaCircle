@@ -159,7 +159,6 @@ namespace SpinWheelApp
 
 
         private static MediaElement videoPlayer;
-        public static WaccaWheelMenu wheel;
         private static int currentWheelMode = -1;
         private int CurrentDifficultyIndex = 0;
         private static MediaElement bgm;
@@ -472,16 +471,16 @@ namespace SpinWheelApp
             SaveConfig();
             InitWheelMenu();
         }
+        public static WaccaSpeedWheel wheel;
 
         private void InitWheelMenu()
         {
             if (wheel != null) return;
-            wheel = new WaccaWheelMenu();
-            Panel.SetZIndex(wheel, 500);
-            var grid = this.Content as Grid;
-            grid.Children.Add(wheel);
+            wheel = new WaccaSpeedWheel();
+            Panel.SetZIndex(wheel, 600);
+            (this.Content as Grid).Children.Add(wheel);   // a GRID, not a Canvas → fills + centres
 
-            wheel.Confirmed += (idx) => { ApplyWheelChoice(currentWheelMode, idx, wheel.SelectedItem); wheel.Hide(); };
+            wheel.Confirmed += idx => { ApplyWheelChoice(currentWheelMode, idx, wheel.SelectedItem); wheel.Hide(); };
             wheel.Cancelled += () => wheel.Hide();
             wheel.DefaultRequested += () => wheel.Step(DefaultIndexFor(currentWheelMode) - wheel.SelectedIndex);
         }

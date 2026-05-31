@@ -85,6 +85,7 @@
     <Compile Include="WaccaCircle.cs" />
     <Compile Include="WaccaBackground.cs" />
     <Compile Include="WaccaCircleLauncher.cs" />
+    <Compile Include="WaccaSpeedWheel.cs" />
     <Compile Include="WaccaTable.cs" />
     <Compile Include="WaccaWheelMenu.cs" />
   </ItemGroup>

@@ -471,18 +471,43 @@ namespace SpinWheelApp
             SaveConfig();
             InitWheelMenu();
         }
-        public static WaccaSpeedWheel wheel;
-
+        public static WaccaWedgeMenu wheel;
+        private static int currentMode = -1;
         private void InitWheelMenu()
         {
             if (wheel != null) return;
-            wheel = new WaccaSpeedWheel();
-            Panel.SetZIndex(wheel, 600);
-            (this.Content as Grid).Children.Add(wheel);   // a GRID, not a Canvas → fills + centres
+            wheel = new WaccaWedgeMenu();
+            Panel.SetZIndex(wheel, 999);                 // au-dessus de TOUT (le noir masque la roue de jeu)
+            (this.Content as Grid).Children.Add(wheel);  // un GRID, pas un Canvas → le noir remplit la fenêtre
 
-            wheel.Confirmed += idx => { ApplyWheelChoice(currentWheelMode, idx, wheel.SelectedItem); wheel.Hide(); };
+            wheel.Confirmed += idx =>
+            {
+                int realValue = WaccaMenuData.Apply(currentMode, idx);
+                ApplyArrowModeValue(currentMode, realValue);   // pousse vers volume/LAG_DELAY/animIndex...
+                wheel.Hide();
+            };
             wheel.Cancelled += () => wheel.Hide();
-            wheel.DefaultRequested += () => wheel.Step(DefaultIndexFor(currentWheelMode) - wheel.SelectedIndex);
+            wheel.DefaultRequested += () => { /* recharge la valeur par défaut du mode si tu veux */ };
+        }
+        public void OpenArrowMode(int arrowMode, int currentValue)
+        {
+            currentMode = arrowMode;
+            wheel.ConfigureFromSpec(WaccaMenuData.Build(arrowMode, currentValue));
+            wheel.Show();
+        }
+        private void ApplyArrowModeValue(int mode, int v)
+        {
+            switch (mode)
+            {
+                case 0: /* current = v; lance waccaCircleApps[v] */ break;
+                case 1: /* WaccaColorStorage.animIndex = (sbyte)v; WaccaTable.UpdateMyAnimBasedOnList(); */ break;
+                case 2: /* volume = (byte)v; lance ahk/VolSet.ahk avec v */ break;
+                case 3: /* LAG_DELAY = v; */ break;
+                case 4: /* brightness = v; */ break;
+                case 6: /* v==0 -> Enter.ahk, v==1 -> Escape.ahk */ break;
+                case 7: /* v==0 -> bouton vJoy 14, v==1 -> 15 */ break;
+                case 8: /* intervalSet = (sbyte)v; */ break;
+            }
         }
 
         public void OpenWheel(int mode)

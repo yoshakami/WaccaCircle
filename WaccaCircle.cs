@@ -1844,7 +1844,12 @@ namespace WaccaCircle
                                                 diff = angle - previous_angle;
                                                 if (Math.Abs(diff) > (Math.PI / 8) && Math.Abs(diff) < (Math.PI * 2 / 3))  // min is pi/8 and max is 2pi/3
                                                 {
-                                                    if (diff > 0)
+                                                    if (mainWindow.Dispatcher.Invoke(() => mainWindow.WheelIsOpen()))
+                                                    {
+                                                        int d = (diff > 0) ? -1 : +1;
+                                                        mainWindow.Dispatcher.Invoke(() => mainWindow.WheelStep(d));
+                                                    }
+                                                    else if (diff > 0)
                                                     {
                                                         mainWindow.Dispatcher.Invoke(() => mainWindow.RotateLeft());
                                                         Console.WriteLine("Rotate left");
@@ -1885,21 +1890,43 @@ namespace WaccaCircle
                                     button_pressed[i] = false;
                                     if (i == 7)
                                     {
-                                        mainWindow.Dispatcher.Invoke(() => mainWindow.RotateLeft());
-                                        Console.WriteLine("Rotate left");
+                                        if (mainWindow.Dispatcher.Invoke(() => mainWindow.WheelIsOpen()))
+                                            mainWindow.Dispatcher.Invoke(() => mainWindow.WheelStep(-1));
+                                        else
+                                        {
+                                            mainWindow.Dispatcher.Invoke(() => mainWindow.RotateLeft());
+                                            Console.WriteLine("Rotate left");
+                                        }
                                     }
                                     if (i == 6)
                                     {
-                                        mainWindow.Dispatcher.Invoke(() => mainWindow.Launch());
-                                        Console.WriteLine("Launch!!");
-                                        mainWindow.Dispatcher.Invoke(() => mainWindow.CloseTheApp());
-                                        return ParamStoredInRam.AppNumber[SpinWheelApp.MainWindow.current];
+                                        if (mainWindow.Dispatcher.Invoke(() => mainWindow.WheelIsOpen()))
+                                        {
+                                            mainWindow.Dispatcher.Invoke(() => mainWindow.WheelConfirm());
+                                        }
+                                        else
+                                        {
+                                            mainWindow.Dispatcher.Invoke(() => mainWindow.Launch());
+                                            Console.WriteLine("Launch!!");
+                                            mainWindow.Dispatcher.Invoke(() => mainWindow.CloseTheApp());
+                                            return ParamStoredInRam.AppNumber[SpinWheelApp.MainWindow.current];
+                                        }
                                     }
                                     if (i == 5)
                                     {
-                                        mainWindow.Dispatcher.Invoke(() => mainWindow.RotateRight());
-                                        Console.WriteLine("Rotate right");
+                                        if (mainWindow.Dispatcher.Invoke(() => mainWindow.WheelIsOpen()))
+                                            mainWindow.Dispatcher.Invoke(() => mainWindow.WheelStep(+1));
+                                        else
+                                        {
+                                            mainWindow.Dispatcher.Invoke(() => mainWindow.RotateRight());
+                                            Console.WriteLine("Rotate right");
+                                        }
                                     }
+                                    if (i == 12) mainWindow.Dispatcher.Invoke(() => mainWindow.OpenWheel(1));
+                                    if (i == 3) mainWindow.Dispatcher.Invoke(() => mainWindow.OpenWheel(2));
+                                    if (i == 9) mainWindow.Dispatcher.Invoke(() => mainWindow.OpenWheel(3));
+                                    if (i == 1) mainWindow.Dispatcher.Invoke(() => mainWindow.OpenWheel(4));
+                                    if (i == 4) mainWindow.Dispatcher.Invoke(() => mainWindow.OpenWheel(0));
                                 }
                                 button_pressed_on_loop[i] = false;
                             }

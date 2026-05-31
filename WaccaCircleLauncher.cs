@@ -158,7 +158,10 @@ namespace SpinWheelApp
         }
 
 
-        private static MediaElement videoPlayer;
+        public static WaccaBackground background;
+        public static WaccaWheelMenu wheel;
+        private static int currentWheelMode = -1;
+        private int CurrentDifficultyIndex = 0;
         private static MediaElement bgm;
         private Canvas myCanvas;
         private static int completeCurrent = 4;
@@ -188,7 +191,6 @@ namespace SpinWheelApp
             // Start video playback when the window is loaded
             this.Loaded += (s, e) =>
             {
-                videoPlayer.Play();
                 if (System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width > System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height)
                 {
                     InitializeWheel(-360);
@@ -269,26 +271,14 @@ namespace SpinWheelApp
             var mainGrid = new Grid();
             this.Content = mainGrid;
 
-            // Create and configure the MediaElement
-            videoPlayer = new MediaElement
+            background = new WaccaBackground
             {
                 Width = screenWidth,
                 Height = screenHeight,
-                LoadedBehavior = MediaState.Manual, // Control playback manually
-                UnloadedBehavior = MediaState.Close, // Release resources when not in use
-                Stretch = Stretch.Uniform, // Scale to fill the screen
-                Source = new Uri(Path.Combine(execPath, "background.mp4")), // Update with your video path
                 HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                IsHitTestVisible = false // Allow clicks to pass through
+                VerticalAlignment = VerticalAlignment.Center
             };
-            // Set video to loop
-            videoPlayer.MediaEnded += (s, e) =>
-            {
-                videoPlayer.Position = TimeSpan.Zero; // Restart the video
-                videoPlayer.Play();
-            };
-            mainGrid.Children.Add(videoPlayer);
+            mainGrid.Children.Add(background);
 
             // Add Canvas for images
             myCanvas = new Canvas
@@ -469,7 +459,84 @@ namespace SpinWheelApp
             RotateWheel(1); // Rotate clockwise
             prevent_execution = false;
             SaveConfig();
+            InitWheelMenu();
         }
+
+        private void InitWheelMenu()
+        {
+            if (wheel != null) return;
+            wheel = new WaccaWheelMenu
+            {
+                Width = screenWidth,
+                Height = screenHeight,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            Panel.SetZIndex(wheel, 500);
+            ((Grid)this.Content).Children.Add(wheel);
+
+            wheel.Confirmed += (idx) => { ApplyWheelChoice(currentWheelMode, idx, wheel.SelectedItem); wheel.Hide(); };
+            wheel.Cancelled += () => wheel.Hide();
+            wheel.DefaultRequested += () => wheel.Step(DefaultIndexFor(currentWheelMode) - wheel.SelectedIndex);
+        }
+
+        public void OpenWheel(int mode)
+        {
+            if (wheel == null) InitWheelMenu();
+            currentWheelMode = mode;
+            switch (mode)
+            {
+                case 0: // back
+                    if (wheel.IsOpen) wheel.Hide();
+                    return;
+
+                case 1: // left category
+                    wheel.Configure("catégorie", "choisissez une catégorie",
+                        new[] { "Toutes", "Pop", "Anime", "Vocaloid", "Touhou", "Variety", "Favoris" },
+                        0);
+                    break;
+
+                case 2: // + difficulty
+                case 3: // - difficulty
+                    wheel.Configure("difficulté", "réglage de la difficulté",
+                        new[] { "NORMAL", "HARD", "EXPERT", "INFERNO" },
+                        CurrentDifficultyIndex);
+                    wheel.Step(mode == 2 ? +1 : -1);
+                    break;
+
+                case 4: // favourite / sort
+                    wheel.Configure("tri & favoris", "trier la liste",
+                        new[] { "Favori (on/off)", "Titre", "Niveau", "BPM", "Récent" },
+                        0);
+                    break;
+
+                default:
+                    return;
+            }
+            wheel.Show();
+        }
+
+        public void WheelStep(int dir) { if (wheel != null && wheel.IsOpen) wheel.Step(dir); }
+        public void WheelConfirm() { if (wheel != null && wheel.IsOpen) wheel.RaiseConfirmed(); }
+        public void WheelCancel() { if (wheel != null && wheel.IsOpen) wheel.Hide(); }
+        public bool WheelIsOpen() { return wheel != null && wheel.IsOpen; }
+
+        private int DefaultIndexFor(int mode) { return 0; }
+
+        private void ApplyWheelChoice(int mode, int index, string item)
+        {
+            switch (mode)
+            {
+                case 1: /* TODO: switch category to `item`, rebuild the game wheel */ break;
+                case 2:
+                case 3:
+                    CurrentDifficultyIndex = index;
+                    /* TODO: re-tag jackets with this difficulty */
+                    break;
+                case 4: /* TODO: index 0 = toggle favourite, else apply sort `item` */ break;
+            }
+        }
+
         private void InitializeText(ref TextBlock text, ref SolidColorBrush brush, string value, int left, int top, int width, int height, byte fontsize)
         {
             // Create a TextBlock
@@ -740,27 +807,33 @@ namespace SpinWheelApp
             Application.Current.Shutdown();
         }
 
-        bool ispaused = false;
         protected override void OnKeyDown(System.Windows.Input.KeyEventArgs e)
         {
-            // Example: Rotate left and right using arrow keys
             if (e.Key == System.Windows.Input.Key.Left)
             {
-                RotateLeft();
+                if (WheelIsOpen()) WheelStep(-1);
+                else RotateLeft();
             }
             else if (e.Key == System.Windows.Input.Key.Right)
             {
-                RotateRight();
+                if (WheelIsOpen()) WheelStep(+1);
+                else RotateRight();
             }
             else if (e.Key == System.Windows.Input.Key.Enter)
             {
-                Launch();
+                if (WheelIsOpen()) WheelConfirm();
+                else Launch();
             }
-            else if (e.Key == System.Windows.Input.Key.Escape) // Close the window with Escape
+            else if (e.Key == System.Windows.Input.Key.Escape)
             {
-                CloseTheApp();
+                if (WheelIsOpen()) WheelCancel();
+                else CloseTheApp();
             }
-            else if (e.Key == System.Windows.Input.Key.F) // FIX the wheel being absolutely crazy
+            else if (e.Key >= System.Windows.Input.Key.NumPad0 && e.Key <= System.Windows.Input.Key.NumPad5)
+            {
+                OpenWheel(e.Key - System.Windows.Input.Key.NumPad0);
+            }
+            else if (e.Key == System.Windows.Input.Key.F)
             {
                 if (rescue_mode_f_pressed)
                 { return; }
@@ -770,20 +843,6 @@ namespace SpinWheelApp
             }
             else if (e.Key == System.Windows.Input.Key.RightShift)
                 InitializeWheel(0);
-            // Optional: Add keyboard controls for the video
-            if (e.Key == System.Windows.Input.Key.Space) // Pause/Play with Space
-            {
-                if (ispaused)
-                {
-                    videoPlayer.Play();
-                    ispaused = false;
-                }
-                else
-                {
-                    videoPlayer.Pause();
-                    ispaused = true;
-                }
-            }
         }
     }
 }
